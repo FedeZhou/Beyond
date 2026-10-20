@@ -1,0 +1,1398 @@
+/* ==========================================================================
+   BEYOND — styles.css
+   --------------------------------------------------------------------------
+   Contents
+     1.  Design tokens (colors, fonts, spacing)   <- change the look here
+     2.  Base and typography
+     3.  Layout helpers
+     4.  Buttons and links
+     5.  Header and navigation
+     6.  Footer
+     7.  Home page
+     8.  Inner page hero
+     9.  About page
+     10. Join pages and forms
+     11. Accessibility and utilities
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Design tokens
+   ========================================================================== */
+:root {
+  /* Colors */
+  --navy:          #051C2C;  /* header text, footer, hero, headings */
+  --blue:          #2251FF;  /* the one accent: links, buttons, rules */
+  --blue-dark:     #1A3FCC;  /* button hover */
+  --cyan:          #00A9F4;  /* small details on navy backgrounds only */
+  --white:         #FFFFFF;
+  --grey-050:      #F5F6F7;  /* alternate section background */
+  --grey-200:      #E0E3E7;  /* hairlines and borders */
+  --grey-400:      #8A93A0;  /* form field borders */
+  --grey-500:      #5A6270;  /* secondary text */
+  --grey-700:      #2B3340;  /* long-form body text */
+  --ink:           #0B0F14;  /* main text */
+  --on-navy:       #A9B4C2;  /* secondary text on navy */
+  --on-navy-line:  rgba(255, 255, 255, 0.16);
+  --error:         #B42318;
+
+  /* Fonts */
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Spacing and layout */
+  --container: 1200px;
+  --gutter:    clamp(20px, 5vw, 48px);
+  --section:   clamp(4.5rem, 10vw, 8rem);
+  --header-h:  72px;
+}
+
+
+/* ==========================================================================
+   2. Base and typography
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.125rem;      /* 18px */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* No blinking text cursor when clicking on normal text (browser "caret browsing") */
+  caret-color: transparent;
+}
+
+/* ...but keep it in the form fields, where people type */
+input,
+textarea,
+select,
+[contenteditable] {
+  caret-color: auto;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+}
+
+p {
+  margin: 0 0 1.25em;
+}
+
+a {
+  color: var(--blue);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--blue-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* On dark backgrounds, focus rings are white */
+.hero :focus-visible,
+.page-hero :focus-visible,
+.site-footer :focus-visible,
+.cta--navy :focus-visible {
+  outline-color: var(--white);
+}
+
+/* Small uppercase label, e.g. "01 — Our story" */
+.eyebrow {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+
+.eyebrow-num {
+  margin-right: 0.6em;
+  color: var(--blue);
+}
+
+.eyebrow--blue  { color: var(--blue); }
+.eyebrow--light { color: var(--on-navy); }
+.eyebrow--light .eyebrow-num { color: var(--cyan); }
+
+.lead {
+  font-size: clamp(1.125rem, 1.6vw, 1.3125rem);
+  line-height: 1.6;
+  color: var(--grey-700);
+}
+
+
+/* ==========================================================================
+   3. Layout helpers
+   ========================================================================== */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section);
+}
+
+.section--grey {
+  background: var(--grey-050);
+}
+
+/* Section heading: label on the left, title and text on the right (desktop) */
+.section-head {
+  display: grid;
+  gap: 0.5rem 2rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--grey-200);
+}
+
+.section-title {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  font-weight: 300;
+  max-width: 22ch;
+}
+
+.section-head .lead:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 900px) {
+  .section-head {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .section-head > .eyebrow {
+    grid-column: 1 / span 4;
+  }
+  .section-head > .section-head-body {
+    grid-column: 5 / -1;
+  }
+}
+
+
+/* ==========================================================================
+   4. Buttons and links
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.6rem;
+  border: 1px solid transparent;
+  border-radius: 0;
+  font: 600 0.8125rem/1 var(--font-sans);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Fine drawn arrow (a line with a small chevron) that lengthens on hover */
+.btn-arrow {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.25s ease;
+}
+.btn-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+.btn:hover .btn-arrow,
+.btn:focus-visible .btn-arrow {
+  width: 26px;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background: var(--blue-dark);
+  color: var(--white);
+}
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* Text-only action with a fine underline, for dark backgrounds (Home hero) */
+.btn-text-light {
+  padding-inline: 0;
+  background: none;
+  color: var(--white);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+}
+.btn-text-light:hover {
+  color: var(--white);
+  box-shadow: inset 0 -1px 0 var(--white);
+}
+
+/* Outlined, for dark backgrounds */
+.btn-ghost-light {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: var(--white);
+}
+.btn-ghost-light:hover {
+  border-color: var(--white);
+  background: var(--white);
+  color: var(--navy);
+}
+
+/* Outlined, for light backgrounds */
+.btn-outline {
+  border-color: var(--navy);
+  background: transparent;
+  color: var(--navy);
+}
+.btn-outline:hover {
+  background: var(--navy);
+  color: var(--white);
+}
+
+/* Text link with an arrow: "Visit →" */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--blue);
+}
+.link-arrow:hover {
+  text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   5. Header and navigation
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
+  border-bottom: 1px solid var(--grey-200);
+}
+
+.header-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--header-h);
+}
+
+.wordmark {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--navy);
+  text-decoration: none;
+}
+.wordmark:hover {
+  color: var(--navy);
+}
+
+/* Menu button (mobile only) */
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--grey-200);
+  border-radius: 0;
+  background: none;
+  color: var(--navy);
+  font: 600 0.9375rem/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.nav-toggle-bars {
+  position: relative;
+}
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+.nav-toggle-bars::before { top: -6px; }
+.nav-toggle-bars::after  { top: 6px; }
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars {
+  background: transparent;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::before {
+  transform: translateY(6px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::after {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile menu panel */
+.site-nav {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: 0.5rem var(--gutter) 1.5rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--grey-200);
+}
+.site-nav.is-open {
+  display: block;
+}
+
+.site-nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav a {
+  display: block;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--grey-200);
+  color: var(--navy);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.site-nav a[aria-current="page"] {
+  color: var(--blue);
+}
+
+.lang-switch {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem !important;
+}
+.lang-switch a {
+  border: 0;
+  padding: 0.25rem 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--grey-500);
+}
+.lang-switch a[aria-current="true"] {
+  color: var(--navy);
+}
+
+/* Desktop navigation */
+@media (min-width: 900px) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .site-nav {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .site-nav ul {
+    display: flex;
+    gap: 2.25rem;
+  }
+
+  .site-nav a {
+    position: relative;
+    padding: 1.6rem 0;
+    border: 0;
+    font-size: 0.9375rem;
+  }
+
+  .site-nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: transparent;
+    transition: background-color 0.15s ease;
+  }
+  .site-nav a:hover::after {
+    background: var(--grey-200);
+  }
+  .site-nav a[aria-current="page"] {
+    color: var(--navy);
+  }
+  .site-nav a[aria-current="page"]::after {
+    background: var(--blue);
+  }
+
+  .lang-switch {
+    margin-top: 0 !important;
+    padding-left: 2rem !important;
+    border-left: 1px solid var(--grey-200);
+  }
+}
+
+/* Fallback menu shown only when JavaScript is off */
+.noscript-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  padding-block: 1.25rem;
+}
+.noscript-nav a {
+  color: var(--navy);
+}
+
+
+/* ==========================================================================
+   6. Footer (two compact rows)
+   ========================================================================== */
+.site-footer {
+  padding-block: 1.5rem;
+  background: var(--navy);
+  color: var(--on-navy);
+  font-size: 0.8125rem;
+}
+
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2.5rem;
+}
+
+.footer-row--bottom {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.75rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.footer-wordmark {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--white);
+}
+
+.footer-tagline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-navy);
+}
+
+.site-footer a {
+  color: var(--white);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.site-footer a:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.footer-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-icon {
+  flex: none;
+}
+
+.footer-copy {
+  margin: 0;
+}
+
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-legal a {
+  color: var(--on-navy);
+}
+
+
+/* ==========================================================================
+   7. Home page
+   ========================================================================== */
+
+/* --- Hero --- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: min(86vh, 760px);
+  padding-block: clamp(4.5rem, 10vw, 7rem);
+  background: var(--navy);
+  color: var(--white);
+}
+
+/* The 3D globe canvas fills the hero, behind the text */
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative; /* sits above the canvas */
+  z-index: 1;
+}
+
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(4.5rem, 14vw, 9.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--white);
+}
+
+.hero-subtitle {
+  /* sits just below the tail of the "y" in Beyond, whatever the screen size */
+  margin: calc(clamp(4.5rem, 14vw, 9.5rem) * 0.17) 0 2.5rem;
+  font-size: clamp(0.8125rem, 1.3vw, 0.9375rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-navy);
+}
+
+.hero-line {
+  max-width: 30ch;
+  margin: 0 0 2.5rem;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--cyan);
+  font-family: var(--font-serif);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.25;
+  color: var(--white);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2.25rem;
+}
+
+/* --- Story abstract --- */
+.abstract p {
+  max-width: 62ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--grey-700);
+}
+.abstract .btn {
+  margin-top: 1rem;
+}
+
+/* --- Mentor carousel (one row, sliding continuously) --- */
+.carousel-viewport {
+  overflow: hidden;
+  padding-block: 0.25rem;
+  /* soft fade at the left and right edges */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
+.mentor-track {
+  display: flex;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: mentor-marquee var(--marquee-duration, 36s) linear infinite;
+}
+
+/* The track holds the cards twice; moving it by half loops seamlessly */
+@keyframes mentor-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Pauses while the mouse is over the row, or a finger is held on it */
+.carousel-viewport:hover .mentor-track,
+.carousel-viewport:active .mentor-track {
+  animation-play-state: paused;
+}
+
+.mentor-card {
+  flex: none;
+  width: 300px;
+  margin-right: 1.25rem;
+  background: var(--white);
+  border: 1px solid var(--grey-200);
+  border-top: 3px solid var(--navy);
+  transition: border-color 0.15s ease;
+}
+.mentor-card:hover {
+  border-top-color: var(--blue);
+}
+
+.mentor-photo {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--grey-200);
+}
+.mentor-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 25%;
+}
+
+.mentor-body {
+  padding: 0.9rem 1.25rem 1.1rem;
+}
+
+.mentor-facts {
+  margin: 0.75rem 0 0;
+}
+
+.mentor-fact + .mentor-fact {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--grey-200);
+}
+
+.mentor-fact dt {
+  margin-bottom: 0.2rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+
+.mentor-fact dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+/* Current role and location, at the top of the card */
+.mentor-role {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  color: var(--navy);
+}
+
+.mentor-location {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--grey-500);
+}
+
+.carousel-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.many-others {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--grey-500);
+}
+
+/* Smaller heading and intro (Home: story and mentors sections) */
+.section--small-text .section-title {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.625rem, 2.8vw, 2.25rem);
+}
+.section--small-text .lead {
+  font-size: 1.0625rem;
+}
+.section--small-text .many-others {
+  font-size: 1.0625rem;
+}
+
+/* Reduced motion: no sliding, the row can be scrolled by hand instead */
+@media (prefers-reduced-motion: reduce) {
+  .mentor-track {
+    animation: none;
+  }
+  .carousel-viewport {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding-inline: var(--gutter);
+  }
+  .mentor-card[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* --- Call-to-action blocks (Home and About) --- */
+.cta-grid {
+  display: grid;
+}
+
+@media (min-width: 768px) {
+  .cta-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(2.25rem, 5vw, 4rem);
+}
+
+.cta--navy {
+  background: var(--navy);
+  color: var(--on-navy);
+}
+.cta--navy .cta-title { color: var(--white); }
+
+.cta--light {
+  background: var(--grey-050);
+  color: var(--grey-700);
+}
+
+.cta--white {
+  background: var(--white);
+  color: var(--grey-700);
+}
+
+.cta-title {
+  margin-bottom: 1rem;
+  font-size: clamp(2rem, 3.6vw, 2.75rem);
+  font-weight: 300;
+}
+
+.cta p:not(.eyebrow) {
+  max-width: 38ch;
+  margin-bottom: 2.25rem;
+}
+
+.cta .btn {
+  margin-top: auto;
+}
+
+
+/* ==========================================================================
+   8. Inner page hero (About, Become a mentor, Become a mentee)
+   ========================================================================== */
+.page-hero {
+  padding-block: clamp(4rem, 9vw, 7rem) clamp(3.5rem, 7vw, 5.5rem);
+  background: var(--navy);
+  color: var(--white);
+}
+
+.page-title {
+  max-width: 16ch;
+  margin-bottom: 1.5rem;
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+
+.page-hero .lead {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--on-navy);
+}
+
+
+/* ==========================================================================
+   9. About page
+   ========================================================================== */
+
+/* --- Tighter rhythm for shared components on this page only --- */
+[data-page="about"] .page-hero {
+  padding-block: clamp(2.75rem, 6vw, 4.5rem) clamp(2.25rem, 5vw, 3.5rem);
+}
+[data-page="about"] .page-hero .lead {
+  max-width: none;
+}
+[data-page="about"] .page-title {
+  margin-bottom: 1rem;
+  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+}
+[data-page="about"] .section {
+  padding-block: clamp(3rem, 6vw, 4.75rem);
+}
+[data-page="about"] .section-head {
+  display: block;
+  margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+[data-page="about"] .section-title {
+  max-width: none;
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.875rem, 3.4vw, 2.625rem);
+}
+[data-page="about"] .cta {
+  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+[data-page="about"] .cta-title {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+[data-page="about"] .cta p:not(.eyebrow) {
+  max-width: none;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Story: a single column across the full width --- */
+.story-block {
+  padding-block: 1.75rem;
+  border-top: 1px solid var(--grey-200);
+}
+.story-block:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.story-block h3 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.375rem, 2vw, 1.625rem);
+  font-weight: 400;
+}
+
+.story-text p {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--grey-700);
+}
+.story-text p:last-child {
+  margin-bottom: 0;
+}
+
+.pull-quote {
+  margin: 1.25rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--blue);
+  border-bottom: 1px solid var(--blue);
+}
+.pull-quote p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.6vw, 2rem) !important;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.2 !important;
+  color: var(--navy) !important;
+}
+
+.story-closing {
+  margin-top: 1.25rem !important;
+  padding-left: 1rem;
+  border-left: 2px solid var(--blue);
+  font-family: var(--font-serif);
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem) !important;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.25 !important;
+  color: var(--navy) !important;
+}
+
+/* --- Founders: small portrait beside the bio --- */
+.founders {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .founders {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 4rem;
+  }
+}
+
+.founder {
+  display: grid;
+  grid-template-columns: minmax(96px, 160px) 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 479px) {
+  .founder {
+    grid-template-columns: 1fr;
+  }
+  .founder-photo {
+    max-width: 160px;
+  }
+}
+
+.founder-photo {
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  overflow: hidden;
+  background: var(--grey-200);
+}
+.founder-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.founder-name {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+  font-weight: 400;
+}
+
+.founder-bio p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--grey-700);
+}
+
+.founder-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- Other projects --- */
+.project-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .project-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 900px) {
+  .project-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--grey-200);
+  border-top: 3px solid var(--navy);
+}
+
+.project-image {
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  overflow: hidden;
+  background: var(--grey-200);
+}
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.project h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.project p:not(.eyebrow) {
+  font-size: 1rem;
+  color: var(--grey-700);
+}
+
+.project .link-arrow {
+  margin-top: auto;
+}
+
+
+/* ==========================================================================
+   10. Join pages and forms
+   ========================================================================== */
+.join-grid {
+  display: grid;
+  gap: 4rem;
+}
+
+@media (min-width: 960px) {
+  .join-grid {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2rem;
+  }
+  .join-intro {
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    align-self: start;
+  }
+  .join-form {
+    grid-column: 7 / -1;
+  }
+}
+
+.join-intro h2,
+.join-form h2 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.875rem, 3.4vw, 2.5rem);
+  font-weight: 300;
+}
+
+.join-intro h3 {
+  margin: 2.5rem 0 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+
+.join-intro p {
+  color: var(--grey-700);
+  line-height: 1.7;
+}
+
+/* List with small blue square markers */
+.check-list {
+  margin: 0 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+.check-list li {
+  position: relative;
+  padding: 0.85rem 0 0.85rem 1.75rem;
+  border-top: 1px solid var(--grey-200);
+  color: var(--grey-700);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.check-list li:last-child {
+  border-bottom: 1px solid var(--grey-200);
+}
+.check-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.4rem;
+  width: 7px;
+  height: 7px;
+  background: var(--blue);
+}
+
+.next-steps {
+  padding: 1.5rem 1.75rem;
+  background: var(--grey-050);
+  border-left: 3px solid var(--blue);
+}
+.next-steps p {
+  margin: 0;
+  font-size: 1rem;
+}
+.next-steps strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--navy);
+}
+
+/* --- Form --- */
+.form-card {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--grey-200);
+  border-top: 3px solid var(--navy);
+}
+
+.form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .form-row--2 { grid-template-columns: 1fr 1fr; }
+}
+
+.form-required-note {
+  margin: -0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--grey-500);
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--grey-500);
+}
+
+.input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--grey-400);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s ease;
+}
+.input:hover {
+  border-color: var(--navy);
+}
+.input:focus,
+.input:focus-visible {
+  border-color: var(--blue);
+  outline: 2px solid var(--blue);
+  outline-offset: -1px;
+}
+.input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+textarea.input {
+  min-height: 9rem;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+select.input {
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23051C2C' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  cursor: pointer;
+}
+
+.field-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--error);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.checkbox input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0.15rem 0 0;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.checkbox label {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--grey-700);
+}
+
+.form-actions {
+  margin-top: 0.5rem;
+}
+
+.form-demo-note {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--grey-400);
+  font-size: 0.875rem;
+  color: var(--grey-700);
+}
+
+.form-status {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: #FDF3F2;
+  border-left: 3px solid var(--error);
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+/* Thank-you panel, shown after a successful submission */
+.form-thanks:focus {
+  outline: none;
+}
+.form-thanks h2 {
+  margin-bottom: 1rem;
+}
+.form-thanks p:not(.eyebrow) {
+  color: var(--grey-700);
+}
+
+
+/* ==========================================================================
+   11. Accessibility and utilities
+   ========================================================================== */
+
+/* Anything with the "hidden" attribute stays hidden, whatever its other styles */
+[hidden] {
+  display: none !important;
+}
+
+/* Visible only to screen readers */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* "Skip to content" link: appears when reached with the keyboard */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 0.85rem 1.25rem;
+  background: var(--navy);
+  color: var(--white);
+  font-weight: 600;
+  transform: translateY(-120%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+  color: var(--white);
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Spam trap field: hidden from people, visible to bots */
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Respect people who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

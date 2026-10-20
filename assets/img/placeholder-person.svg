@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <!-- Neutral placeholder portrait. Replace with a real photo (see js/content.js). -->
+  <rect width="400" height="500" fill="#E9ECEF"/>
+  <circle cx="200" cy="200" r="74" fill="#C8CED6"/>
+  <path d="M60 500c0-96 63-168 140-168s140 72 140 168z" fill="#C8CED6"/>
+</svg>

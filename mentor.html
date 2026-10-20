@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Become a mentor | Beyond</title>
+  <meta name="description" content="Share your path with Italian-Chinese students who are aiming high. Apply to become a mentor at Beyond.">
+  <meta property="og:title" content="Become a mentor | Beyond">
+  <meta property="og:description" content="Be the role model you never had. Apply to become a mentor at Beyond.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+
+<body data-page="mentor">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Become a mentor</p>
+        <h1 id="page-title" class="page-title">Be the role model you never had.</h1>
+        <p class="lead">You are a researcher or a professional who made it into a challenging field. Share your path with Italian-Chinese students who are aiming high, and show them they belong there too.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container join-grid">
+
+        <!-- ===================================================================
+             01 — WHY MENTORING MATTERS
+             =================================================================== -->
+        <div class="join-intro">
+          <p class="eyebrow"><span class="eyebrow-num">01</span>Why mentoring matters</p>
+          <h2>One conversation can change a path.</h2>
+
+          <!-- EDIT: INTRO TEXT -->
+          <p>Many of us grew up without ever meeting someone from our own background who had become an engineer, a doctor, a physicist or a researcher. The talent was there; the examples were not. You can be that example.</p>
+          <p>As a mentor, you share what you wish someone had told you: how you chose your university, how you found scholarships and internships, what the first years really looked like. You don&rsquo;t need to have it all figured out. You only need to be honest about how you got where you are.</p>
+
+          <h3>Who we are looking for</h3>
+          <ul class="check-list">
+            <li>Researchers in science, engineering, medicine or any academic field, from PhD candidates to professors</li>
+            <li>Professionals in engineering, technology, medicine, finance and beyond, at any career stage, in Italy or abroad</li>
+            <li>People who remember what it felt like to be the first</li>
+          </ul>
+
+          <div class="next-steps">
+            <p><strong>What happens next</strong>We read every application personally. We will get in touch by email to get to know you, and then introduce you to a mentee whose interests match your path.</p>
+          </div>
+          <!-- END INTRO TEXT -->
+        </div>
+
+        <!-- ===================================================================
+             02 — APPLICATION FORM
+             Where it is sent: "forms.mentor" in js/content.js
+             =================================================================== -->
+        <div class="join-form">
+          <p class="eyebrow"><span class="eyebrow-num">02</span>Apply</p>
+          <h2 id="form-title">Mentor application</h2>
+
+          <div class="form-card">
+            <form class="form" data-form="mentor" data-thanks="mentor-thanks" method="POST" aria-labelledby="form-title">
+              <p class="form-required-note">All fields are required.</p>
+              <p class="form-demo-note" hidden></p>
+
+              <!-- Subject line of the email you receive -->
+              <input type="hidden" name="_subject" value="New mentor application: Beyond">
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="name">Full name</label>
+                  <input class="input" id="name" name="name" type="text" autocomplete="name" required aria-describedby="name-error">
+                  <p class="field-error" id="name-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input class="input" id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error">
+                  <p class="field-error" id="email-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="field">Field</label>
+                  <select class="input" id="field" name="field" required aria-describedby="field-error" data-other-target="field-other-wrap">
+                    <option value="">Choose your field</option>
+                    <option>Engineering</option>
+                    <option>Mathematics</option>
+                    <option>Physics</option>
+                    <option>Computer Science</option>
+                    <option>Medicine</option>
+                    <option>Research</option>
+                    <option>Finance</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <p class="field-error" id="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="workplace">University or workplace</label>
+                  <input class="input" id="workplace" name="university_or_workplace" type="text" autocomplete="organization" required aria-describedby="workplace-error">
+                  <p class="field-error" id="workplace-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="field" id="field-other-wrap" hidden>
+                <label for="field-other">Please specify your field</label>
+                <input class="input" id="field-other" name="field_other" type="text" aria-describedby="field-other-error">
+                <p class="field-error" id="field-other-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <label for="city">Current city</label>
+                <input class="input" id="city" name="city" type="text" autocomplete="address-level2" required aria-describedby="city-error">
+                <p class="field-error" id="city-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <label for="motivation">
+                  Why do you want to mentor?
+                  <span class="field-hint" id="motivation-hint">A few lines are enough.</span>
+                </label>
+                <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" required aria-describedby="motivation-hint motivation-error"></textarea>
+                <p class="field-error" id="motivation-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
+                  <label for="consent">I agree that Beyond may store my answers to process my application and contact me about it.</label>
+                </div>
+                <p class="field-error" id="consent-error" hidden></p>
+              </div>
+
+              <!-- Spam trap: leave this alone. Real people never see it. -->
+              <div class="hp" aria-hidden="true">
+                <label for="website">Leave this field empty</label>
+                <input id="website" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+              </div>
+
+              <p class="form-status" role="alert" hidden></p>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Send application</button>
+              </div>
+            </form>
+
+            <!-- EDIT: THANK-YOU MESSAGE (shown after sending) -->
+            <div class="form-thanks" id="mentor-thanks" tabindex="-1" role="status" hidden>
+              <p class="eyebrow eyebrow--blue">Application received</p>
+              <h2>Thank you for stepping up.</h2>
+              <p>We have received your application and will be in touch by email soon. Thank you for wanting to open doors for the next generation.</p>
+              <a class="link-arrow" href="index.html">Back to home <span aria-hidden="true">&rarr;</span></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

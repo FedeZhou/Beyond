@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Become a mentee | Beyond</title>
+  <meta name="description" content="For Italian-Chinese students who want to aim high in engineering, science, medicine, research or finance. Apply to be matched with a mentor at Beyond.">
+  <meta property="og:title" content="Become a mentee | Beyond">
+  <meta property="og:description" content="You belong in these fields too. Apply to be matched with a mentor at Beyond.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+
+<body data-page="mentee">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Become a mentee</p>
+        <h1 id="page-title" class="page-title">You belong in these fields too.</h1>
+        <p class="lead">For Italian-Chinese students who want to aim higher, and want someone who has done it to show them how.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container join-grid">
+
+        <!-- ===================================================================
+             01 — WHO IT'S FOR
+             =================================================================== -->
+        <div class="join-intro">
+          <p class="eyebrow"><span class="eyebrow-num">01</span>Who it&rsquo;s for</p>
+          <h2>For students ready to go further.</h2>
+
+          <!-- EDIT: INTRO TEXT -->
+          <p>Beyond is for Italian-Chinese students, in high school or at university, who are drawn to engineering, mathematics, physics, medicine, research, finance or any other challenging path. Maybe no one in your family has taken this road before. That is exactly why we are here.</p>
+
+          <h3>What you get</h3>
+          <ul class="check-list">
+            <li>A mentor from a similar background who has already walked the path you are considering</li>
+            <li>Honest advice on choosing a university, finding scholarships and preparing applications</li>
+            <li>Opportunities, programmes and people you might not otherwise hear about</li>
+            <li>A community of peers who are aiming as high as you are</li>
+          </ul>
+
+          <div class="next-steps">
+            <p><strong>What happens next</strong>We read every application personally. We will get to know you a little better by email, and then match you with a mentor whose path fits your goals.</p>
+          </div>
+          <!-- END INTRO TEXT -->
+        </div>
+
+        <!-- ===================================================================
+             02 — APPLICATION FORM
+             Where it is sent: "forms.mentee" in js/content.js
+             =================================================================== -->
+        <div class="join-form">
+          <p class="eyebrow"><span class="eyebrow-num">02</span>Apply</p>
+          <h2 id="form-title">Mentee application</h2>
+
+          <div class="form-card">
+            <form class="form" data-form="mentee" data-thanks="mentee-thanks" method="POST" aria-labelledby="form-title">
+              <p class="form-required-note">All fields are required.</p>
+              <p class="form-demo-note" hidden></p>
+
+              <!-- Subject line of the email you receive -->
+              <input type="hidden" name="_subject" value="New mentee application: Beyond">
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="name">Full name</label>
+                  <input class="input" id="name" name="name" type="text" autocomplete="name" required aria-describedby="name-error">
+                  <p class="field-error" id="name-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input class="input" id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error">
+                  <p class="field-error" id="email-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="school">
+                  School or university
+                  <span class="field-hint" id="school-hint">For example: Liceo Scientifico in Prato, or Università di Bologna.</span>
+                </label>
+                <input class="input" id="school" name="school_or_university" type="text" autocomplete="organization" required aria-describedby="school-hint school-error">
+                <p class="field-error" id="school-error" hidden></p>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="field">Field of interest</label>
+                  <select class="input" id="field" name="field_of_interest" required aria-describedby="field-error" data-other-target="field-other-wrap">
+                    <option value="">Choose a field</option>
+                    <option>Engineering</option>
+                    <option>Mathematics</option>
+                    <option>Physics</option>
+                    <option>Computer Science</option>
+                    <option>Medicine</option>
+                    <option>Research</option>
+                    <option>Finance</option>
+                    <option value="Other">Other / not sure yet</option>
+                  </select>
+                  <p class="field-error" id="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="city">City</label>
+                  <input class="input" id="city" name="city" type="text" autocomplete="address-level2" required aria-describedby="city-error">
+                  <p class="field-error" id="city-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="field" id="field-other-wrap" hidden>
+                <label for="field-other">Tell us a bit more about your interests</label>
+                <input class="input" id="field-other" name="field_other" type="text" aria-describedby="field-other-error">
+                <p class="field-error" id="field-other-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <label for="hopes">
+                  What do you hope to get from a mentor?
+                  <span class="field-hint" id="hopes-hint">Your goals, doubts or questions. A few lines are enough.</span>
+                </label>
+                <textarea class="input" id="hopes" name="hopes" rows="5" minlength="30" required aria-describedby="hopes-hint hopes-error"></textarea>
+                <p class="field-error" id="hopes-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
+                  <label for="consent">I agree that Beyond may store my answers to process my application and contact me about it.</label>
+                </div>
+                <p class="field-error" id="consent-error" hidden></p>
+              </div>
+
+              <!-- Spam trap: leave this alone. Real people never see it. -->
+              <div class="hp" aria-hidden="true">
+                <label for="website">Leave this field empty</label>
+                <input id="website" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+              </div>
+
+              <p class="form-status" role="alert" hidden></p>
+
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Send application</button>
+              </div>
+            </form>
+
+            <!-- EDIT: THANK-YOU MESSAGE (shown after sending) -->
+            <div class="form-thanks" id="mentee-thanks" tabindex="-1" role="status" hidden>
+              <p class="eyebrow eyebrow--blue">Application received</p>
+              <h2>Thank you. We are glad you are here.</h2>
+              <p>We have received your application and will get back to you by email soon. In the meantime, keep aiming high: you belong there.</p>
+              <a class="link-arrow" href="index.html">Back to home <span aria-hidden="true">&rarr;</span></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

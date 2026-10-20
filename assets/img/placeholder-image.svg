@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <!-- Neutral placeholder image. Replace with a real image (see js/content.js). -->
+  <rect width="800" height="450" fill="#E9ECEF"/>
+  <circle cx="300" cy="170" r="34" fill="#C8CED6"/>
+  <path d="M220 320l120-110 70 64 60-44 110 90z" fill="#C8CED6"/>
+</svg>

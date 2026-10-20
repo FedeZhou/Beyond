@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beyond | Italian-Chinese Mentorship Community</title>
+  <meta name="description" content="Beyond connects talented Italian-Chinese students with mentors from the same background in engineering, science, medicine, research and finance. If they did it, I can do it too.">
+  <meta property="og:title" content="Beyond | Italian-Chinese Mentorship Community">
+  <meta property="og:description" content="If they did it, I can do it too. A mentorship community for Italian-Chinese students aiming high.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- content.js holds all editable content; main.js builds the page from it -->
+  <script src="js/content.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/hero-particles.js" defer></script>
+</head>
+
+<body data-page="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Shared header: filled in automatically by js/main.js -->
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         HERO
+         ===================================================================== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <!-- 3D particle animation, drawn by js/hero-particles.js (decorative) -->
+      <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+
+      <div class="container hero-content">
+        <h1 id="hero-title" class="hero-title">Beyond</h1>
+        <p class="hero-subtitle">Italian-Chinese Mentorship Community</p>
+        <p class="hero-line">&ldquo;If they did it, I can do it too.&rdquo;</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="mentee.html">Become a mentee <span class="btn-arrow" aria-hidden="true"></span></a>
+          <a class="btn btn-text-light" href="mentor.html">Become a mentor <span class="btn-arrow" aria-hidden="true"></span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         01 — OUR STORY (short version)
+         ===================================================================== -->
+    <section class="section section--small-text" aria-labelledby="story-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">01</span>Our story</p>
+          <div class="section-head-body abstract">
+            <h2 id="story-title" class="section-title">Built on our parents&rsquo; courage. Made to go further.</h2>
+
+            <!-- EDIT: STORY TEXT (short version) -->
+            <p>In the late 1980s and early 2000s, our parents left everything behind to come to Italy, and built a future for us through relentless hard work as waiters, cooks and tailors, and later as owners of shops, bars and restaurants.</p>
+            <p>Because survival came first, our community grew up with a narrow idea of what a career could be, and with almost no role models outside the family business. Even today, Italian-Chinese students are rarely seen in engineering, mathematics, physics, medicine or research.</p>
+            <p>Beyond exists to change that. We connect young talents with mentors from the same background who have already walked those paths, so that every student can look at them and say: &ldquo;If they did it, I can do it too.&rdquo;</p>
+            <!-- END STORY TEXT -->
+
+            <a class="btn btn-outline" href="about.html">Read our full story <span class="btn-arrow" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         02 — MENTORS
+         The cards are created from the "mentors" list in js/content.js
+         ===================================================================== -->
+    <section class="section section--grey section--small-text" aria-labelledby="mentors-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">02</span>Our mentors</p>
+          <div class="section-head-body">
+            <h2 id="mentors-title" class="section-title">People who grew up like you, and went further.</h2>
+            <p class="lead">A few of the Italian-Chinese researchers and professionals who are part of Beyond.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sliding row of mentor cards, created automatically -->
+      <div class="mentor-carousel" id="mentor-carousel">
+        <div class="carousel-viewport">
+          <ul id="mentor-grid" class="mentor-track">
+            <!-- Mentor cards appear here automatically -->
+          </ul>
+        </div>
+      </div>
+
+      <div class="container carousel-footer">
+        <p class="many-others">&hellip;and many others.</p>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         03 — GET INVOLVED
+         ===================================================================== -->
+    <section class="section" aria-labelledby="join-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow"><span class="eyebrow-num">03</span>Get involved</p>
+          <div class="section-head-body">
+            <h2 id="join-title" class="section-title">Two ways to be part of Beyond.</h2>
+          </div>
+        </div>
+
+        <div class="cta-grid">
+          <div class="cta cta--navy">
+            <p class="eyebrow eyebrow--light">For researchers and professionals</p>
+            <h3 class="cta-title">Become a mentor</h3>
+            <p>Be the role model you never had, and help the next generation see what is possible.</p>
+            <a class="btn btn-ghost-light" href="mentor.html">Apply as a mentor <span class="btn-arrow" aria-hidden="true"></span></a>
+          </div>
+          <div class="cta cta--light">
+            <p class="eyebrow">For high school and university students</p>
+            <h3 class="cta-title">Become a mentee</h3>
+            <p>Get guidance from someone who has walked the path you are aiming for, and who knows where you come from.</p>
+            <a class="btn btn-primary" href="mentee.html">Apply as a mentee <span class="btn-arrow" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Shared footer: filled in automatically by js/main.js -->
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>
