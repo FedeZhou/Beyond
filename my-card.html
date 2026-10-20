@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My card | Beyond</title>
+  <meta name="description" content="Edit your card in the Beyond members directory.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
+  <script src="js/members.js" defer></script>
+</head>
+
+<body data-page="my-card">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="members.html">Members</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero page-hero--compact" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Members</p>
+        <h1 id="page-title" class="page-title">My card.</h1>
+        <p class="lead">This is what other members see in the directory. Keep it short and up to date.</p>
+      </div>
+    </section>
+
+    <section class="section members-section">
+      <div class="container">
+        <noscript><p class="members-notice is-error">The members area needs JavaScript. Please turn it on and reload the page.</p></noscript>
+        <p class="form-demo-note members-demo" id="members-demo" hidden></p>
+        <p class="members-notice" id="members-notice" role="alert" hidden></p>
+        <p class="members-loading" id="members-loading" role="status">Loading&hellip;</p>
+
+        <!-- Signed in, but the account is not active -->
+        <div class="members-inactive" id="members-inactive" hidden>
+          <p id="members-inactive-text"></p>
+          <button class="btn btn-outline" type="button" data-signout>Sign out</button>
+        </div>
+
+        <div class="card-editor" id="card-editor" hidden>
+          <p class="members-welcome" id="card-welcome" hidden></p>
+
+          <div class="form-card">
+            <form class="form" id="card-form" novalidate>
+              <p class="form-required-note">Fields marked with * are required.</p>
+
+              <!-- Photo -->
+              <div class="photo-field">
+                <div class="photo-preview">
+                  <img id="photo-preview" src="assets/img/placeholder-person.svg" alt="" width="400" height="400">
+                </div>
+                <div class="field">
+                  <label for="photo">
+                    Photo
+                    <span class="field-hint" id="photo-hint">Optional. A clear, friendly photo of your face works best. We crop it to a square.</span>
+                  </label>
+                  <input class="photo-input" id="photo" type="file" accept="image/*" aria-describedby="photo-hint photo-error">
+                  <button class="members-link" id="photo-remove" type="button" hidden>Remove photo</button>
+                  <p class="field-error" id="photo-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="first-name">Name *</label>
+                  <input class="input" id="first-name" name="first_name" type="text" autocomplete="given-name" maxlength="60" required aria-describedby="first-name-error">
+                  <p class="field-error" id="first-name-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="last-name">Surname *</label>
+                  <input class="input" id="last-name" name="last_name" type="text" autocomplete="family-name" maxlength="60" required aria-describedby="last-name-error">
+                  <p class="field-error" id="last-name-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="city">City *</label>
+                  <input class="input" id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required aria-describedby="city-error">
+                  <p class="field-error" id="city-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="country">Country *</label>
+                  <input class="input" id="country" name="country" type="text" autocomplete="country-name" maxlength="80" required aria-describedby="country-error">
+                  <p class="field-error" id="country-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="position">
+                    Current position *
+                    <span class="field-hint" id="position-hint">For example: Propulsion engineer, or MSc student in Physics.</span>
+                  </label>
+                  <input class="input" id="position" name="position" type="text" maxlength="120" required aria-describedby="position-hint position-error">
+                  <p class="field-error" id="position-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="company">
+                    Current company
+                    <span class="field-hint" id="company-hint">Or your university, if you are a student.</span>
+                  </label>
+                  <input class="input" id="company" name="company" type="text" autocomplete="organization" maxlength="120" aria-describedby="company-hint company-error">
+                  <p class="field-error" id="company-error" hidden></p>
+                </div>
+              </div>
+
+              <fieldset class="field lines-field">
+                <legend>
+                  Studies *
+                  <span class="field-hint" id="studies-hint">Up to <span id="studies-max">3</span> lines, one per degree or school. For example: Politecnico di Milano, MSc Aerospace Engineering.</span>
+                </legend>
+                <div class="lines-list" id="studies-list"></div>
+                <p class="field-error" id="studies-error" hidden></p>
+              </fieldset>
+
+              <fieldset class="field lines-field">
+                <legend>
+                  Experience
+                  <span class="field-hint" id="experience-hint">Up to <span id="experience-max">3</span> lines. For example: Internship at the European Space Agency.</span>
+                </legend>
+                <div class="lines-list" id="experience-list"></div>
+                <p class="field-error" id="experience-error" hidden></p>
+              </fieldset>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="is-listed" name="is_listed" type="checkbox" checked>
+                  <label for="is-listed">Show my card in the members directory</label>
+                </div>
+              </div>
+
+              <p class="members-notice" id="card-status" role="status" hidden></p>
+
+              <div class="form-actions card-actions">
+                <button class="btn btn-primary" type="submit">Save my card</button>
+                <a class="link-arrow" id="card-done" href="members.html" hidden>Go to the directory <span aria-hidden="true">&rarr;</span></a>
+              </div>
+            </form>
+          </div>
+
+          <p class="members-aside card-footer-links">
+            <a href="members.html">Back to the directory</a>
+            <button class="members-link" id="card-signout" type="button">Sign out</button>
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

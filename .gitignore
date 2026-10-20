@@ -1,0 +1,10 @@
+# Secret keys: never upload these
+.env
+.env.*
+!.env.example
+# Supabase connection for the members area (written by the "Deploy site" workflow on GitHub)
+js/config.js
+
+# Supabase local files
+supabase/.temp/
+supabase/.branches/

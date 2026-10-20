@@ -28,6 +28,7 @@
       <nav class="container noscript-nav" aria-label="Main">
         <a href="index.html">Home</a> <a href="about.html">About</a>
         <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="members.html">Members</a>
       </nav>
     </noscript>
   </header>
@@ -143,6 +144,14 @@
                 </label>
                 <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" required aria-describedby="motivation-hint motivation-error"></textarea>
                 <p class="field-error" id="motivation-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="adult" name="age_18_or_over" type="checkbox" value="yes" required aria-describedby="adult-error">
+                  <label for="adult">I confirm I am 18 years old or over.</label>
+                </div>
+                <p class="field-error" id="adult-error" hidden></p>
               </div>
 
               <div class="field">

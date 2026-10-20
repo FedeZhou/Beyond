@@ -12,7 +12,8 @@
      8.  Inner page hero
      9.  About page
      10. Join pages and forms
-     11. Accessibility and utilities
+     11. Members area (directory and My card)
+     12. Accessibility and utilities
    ========================================================================== */
 
 
@@ -921,6 +922,46 @@ a:hover {
   margin-top: auto;
 }
 
+/* --- Phones: Home hero, story heading and call-to-action boxes --- */
+@media (max-width: 599px) {
+  /* Hero text sits higher instead of centred */
+  .hero {
+    align-items: flex-start;
+    padding-top: 4.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+  }
+
+  /* Smaller, lighter hero buttons */
+  .hero .btn {
+    gap: 0.65rem;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+  .hero .btn-text-light {
+    padding-inline: 0;
+  }
+
+  /* "Built on our parents' courage.": more room before the text */
+  .story-split .section-title {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Become a mentor / mentee boxes (Home and About) */
+  .cta-title {
+    font-size: 1.75rem;
+  }
+  .cta p:not(.eyebrow) {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+}
+
 
 /* ==========================================================================
    8. Inner page hero (About, Become a mentor, Become a mentee)
@@ -1405,7 +1446,291 @@ select.input {
 
 
 /* ==========================================================================
-   11. Accessibility and utilities
+   11. Members area (members.html, my-card.html)
+   ========================================================================== */
+.page-hero--compact {
+  padding-block: clamp(3rem, 6vw, 4.5rem) clamp(2.5rem, 5vw, 3.5rem);
+}
+.page-hero--compact .page-title {
+  max-width: none;
+  margin-bottom: 1rem;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+}
+
+.members-section {
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+}
+
+.members-loading {
+  margin: 0;
+  color: var(--grey-500);
+}
+
+/* Information line; red border when it is an error */
+.members-notice {
+  margin: 0 0 1.5rem;
+  padding: 0.9rem 1.15rem;
+  background: var(--grey-050);
+  border-left: 3px solid var(--blue);
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+.members-notice.is-error {
+  background: #FDF3F2;
+  border-left-color: var(--error);
+}
+.form .members-notice {
+  margin: 0;
+}
+
+.members-demo {
+  margin-bottom: 1.5rem;
+}
+
+/* Button that looks like a text link */
+.members-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+}
+.members-link:hover {
+  text-decoration: underline;
+}
+
+.members-aside {
+  margin: 1.5rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--grey-500);
+}
+
+/* --- Sign in --- */
+.members-signin,
+.members-inactive {
+  max-width: 560px;
+}
+.members-signin h2 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 300;
+}
+.members-signin .form-card > p:not(.members-aside) {
+  color: var(--grey-700);
+}
+.members-inactive p {
+  color: var(--grey-700);
+}
+
+/* --- Toolbar: tabs, search, actions --- */
+.members-toolbar {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+@media (min-width: 900px) {
+  .members-toolbar {
+    grid-template-columns: auto minmax(220px, 1fr) auto;
+    gap: 1.5rem;
+  }
+}
+
+.members-tabs {
+  display: flex;
+  border: 1px solid var(--grey-400);
+  width: max-content;
+  max-width: 100%;
+}
+.members-tab {
+  padding: 0.7rem 1rem;
+  border: 0;
+  background: var(--white);
+  font: 600 0.8125rem/1 var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--navy);
+  cursor: pointer;
+}
+.members-tab + .members-tab {
+  border-left: 1px solid var(--grey-400);
+}
+.members-tab[aria-pressed="true"] {
+  background: var(--navy);
+  color: var(--white);
+}
+.members-tab-count {
+  margin-left: 0.3rem;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.members-search .input {
+  padding-block: 0.7rem;
+  font-size: 1rem;
+}
+
+.members-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+.members-actions .btn {
+  padding: 0.75rem 1.1rem;
+}
+
+.members-count {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--grey-500);
+}
+
+.members-empty {
+  margin: 1rem 0 0;
+  color: var(--grey-700);
+}
+
+/* --- Directory grid: the Home mentor cards, in rows --- */
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.member-card {
+  width: auto;
+  margin: 0;
+}
+/* Phones: small photo beside the text, so more cards fit on screen */
+@media (max-width: 559px) {
+  .member-card {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    align-items: start;
+  }
+  .member-card .mentor-photo {
+    margin: 1rem 0 0 1rem;
+  }
+  .member-card .mentor-body {
+    min-width: 0;
+    padding: 0.9rem 1rem 1rem;
+  }
+}
+
+.member-badge {
+  margin: 0 0 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.member-badge--mentee {
+  color: var(--grey-500);
+}
+
+.member-name {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.member-lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.member-lines li + li {
+  margin-top: 0.3rem;
+}
+
+/* --- My card --- */
+.card-editor {
+  max-width: 760px;
+}
+
+.members-welcome {
+  margin: 0 0 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--grey-050);
+  border-left: 3px solid var(--blue);
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.photo-field {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.photo-preview {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--grey-200);
+}
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-field > .field {
+  min-width: 0;   /* lets the file picker shrink on narrow screens */
+}
+.photo-input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0.6rem;
+  font-size: 0.9375rem;
+}
+
+.lines-field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.lines-field legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+.lines-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.card-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.card-footer-links a {
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   12. Accessibility and utilities
    ========================================================================== */
 
 /* Anything with the "hidden" attribute stays hidden, whatever its other styles */

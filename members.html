@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Members | Beyond</title>
+  <meta name="description" content="The Beyond members directory: every mentor and mentee in the community. For members only.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
+  <script src="js/members.js" defer></script>
+</head>
+
+<body data-page="members">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="members.html">Members</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero page-hero--compact" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Members</p>
+        <h1 id="page-title" class="page-title">The Beyond directory.</h1>
+        <p class="lead">Every mentor and mentee in the community, in one place. For members only.</p>
+      </div>
+    </section>
+
+    <section class="section members-section">
+      <div class="container">
+        <noscript><p class="members-notice is-error">The members area needs JavaScript. Please turn it on and reload the page.</p></noscript>
+        <p class="form-demo-note members-demo" id="members-demo" hidden></p>
+        <p class="members-notice" id="members-notice" role="alert" hidden></p>
+        <p class="members-loading" id="members-loading" role="status">Loading&hellip;</p>
+
+        <!-- =================================================================
+             SIGNED OUT: ask for a sign-in link
+             ================================================================= -->
+        <div class="members-signin" id="members-signin" hidden>
+          <div class="form-card">
+            <h2>Sign in</h2>
+            <p>Enter the email you applied with. We will send you a link that signs you in, no password needed.</p>
+            <form class="form" id="signin-form" novalidate>
+              <div class="field">
+                <label for="signin-email">Email</label>
+                <input class="input" id="signin-email" name="email" type="email" autocomplete="email" required aria-describedby="signin-email-error">
+                <p class="field-error" id="signin-email-error" hidden></p>
+              </div>
+              <p class="members-notice" id="signin-status" role="status" hidden></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Send me a sign-in link</button>
+              </div>
+            </form>
+            <p class="members-aside">Not a member yet? Apply <a href="mentee.html">as a mentee</a> or <a href="mentor.html">as a mentor</a>.</p>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             SIGNED IN, BUT THE ACCOUNT IS NOT ACTIVE
+             ================================================================= -->
+        <div class="members-inactive" id="members-inactive" hidden>
+          <p id="members-inactive-text"></p>
+          <button class="btn btn-outline" type="button" data-signout>Sign out</button>
+        </div>
+
+        <!-- =================================================================
+             SIGNED IN: the directory
+             ================================================================= -->
+        <div class="members-directory" id="members-directory" hidden>
+          <div class="members-toolbar">
+            <div class="members-tabs" role="group" aria-label="Show">
+              <button class="members-tab" type="button" data-filter="all" aria-pressed="true">All <span class="members-tab-count" data-count="all"></span></button>
+              <button class="members-tab" type="button" data-filter="mentor" aria-pressed="false">Mentors <span class="members-tab-count" data-count="mentor"></span></button>
+              <button class="members-tab" type="button" data-filter="mentee" aria-pressed="false">Mentees <span class="members-tab-count" data-count="mentee"></span></button>
+            </div>
+            <div class="members-search">
+              <label class="visually-hidden" for="members-search">Search members</label>
+              <input class="input" id="members-search" type="search" placeholder="Search name, role, city, studies…" autocomplete="off">
+            </div>
+            <div class="members-actions">
+              <a class="btn btn-outline" href="my-card.html">My card</a>
+              <button class="members-link" type="button" data-refresh>Refresh</button>
+              <button class="members-link" type="button" data-signout>Sign out</button>
+            </div>
+          </div>
+
+          <p class="members-count" id="members-count" role="status" aria-live="polite"></p>
+          <ul class="member-grid" id="member-grid"></ul>
+          <p class="members-empty" id="members-empty" hidden>No members match your search.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

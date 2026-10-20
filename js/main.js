@@ -8,6 +8,7 @@
      2. Renders the mentor cards (Home), founders and projects (About)
      3. Opens and closes the mobile menu
      4. Checks the application forms and sends them
+     5. Shares its small helpers with js/members.js (members area)
    ========================================================================== */
 
 (function () {
@@ -27,7 +28,8 @@
     { id: "home",   file: "index.html" },
     { id: "about",  file: "about.html" },
     { id: "mentor", file: "mentor.html" },
-    { id: "mentee", file: "mentee.html" }
+    { id: "mentee", file: "mentee.html" },
+    { id: "members", file: "members.html" }
   ];
 
   /* ------------------------------------------------------------------------
@@ -482,6 +484,18 @@
       }
     }
   }
+
+  /* ------------------------------------------------------------------------
+     Shared with js/members.js (members area), so it reuses these helpers
+     ------------------------------------------------------------------------ */
+  window.BEYOND_UI = {
+    esc: esc,
+    pick: pick,
+    assetUrl: assetUrl,
+    pageUrl: pageUrl,
+    validateField: validateField,
+    strings: T
+  };
 
   /* ------------------------------------------------------------------------
      Build the page

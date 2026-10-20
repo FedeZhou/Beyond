@@ -28,6 +28,7 @@
       <nav class="container noscript-nav" aria-label="Main">
         <a href="index.html">Home</a> <a href="about.html">About</a>
         <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="members.html">Members</a>
       </nav>
     </noscript>
   </header>
@@ -56,7 +57,7 @@
           <h2>For students ready to go further.</h2>
 
           <!-- EDIT: INTRO TEXT -->
-          <p>Beyond is for Italian-Chinese talents, in high school or at university, who are drawn to engineering, mathematics, physics, medicine, research, finance or any other challenging path. Maybe no one in your family has ever taken this road before. That is exactly why we are here.</p>
+          <p>Beyond is for Italian-Chinese talents aged 18 or over, at university or just starting their career, who are drawn to engineering, mathematics, physics, medicine, research, finance or any other challenging path. Maybe no one in your family has ever taken this road before. That is exactly why we are here.</p>
 
           <h3>What you get</h3>
           <ul class="check-list">
@@ -104,7 +105,7 @@
               <div class="field">
                 <label for="school">
                   School or university
-                  <span class="field-hint" id="school-hint">For example: Liceo Scientifico in Prato, or Università di Bologna.</span>
+                  <span class="field-hint" id="school-hint">For example: Università di Bologna, or Politecnico di Milano.</span>
                 </label>
                 <input class="input" id="school" name="school_or_university" type="text" autocomplete="organization" required aria-describedby="school-hint school-error">
                 <p class="field-error" id="school-error" hidden></p>
@@ -146,6 +147,14 @@
                 </label>
                 <textarea class="input" id="hopes" name="hopes" rows="5" minlength="30" required aria-describedby="hopes-hint hopes-error"></textarea>
                 <p class="field-error" id="hopes-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="adult" name="age_18_or_over" type="checkbox" value="yes" required aria-describedby="adult-error">
+                  <label for="adult">I confirm I am 18 years old or over.</label>
+                </div>
+                <p class="field-error" id="adult-error" hidden></p>
               </div>
 
               <div class="field">
