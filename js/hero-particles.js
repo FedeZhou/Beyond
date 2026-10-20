@@ -54,7 +54,7 @@
   // the first loop). Field order matches SETTINGS.labels.
   var FIELDS = [
     ["atom", "orbital"],                // Physics
-    ["dna", "neuron", "stethoscope"],   // Medicine
+    ["dna", "neuron"],                  // Medicine
     ["lorenz", "mobius"],               // Mathematics
     ["candles"],                        // Finance
     ["rocket", "chip", "robot"],        // Engineering
@@ -377,38 +377,6 @@
     ]), 0.08, 0, 0.95);
   }
 
-  /* --- Medicine: stethoscope --- */
-  function shapeStethoscope(n) {
-    // Ear tubes: from the two earpieces down to where they join
-    var left = bezier([-0.3, 0.92, 0.05], [-0.44, 0.5, 0.05], [-0.26, 0.12, 0], [0, 0.02, 0], 40);
-    var right = left.slice();
-    for (var i = 0; i < right.length; i += 3) right[i] = -right[i];
-    var ears = [];
-    tube(left, 0.022, 0.022, ears);
-    tube(right, 0.022, 0.022, ears);
-    // Hose: loops down and back up to the chest piece
-    var hose = tube(bezier([0, 0.02, 0], [0.02, -0.8, 0.1], [0.66, -0.9, -0.1], [0.62, -0.02, 0], 70), 0.03, 0.03, []);
-    var C = [0.62, 0.16], RC = 0.17, T = 0.04;
-    return move(makeShape(n, [
-      { weight: 0.22, place: rods(ears) },
-      { weight: 0.3,  place: rods(hose) },
-      { weight: 0.18, place: function (P) {          // chest piece rim
-        var a = random() * TAU;
-        P[0] = C[0] + Math.cos(a) * RC; P[1] = C[1] + Math.sin(a) * RC; P[2] = (random() * 2 - 1) * T;
-      } },
-      { weight: 0.14, place: function (P) {          // chest piece face
-        var a = random() * TAU, r = Math.sqrt(random()) * (RC - 0.02);
-        P[0] = C[0] + Math.cos(a) * r; P[1] = C[1] + Math.sin(a) * r; P[2] = T;
-      } },
-      { weight: 0.04, place: function (P) {          // inner ring on the face
-        var a = random() * TAU;
-        P[0] = C[0] + Math.cos(a) * 0.1; P[1] = C[1] + Math.sin(a) * 0.1; P[2] = T + 0.008;
-      } },
-      { weight: 0.08, place: function (P) { ball(P, 0.045, random() < 0.5 ? -0.3 : 0.3, 0.94, 0.05, true); } },
-      { weight: 0.04, place: function (P) { ball(P, 0.04, 0, 0.02, 0, true); } }
-    ]), -0.18, -0.1, 1);
-  }
-
   /* --- Mathematics: Lorenz attractor (the "butterfly" curve) --- */
   function shapeLorenz(n) {
     // About 14 loops: enough to show both wings, few enough to see each line
@@ -636,7 +604,7 @@
   var BUILDERS = {
     cloud: shapeCloud,
     atom: shapeAtom, orbital: shapeOrbital,
-    dna: shapeDNA, neuron: shapeNeuron, stethoscope: shapeStethoscope,
+    dna: shapeDNA, neuron: shapeNeuron,
     lorenz: shapeLorenz, mobius: shapeMobius,
     candles: shapeCandles,
     rocket: shapeRocket, chip: shapeChip, robot: shapeRobot,

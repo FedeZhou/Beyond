@@ -33,7 +33,6 @@ window.BEYOND = {
      ------------------------------------------------------------------------ */
   legal: [
     { label: "Privacy Policy", url: "#" },          // PLACEHOLDER
-    { label: "Cookie Policy",  url: "#" },          // PLACEHOLDER
     { label: "Terms of Use",   url: "#" }           // PLACEHOLDER
   ],
 

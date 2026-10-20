@@ -171,13 +171,16 @@ a:hover {
   background: var(--grey-050);
 }
 
+/* Less white space above a section (e.g. About: "Where Beyond comes from.") */
+.section--tight-top {
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+}
+
 /* Section heading: label on the left, title and text on the right (desktop) */
 .section-head {
   display: grid;
   gap: 0.5rem 2rem;
   margin-bottom: clamp(2.5rem, 5vw, 4rem);
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--grey-200);
 }
 
 .section-title {
@@ -200,6 +203,16 @@ a:hover {
   }
   .section-head > .section-head-body {
     grid-column: 5 / -1;
+  }
+}
+
+/* Home: no section labels, so the heading uses the full width */
+[data-page="home"] .section-head {
+  display: block;
+}
+@media (min-width: 900px) {
+  [data-page="home"] .section-title {
+    max-width: none;   /* headings stay on one line on laptops and desktops */
   }
 }
 
@@ -672,6 +685,51 @@ a:hover {
   margin-top: 1rem;
 }
 
+/* Image on the left, story on the right (laptop and desktop); stacked on phones */
+.story-split {
+  display: grid;
+  gap: 2rem;
+}
+.story-image {
+  position: relative;
+  margin: 0 0 2rem;
+  max-width: 420px;
+}
+.story-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--navy);
+}
+/* Caption on the photo, in white, over a soft dark fade so it stays readable */
+.story-image figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.5rem 1.25rem 1rem;
+  background: linear-gradient(to top, rgba(5, 28, 44, 0.75), rgba(5, 28, 44, 0));
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--white);
+}
+@media (min-width: 900px) {
+  [data-page="home"] .story-split {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: center;
+  }
+  [data-page="home"] .story-split > .section-head-body {
+    grid-column: auto;
+  }
+  .story-image {
+    max-width: none;
+    margin: 0;
+  }
+}
+
 /* --- Mentor carousel (one row, sliding continuously) --- */
 .carousel-viewport {
   overflow: hidden;
@@ -708,11 +766,10 @@ a:hover {
   margin-right: 1.25rem;
   background: var(--white);
   border: 1px solid var(--grey-200);
-  border-top: 3px solid var(--navy);
   transition: border-color 0.15s ease;
 }
 .mentor-card:hover {
-  border-top-color: var(--blue);
+  border-color: var(--grey-400);
 }
 
 .mentor-photo {
@@ -964,7 +1021,7 @@ a:hover {
 .pull-quote p {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 2.6vw, 2rem) !important;
+  font-size: clamp(1.25rem, 2vw, 1.5rem) !important;
   font-style: italic;
   font-weight: 300;
   line-height: 1.2 !important;
@@ -976,11 +1033,24 @@ a:hover {
   padding-left: 1rem;
   border-left: 2px solid var(--blue);
   font-family: var(--font-serif);
-  font-size: clamp(1.375rem, 2.2vw, 1.75rem) !important;
+  font-size: clamp(1.125rem, 1.7vw, 1.375rem) !important;
   font-style: italic;
   font-weight: 300;
   line-height: 1.25 !important;
   color: var(--navy) !important;
+}
+
+/* Sign-off at the end of the story, bottom right */
+.story-text .story-signature {
+  margin-top: 2.5rem;
+  text-align: right;
+  font-size: 0.9375rem;
+  color: var(--grey-500);
+}
+.story-signature-name {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--navy);
 }
 
 /* --- Founders: small portrait beside the bio --- */
@@ -1065,7 +1135,6 @@ a:hover {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--grey-200);
-  border-top: 3px solid var(--navy);
 }
 
 .project-image {
