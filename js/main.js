@@ -201,41 +201,52 @@
     var grid = document.getElementById("mentor-grid");
     if (!grid) return;
 
-    function fact(label, value, modifier) {
-      return (
-        '<div class="mentor-fact' + (modifier ? " mentor-fact--" + modifier : "") + '">' +
-          "<dt>" + esc(label) + "</dt>" +
-          "<dd>" + esc(value) + "</dd>" +
-        "</div>"
-      );
-    }
-
     var placeholder = assetUrl(DATA.placeholderPhoto);
     var mentors = DATA.mentors || [];
 
-    function card(m, i, isCopy) {
+    var linkedinIcon =
+      '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">' +
+        '<path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>' +
+      "</svg>";
+
+    function linkedin(m) {
+      if (!m.linkedin) return "";
       return (
-        '<li class="mentor-card"' + (isCopy ? ' aria-hidden="true"' : "") + ">" +
+        '<a class="mentor-linkedin" ' + linkAttrs(m.linkedin) +
+          ' aria-label="' + esc(T.mentorLabels.linkedin + ": " + pick(m.role)) + '">' + linkedinIcon + "</a>"
+      );
+    }
+
+    function card(m) {
+      return (
+        '<li class="mentor-card">' +
           '<div class="mentor-photo">' +
-            '<img src="' + esc(assetUrl(m.photo) || placeholder) + '" alt="" width="400" height="300" loading="lazy" decoding="async">' +
+            '<img src="' + esc(assetUrl(m.photo) || placeholder) + '" alt="" width="400" height="300" loading="lazy" decoding="async"' +
+              (m.photoPosition ? ' style="object-position: ' + esc(m.photoPosition) + '"' : "") + ">" +
           "</div>" +
           '<div class="mentor-body">' +
-            '<p class="mentor-role">' + esc(pick(m.role)) + "</p>" +
-            (m.location ? '<p class="mentor-location">' + esc(pick(m.location)) + "</p>" : "") +
-            '<dl class="mentor-facts">' +
-              fact(T.mentorLabels.studied, pick(m.studied)) +
-              fact(T.mentorLabels.experience, pick(m.experience)) +
-            "</dl>" +
+            '<div class="mentor-text">' +
+              (m.field ? '<p class="mentor-field">' + esc(pick(m.field)) + "</p>" : "") +
+              '<p class="mentor-role">' + esc(pick(m.role)) + "</p>" +
+              (m.location ? '<p class="mentor-location">' + esc(pick(m.location)) + "</p>" : "") +
+            "</div>" +
+            linkedin(m) +
           "</div>" +
         "</li>"
       );
     }
 
-    // The cards are written twice so the row can loop without a gap.
-    // The second copy is hidden from screen readers.
-    grid.innerHTML =
-      mentors.map(function (m, i) { return card(m, i, false); }).join("") +
-      mentors.map(function (m, i) { return card(m, i, true); }).join("");
+    // The last card invites visitors to join, and links to the "Join Beyond" section
+    var more =
+      '<li class="mentor-more">' +
+        '<a class="mentor-more-link" href="#join">' +
+          '<span class="mentor-more-title">' + esc(T.membersRow.moreTitle) + "</span>" +
+          '<span class="mentor-more-cta">' + esc(T.membersRow.moreLink) +
+            ' <span class="btn-arrow" aria-hidden="true"></span></span>' +
+        "</a>" +
+      "</li>";
+
+    grid.innerHTML = mentors.map(card).join("") + more;
 
     // Missing photo file: show the placeholder instead
     grid.querySelectorAll(".mentor-photo img").forEach(function (img) {
@@ -245,17 +256,61 @@
       });
     });
 
-    setupCarousel(grid, mentors.length);
+    setupCarousel(grid);
   }
 
   /* ------------------------------------------------------------------------
-     Mentor carousel: the row slides continuously and pauses while the mouse
-     is over it (or a finger is on it). People who prefer reduced motion get
-     a still row they can scroll by hand instead. The sliding itself is CSS.
+     Members row: it stays still and scrolls sideways with the arrows on its
+     left and right (or a swipe / the trackpad). Each arrow moves by as many
+     cards as fit on screen, and disappears at its end of the row.
      ------------------------------------------------------------------------ */
-  function setupCarousel(track, count) {
-    // About 12 seconds per card, so the speed stays calm with any number of mentors
-    track.style.setProperty("--marquee-duration", Math.max(count, 1) * 12 + "s");
+  function setupCarousel(track) {
+    var viewport = track.parentNode;
+    var row = viewport.parentNode;
+    var prev = row.querySelector('[data-carousel="prev"]');
+    var next = row.querySelector('[data-carousel="next"]');
+
+    if (prev && next) {
+      prev.setAttribute("aria-label", T.membersRow.previous);
+      next.setAttribute("aria-label", T.membersRow.next);
+
+      // Width of the cards that fit on screen, so one click shows the next "page"
+      var pageWidth = function () {
+        var style = getComputedStyle(viewport);
+        var visible = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+        var first = track.firstElementChild;
+        var step = (first ? first.getBoundingClientRect().width : 250) + (parseFloat(getComputedStyle(track).columnGap) || 0);
+        return Math.max(1, Math.floor((visible + 1) / step)) * step;
+      };
+
+      var update = function () {
+        var max = viewport.scrollWidth - viewport.clientWidth;
+        // An arrow disappears at its end of the row (and both when everything fits)
+        prev.disabled = viewport.scrollLeft <= 1;
+        next.disabled = viewport.scrollLeft >= max - 1;
+      };
+
+      prev.addEventListener("click", function () { viewport.scrollBy({ left: -pageWidth() }); });
+      next.addEventListener("click", function () { viewport.scrollBy({ left: pageWidth() }); });
+
+      var queued = false;
+      var queueUpdate = function () {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; update(); });
+      };
+      viewport.addEventListener("scroll", queueUpdate, { passive: true });
+      window.addEventListener("resize", queueUpdate);
+      update();
+    }
+
+    // Photos are blue by default; a click or tap shows the original colours
+    // (tap again to go back to blue). Hover does the same with CSS on computers.
+    track.addEventListener("click", function (event) {
+      if (event.target.closest("a")) return; // the LinkedIn link just opens the profile
+      var card = event.target.closest(".mentor-card");
+      if (card) card.classList.toggle("is-color");
+    });
   }
 
   /* ========================================================================
@@ -343,6 +398,15 @@
      ======================================================================== */
   function setupForms() {
     document.querySelectorAll("form[data-form]").forEach(setupForm);
+    linkLegal();
+  }
+
+  // Links marked data-legal="privacy" / "terms" get their address from "legal" in content.js
+  function linkLegal() {
+    document.querySelectorAll("a[data-legal]").forEach(function (link) {
+      var item = (DATA.legal || []).filter(function (l) { return l.id === link.getAttribute("data-legal"); })[0];
+      if (item && item.url && item.url !== "#") link.href = assetUrl(item.url);
+    });
   }
 
   // Checks one field and shows or clears its error message. Returns true if valid.

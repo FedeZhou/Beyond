@@ -674,8 +674,8 @@
     } else {
       // Mobile: large and partly off-screen, softer behind the text
       R = Math.max(W * 0.5, 180);
-      CX = W * 0.8;
-      CY = H * 0.8;
+      CX = W * 0.72;
+      CY = H * 0.72;
       FADE = 0.45;
       TEXT_EDGE = 0;
       DIM = 1;

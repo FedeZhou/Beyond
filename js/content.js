@@ -42,13 +42,13 @@ window.BEYOND = {
   },
 
   /* ------------------------------------------------------------------------
-     EDIT HERE: Legal links (footer, second row)
+     EDIT HERE: Legal links (footer, and the tick box on the application forms)
      url: the page or document for each one, e.g. "privacy.html".
      Delete a line to hide that link.
      ------------------------------------------------------------------------ */
   legal: [
-    { label: "Privacy Policy", url: "#" },          // PLACEHOLDER
-    { label: "Terms of Use",   url: "#" }           // PLACEHOLDER
+    { id: "privacy", label: "Privacy Policy", url: "#" },   // PLACEHOLDER
+    { id: "terms",   label: "Terms of Use",   url: "#" }    // PLACEHOLDER
   ],
 
   /* ------------------------------------------------------------------------
@@ -80,57 +80,88 @@ window.BEYOND = {
   placeholderImage: "assets/img/placeholder-image.svg",
 
   /* ------------------------------------------------------------------------
-     EDIT HERE: Mentors (Home page, sliding row of cards)
-     Each card shows a photo, the current role and location at the top,
-     then Studied and Experience.
-     Add as many as you like: copy a block { ... }, and the row keeps looping.
+     EDIT HERE: Mentors (Home page, row of cards with arrows)
+     Each card shows a photo, the field, role and location, and a
+     LinkedIn logo that opens the person's profile.
+     field:    their area, e.g. "Computer Science", "Quantum Physics",
+               "Trading". Shown as a small label on top. Leave "" to hide it.
+     role:     the job title, e.g. "Data Scientist"
+     location: city and country, e.g. "Munich, Germany"
+     Add as many as you like: copy a block { ... }. The row scrolls with arrows,
+     and always ends with a card inviting visitors to join.
      photo: put the image in assets/img/mentors/ and write its path, e.g.
             "assets/img/mentors/anna.jpg". Leave "" for the placeholder.
             Square photos (1:1, e.g. 800 x 800 px) look best.
-     ALL MENTORS BELOW ARE PLACEHOLDERS: replace them with real people.
+     photoPosition (optional): which part of the photo to keep when it is
+            cropped to a square, e.g. "50% 10%" keeps the top (the face),
+            "50% 50%" the centre. Leave it out for the default.
+     linkedin: the full address of the profile, e.g.
+            "https://www.linkedin.com/in/anna-chen". Leave "" to hide the logo.
+     The PHOTOS below are real; the TEXT is still placeholder: replace each
+     card's field, role, location and linkedin with that person's own.
      ------------------------------------------------------------------------ */
   mentors: [
     {
-      photo:      "",
-      studied:    "Politecnico di Milano, MSc Aerospace Engineering",
-      experience: "Internship at the European Space Agency",
-      role:       "Propulsion engineer",
-      location:   "Munich, Germany"
+      photo:      "assets/img/mentors/alessia-lin.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Data Science",
+      role:       "Data Scientist",
+      location:   "London, UK",
+      linkedin:   "#"                                       // PLACEHOLDER
     },
     {
-      photo:      "",
-      studied:    "Università di Padova, Medicine and Surgery",
-      experience: "Research year at Karolinska Institutet",
+      photo:      "assets/img/mentors/andrea-jiang.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Medicine",
       role:       "Cardiology resident",
-      location:   "Milan, Italy"
+      location:   "Milan, Italy",
+      linkedin:   "#"                                       // PLACEHOLDER
     },
     {
-      photo:      "",
-      studied:    "Scuola Normale Superiore di Pisa, MSc Mathematics",
-      experience: "Visiting student at ETH Zürich",
+      photo:      "assets/img/mentors/chengchen-zhu.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Applied Mathematics",
       role:       "PhD candidate in Applied Mathematics",
-      location:   "Paris, France"
+      location:   "Paris, France",
+      linkedin:   "#"                                       // PLACEHOLDER
     },
     {
-      photo:      "",
-      studied:    "Università Bocconi, BSc Economics and Finance",
-      experience: "Summer analyst at an investment bank",
+      photo:      "assets/img/mentors/jessica-wu.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Finance",
       role:       "Investment banking analyst",
-      location:   "London, UK"
+      location:   "London, UK",
+      linkedin:   "#"                                       // PLACEHOLDER
     },
     {
-      photo:      "",
-      studied:    "Sapienza Università di Roma, MSc Physics",
-      experience: "Summer student programme at CERN",
+      photo:      "assets/img/mentors/kaixi-matteo-chen.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Particle Physics",
       role:       "Researcher in particle physics",
-      location:   "Geneva, Switzerland"
+      location:   "Geneva, Switzerland",
+      linkedin:   "#"                                       // PLACEHOLDER
     },
     {
-      photo:      "",
-      studied:    "Politecnico di Torino, MSc Computer Engineering",
-      experience: "Software engineering internship in Dublin",
+      photo:      "assets/img/mentors/leonardo-zheng.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Computer Science",
       role:       "Machine learning engineer",
-      location:   "Zürich, Switzerland"
+      location:   "Zürich, Switzerland",
+      linkedin:   "#"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/giovanni-zhang.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Electronic Engineering",
+      role:       "Hardware engineer",
+      location:   "Turin, Italy",
+      linkedin:   "#"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/xuanqiang-angelo-huang.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Medicine",
+      role:       "Medical student",
+      location:   "Florence, Italy",
+      linkedin:   "#"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/yifei-fu.jpg",   // TEXT BELOW IS PLACEHOLDER
+      role:       "Quantitative analyst",
+      location:   "Milan, Italy",
+      linkedin:   "#"                                       // PLACEHOLDER
     }
   ],
 
@@ -231,10 +262,14 @@ window.BEYOND = {
         rights:  "All rights reserved.",
         legal:   "Legal"
       },
+      membersRow: {
+        previous:  "Previous members",
+        next:      "Next members",
+        moreTitle: "…and many more members",
+        moreLink:  "Join as a mentor or a mentee"
+      },
       mentorLabels: {
-        studied:    "Studied",
-        experience: "Experience",
-        now:        "Now"
+        linkedin:   "LinkedIn profile"
       },
       portraitOf: "Portrait of {name}",
       visit:      "Visit",

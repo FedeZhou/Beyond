@@ -141,26 +141,28 @@
               </div>
 
               <div class="field">
-                <label for="hopes">
-                  What do you hope to get from a mentor?
-                  <span class="field-hint" id="hopes-hint">Your goals, doubts or questions. A few lines are enough.</span>
+                <label for="goals">
+                  What are your aspirations and goals?
+                  <span class="field-hint" id="goals-hint">Where you want to be in the short term (the next year or two) and in the long term, and how a mentor could help you get there.</span>
                 </label>
-                <textarea class="input" id="hopes" name="hopes" rows="5" minlength="30" required aria-describedby="hopes-hint hopes-error"></textarea>
-                <p class="field-error" id="hopes-error" hidden></p>
+                <textarea class="input" id="goals" name="aspirations_and_goals" rows="5" minlength="30" required aria-describedby="goals-hint goals-error"></textarea>
+                <p class="field-error" id="goals-error" hidden></p>
               </div>
 
               <div class="field">
-                <div class="checkbox">
-                  <input id="adult" name="age_18_or_over" type="checkbox" value="yes" required aria-describedby="adult-error">
-                  <label for="adult">I confirm I am 18 years old or over.</label>
-                </div>
-                <p class="field-error" id="adult-error" hidden></p>
+                <label for="achievement">
+                  What is your proudest achievement so far?
+                  <span class="field-hint" id="achievement-hint">Your biggest success, big or small: at school, at university, at work or in your life. Tell us why it matters to you.</span>
+                </label>
+                <textarea class="input" id="achievement" name="proudest_achievement" rows="5" minlength="30" required aria-describedby="achievement-hint achievement-error"></textarea>
+                <p class="field-error" id="achievement-error" hidden></p>
               </div>
 
+              <!-- The two links get their address from "legal" in js/content.js -->
               <div class="field">
                 <div class="checkbox">
                   <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
-                  <label for="consent">I agree that Beyond may store my answers to process my application and contact me about it.</label>
+                  <label for="consent">I confirm I am 18 or over, and I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
                 </div>
                 <p class="field-error" id="consent-error" hidden></p>
               </div>

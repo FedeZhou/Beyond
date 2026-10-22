@@ -429,8 +429,9 @@
         id: "demo-mentor-" + i, role: "mentor", status: "approved", is_listed: true,
         first_name: "Sample", last_name: "Mentor " + (i + 1),
         city: place[0] || "", country: place.slice(1).join(", "),
-        position: UI.pick(m.role), company: "",
-        studies: [UI.pick(m.studied)], experience: [UI.pick(m.experience)], photo_path: null
+        position: UI.pick(m.role), company: UI.pick(m.company),
+        studies: m.studied ? [UI.pick(m.studied)] : [],
+        experience: m.experience ? [UI.pick(m.experience)] : [], photo_path: null
       };
     });
     rows.push(

@@ -69,12 +69,12 @@
           </figure>
 
           <div class="section-head-body abstract">
-            <h2 id="story-title" class="section-title">Built on our parents&rsquo; courage.</h2>
+            <h2 id="story-title" class="section-title">Built on our parents&rsquo; courage</h2>
 
             <!-- EDIT: STORY TEXT (short version) -->
             <p>In the late 1980s and early 2000s, our parents left everything behind to come to Italy, and built a future for us through relentless hard work.</p>
             <p>Because survival came first, our community grew up with a narrow idea of what a career could be, and with almost no role models outside the family business. Even today, Italian-Chinese students are rarely seen pursuing and excelling in engineering, mathematics, physics, medicine or research.</p>
-            <p><strong><em>Beyond</em></strong> exists to change that. We connect young talents with mentors from the same background who have already walked those paths, so they can aim higher, knowing: &ldquo;If they did it, I can do it too.&rdquo;</p>
+            <p><strong><em>Beyond</em></strong> exists to change that. We connect young talents with mentors from the same background who have already walked those paths, so they can aim higher, and give them the inspiration to say: &ldquo;If they did it, I can do it too.&rdquo;</p>
             <!-- END STORY TEXT -->
 
             <a class="btn btn-outline" href="about.html">Read our full story <span class="btn-arrow" aria-hidden="true"></span></a>
@@ -91,35 +91,39 @@
       <div class="container">
         <div class="section-head">
           <div class="section-head-body">
-            <h2 id="mentors-title" class="section-title">People who grew up like you, and went further.</h2>
-            <p class="lead">A few of the Italian-Chinese researchers and professionals who are part of Beyond.</p>
+            <h2 id="mentors-title" class="section-title">Members</h2>
+            <p class="lead">Researchers, professionals and students in challenging fields such as engineering, mathematics, physics, medicine and finance.</p>
           </div>
         </div>
 
       </div>
 
-      <!-- Sliding row of mentor cards, created automatically -->
+      <!-- Row of member cards, created automatically from "mentors" in js/content.js.
+           It scrolls sideways with the arrows on its left and right (or a swipe / the trackpad);
+           the last card links to the "Join Beyond" section. -->
       <div class="mentor-carousel" id="mentor-carousel">
         <div class="carousel-viewport">
           <ul id="mentor-grid" class="mentor-track">
-            <!-- Mentor cards appear here automatically -->
+            <!-- Member cards appear here automatically -->
           </ul>
         </div>
-      </div>
-
-      <div class="container carousel-footer">
-        <p class="many-others">&hellip;and many others.</p>
+        <button class="carousel-arrow carousel-arrow--prev" type="button" data-carousel="prev" aria-controls="mentor-grid" aria-label="Previous members">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+        <button class="carousel-arrow carousel-arrow--next" type="button" data-carousel="next" aria-controls="mentor-grid" aria-label="Next members">
+          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
       </div>
     </section>
 
     <!-- =====================================================================
          GET INVOLVED
          ===================================================================== -->
-    <section class="section" aria-labelledby="join-title">
+    <section class="section section--small-text" id="join" aria-labelledby="join-title">
       <div class="container">
         <div class="section-head">
           <div class="section-head-body">
-            <h2 id="join-title" class="section-title">Two ways to be part of Beyond.</h2>
+            <h2 id="join-title" class="section-title">Join Beyond</h2>
           </div>
         </div>
 
@@ -131,9 +135,9 @@
             <a class="btn btn-ghost-light" href="mentor.html">Apply as a mentor <span class="btn-arrow" aria-hidden="true"></span></a>
           </div>
           <div class="cta cta--light">
-            <p class="eyebrow">For university students and young graduates (18+)</p>
+            <p class="eyebrow">For university students (18+)</p>
             <h3 class="cta-title">Become a mentee</h3>
-            <p>Get guidance from someone who has walked the path you are aiming for, and who knows where you come from.</p>
+            <p>Learn from someone who has walked your path and knows where you come from.</p>
             <a class="btn btn-primary" href="mentee.html">Apply as a mentee <span class="btn-arrow" aria-hidden="true"></span></a>
           </div>
         </div>

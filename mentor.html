@@ -140,24 +140,17 @@
               <div class="field">
                 <label for="motivation">
                   Why do you want to mentor?
-                  <span class="field-hint" id="motivation-hint">A few lines are enough.</span>
+                  <span class="field-hint" id="motivation-hint"></span>
                 </label>
                 <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" required aria-describedby="motivation-hint motivation-error"></textarea>
                 <p class="field-error" id="motivation-error" hidden></p>
               </div>
 
-              <div class="field">
-                <div class="checkbox">
-                  <input id="adult" name="age_18_or_over" type="checkbox" value="yes" required aria-describedby="adult-error">
-                  <label for="adult">I confirm I am 18 years old or over.</label>
-                </div>
-                <p class="field-error" id="adult-error" hidden></p>
-              </div>
-
+              <!-- The two links get their address from "legal" in js/content.js -->
               <div class="field">
                 <div class="checkbox">
                   <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
-                  <label for="consent">I agree that Beyond may store my answers to process my application and contact me about it.</label>
+                  <label for="consent">I confirm I am 18 or over, and I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
                 </div>
                 <p class="field-error" id="consent-error" hidden></p>
               </div>
