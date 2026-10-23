@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="css/styles.css">
 
   <script src="js/content.js" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
   <script src="js/main.js" defer></script>
   <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
-  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
-  <script src="js/config.js" defer></script>
   <script src="js/members.js" defer></script>
 </head>
 
@@ -31,7 +31,7 @@
       <nav class="container noscript-nav" aria-label="Main">
         <a href="index.html">Home</a> <a href="about.html">About</a>
         <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
-        <a href="members.html">Members</a>
+        <a href="login.html">Login</a>
       </nav>
     </noscript>
   </header>
@@ -57,33 +57,11 @@
         <p class="members-loading" id="members-loading" role="status">Loading&hellip;</p>
 
         <!-- =================================================================
-             SIGNED OUT: ask for a sign-in link
-             ================================================================= -->
-        <div class="members-signin" id="members-signin" hidden>
-          <div class="form-card">
-            <h2>Sign in</h2>
-            <p>Enter the email you applied with. We will send you a link that signs you in, no password needed.</p>
-            <form class="form" id="signin-form" novalidate>
-              <div class="field">
-                <label for="signin-email">Email</label>
-                <input class="input" id="signin-email" name="email" type="email" autocomplete="email" required aria-describedby="signin-email-error">
-                <p class="field-error" id="signin-email-error" hidden></p>
-              </div>
-              <p class="members-notice" id="signin-status" role="status" hidden></p>
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit">Send me a sign-in link</button>
-              </div>
-            </form>
-            <p class="members-aside">Not a member yet? Apply <a href="mentee.html">as a mentee</a> or <a href="mentor.html">as a mentor</a>.</p>
-          </div>
-        </div>
-
-        <!-- =================================================================
              SIGNED IN, BUT THE ACCOUNT IS NOT ACTIVE
              ================================================================= -->
         <div class="members-inactive" id="members-inactive" hidden>
           <p id="members-inactive-text"></p>
-          <button class="btn btn-outline" type="button" data-signout>Sign out</button>
+          <button class="btn btn-outline" type="button" data-signout>Log out</button>
         </div>
 
         <!-- =================================================================
@@ -101,9 +79,10 @@
               <input class="input" id="members-search" type="search" placeholder="Search name, role, city, studies…" autocomplete="off">
             </div>
             <div class="members-actions">
-              <a class="btn btn-outline" href="my-card.html">My card</a>
+              <a class="btn btn-outline" href="my-card.html">My profile</a>
+              <a class="members-link" href="admin.html" data-admin-link hidden>Admin</a>
               <button class="members-link" type="button" data-refresh>Refresh</button>
-              <button class="members-link" type="button" data-signout>Sign out</button>
+              <button class="members-link" type="button" data-signout>Log out</button>
             </div>
           </div>
 

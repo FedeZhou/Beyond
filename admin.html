@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin | Beyond</title>
+  <meta name="description" content="Beyond admin portal: applications and members. For Beyond admins only.">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
+  <script src="js/admin.js" defer></script>
+</head>
+
+<body data-page="admin">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero page-hero--compact" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Admin</p>
+        <h1 id="page-title" class="page-title">Admin portal.</h1>
+        <p class="lead">Applications, members and what changed. For Beyond admins only.</p>
+      </div>
+    </section>
+
+    <section class="section members-section">
+      <div class="container">
+        <noscript><p class="members-notice is-error">The admin portal needs JavaScript. Please turn it on and reload the page.</p></noscript>
+        <p class="form-demo-note members-demo" id="members-demo" hidden></p>
+        <p class="members-notice" id="members-notice" role="alert" hidden></p>
+        <p class="members-loading" id="members-loading" role="status">Loading&hellip;</p>
+
+        <!-- Not signed in -->
+        <div class="members-inactive" id="admin-signin" hidden>
+          <p>Please sign in with your Beyond admin account.</p>
+          <a class="btn btn-primary" href="login.html?next=admin">Log in</a>
+        </div>
+
+        <!-- Signed in, but not an admin -->
+        <div class="members-inactive" id="admin-denied" hidden>
+          <p>This page is for Beyond admins only.</p>
+          <p class="card-footer-links">
+            <a class="btn btn-outline" href="members.html">Go to the directory</a>
+            <button class="members-link" type="button" data-signout>Log out</button>
+          </p>
+        </div>
+
+        <!-- =================================================================
+             THE PORTAL
+             ================================================================= -->
+        <div class="admin" id="admin-app" hidden>
+          <div class="admin-top">
+            <div class="members-tabs" role="group" aria-label="Section">
+              <button class="members-tab" type="button" data-tab="applications" aria-pressed="true">Applications <span class="members-tab-count" data-tab-count="applications"></span></button>
+              <button class="members-tab" type="button" data-tab="members" aria-pressed="false">Members <span class="members-tab-count" data-tab-count="members"></span></button>
+              <button class="members-tab" type="button" data-tab="activity" aria-pressed="false">Activity</button>
+            </div>
+            <div class="members-actions">
+              <a class="members-link" href="members.html">Directory</a>
+              <button class="members-link" type="button" data-refresh>Refresh</button>
+              <button class="members-link" type="button" data-signout>Log out</button>
+            </div>
+          </div>
+
+          <!-- ---------------------------------------------------------------
+               Applications
+               --------------------------------------------------------------- -->
+          <div class="admin-panel" id="tab-applications">
+            <div class="admin-toolbar">
+              <div class="members-tabs" role="group" aria-label="Status">
+                <button class="members-tab" type="button" data-status="pending" aria-pressed="true">Pending <span class="members-tab-count" data-status-count="pending"></span></button>
+                <button class="members-tab" type="button" data-status="accepted" aria-pressed="false">Accepted <span class="members-tab-count" data-status-count="accepted"></span></button>
+                <button class="members-tab" type="button" data-status="rejected" aria-pressed="false">Rejected <span class="members-tab-count" data-status-count="rejected"></span></button>
+                <button class="members-tab" type="button" data-status="all" aria-pressed="false">All <span class="members-tab-count" data-status-count="all"></span></button>
+              </div>
+              <label class="visually-hidden" for="app-role">Mentors or mentees</label>
+              <select class="input admin-select" id="app-role">
+                <option value="all">Mentors and mentees</option>
+                <option value="mentor">Mentors</option>
+                <option value="mentee">Mentees</option>
+              </select>
+              <div class="members-search">
+                <label class="visually-hidden" for="app-search">Search applications</label>
+                <input class="input" id="app-search" type="search" placeholder="Search name, email, city, answers…" autocomplete="off">
+              </div>
+              <button class="members-link" type="button" data-export="applications">Export CSV</button>
+            </div>
+
+            <div class="admin-split">
+              <div class="admin-list">
+                <div class="admin-table-wrap">
+                  <table class="admin-table">
+                    <thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Location</th><th scope="col">Applied</th><th scope="col">Status</th></tr></thead>
+                    <tbody id="app-rows"></tbody>
+                  </table>
+                </div>
+                <p class="members-empty" id="app-empty" hidden>No applications here.</p>
+              </div>
+              <section class="admin-detail" id="app-detail" aria-label="Application" tabindex="-1" hidden></section>
+            </div>
+          </div>
+
+          <!-- ---------------------------------------------------------------
+               Members
+               --------------------------------------------------------------- -->
+          <div class="admin-panel" id="tab-members" hidden>
+            <div class="admin-toolbar">
+              <div class="members-search">
+                <label class="visually-hidden" for="member-search">Search members</label>
+                <input class="input" id="member-search" type="search" placeholder="Search name, email, city…" autocomplete="off">
+              </div>
+              <button class="members-link" type="button" data-export="members">Export CSV</button>
+            </div>
+            <p class="members-notice" id="member-status" role="status" hidden></p>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">State</th><th scope="col">Photo</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+                <tbody id="member-rows"></tbody>
+              </table>
+            </div>
+            <p class="members-empty" id="member-empty" hidden>No members here.</p>
+          </div>
+
+          <!-- ---------------------------------------------------------------
+               Activity (the last 100 admin actions)
+               --------------------------------------------------------------- -->
+          <div class="admin-panel" id="tab-activity" hidden>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">What</th><th scope="col">About</th></tr></thead>
+                <tbody id="log-rows"></tbody>
+              </table>
+            </div>
+            <p class="members-empty" id="log-empty" hidden>Nothing yet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

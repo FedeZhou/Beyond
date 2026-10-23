@@ -38,7 +38,7 @@ window.BEYOND = {
   },
 
   contact: {
-    email: "hello@beyond-placeholder.org"          // PLACEHOLDER: your real contact email
+    email: "info@beyondicmc.com"                   // forwarded to Gmail by Cloudflare Email Routing (see the README)
   },
 
   /* ------------------------------------------------------------------------
@@ -52,18 +52,20 @@ window.BEYOND = {
   ],
 
   /* ------------------------------------------------------------------------
-     EDIT HERE: Form links (where applications are sent)
-     Create two free forms on https://formspree.io and paste their links here.
-     While a link still contains "YOUR_", the form runs in demo mode:
-     it shows the thank-you message but sends nothing.
+     EDIT HERE: Application forms (Become a mentor / Become a mentee)
+     Applications are saved in Supabase and emailed to you and to the person
+     who applied (see the README, "Applications and the admin portal").
+     Without js/config.js the forms run in demo mode: they show the
+     thank-you message but send nothing.
+     turnstileSiteKey: the PUBLIC "site key" of your free Cloudflare Turnstile
+       widget (the "are you a person?" check). Leave "" to hide it.
      ------------------------------------------------------------------------ */
-  forms: {
-    mentor: "https://formspree.io/f/YOUR_MENTOR_FORM_ID",   // PLACEHOLDER
-    mentee: "https://formspree.io/f/YOUR_MENTEE_FORM_ID"    // PLACEHOLDER
+  applications: {
+    turnstileSiteKey: ""                     // PLACEHOLDER, e.g. "0x4AAAAAAA..."
   },
 
   /* ------------------------------------------------------------------------
-     EDIT HERE: Members area (members.html and my-card.html)
+     EDIT HERE: Members area (login.html, members.html, my-card.html, join.html, reset-password.html)
      The Supabase address and key are NOT here: they live in js/config.js,
      which is kept out of GitHub (see js/config.example.js and the README).
      Without that file, the members pages run in demo mode with sample cards.
@@ -252,7 +254,9 @@ window.BEYOND = {
         about:  "About",
         mentor: "Become a mentor",
         mentee: "Become a mentee",
-        members: "Members"
+        members: "Login",               // when logged out
+        directory: "Directory",         // when logged in
+        profile: "My profile"           // when logged in
       },
       menu:         "Menu",
       close:        "Close",
@@ -283,30 +287,51 @@ window.BEYOND = {
         checkbox:  "Please tick this box to continue.",
         generic:   "Please check this field.",
         sending:   "Sending…",
-        demoNote:  "Demo mode: this form is not connected yet, so nothing will be sent. Add your Formspree link in js/content.js.",
-        error:     "Sorry, something went wrong and your application was not sent. Please try again, or write to us at {email}."
+        demoNote:  "Demo mode: this form is not connected to Supabase yet, so nothing will be sent. Add your Supabase details in js/config.js (see the README).",
+        error:     "Sorry, something went wrong and your application was not sent. Please try again, or write to us at {email}.",
+        invalid:   "Some answers could not be accepted. Please check the form and try again.",
+        duplicate: "You have already sent us an application with this email, and we are still reading it. We will be in touch soon.",
+        tooMany:   "Too many applications from this connection. Please try again later, or write to us at {email}.",
+        captcha:   "The \"are you a person?\" check did not work. Please try it again.",
+        captchaMissing: "Please complete the \"are you a person?\" check just above the button."
       },
       members: {
         demoNote:      "Demo mode: the members area is not connected to Supabase yet, so these are sample cards. Add your Supabase details in js/config.js (see the README).",
-        sendLink:      "Send me a sign-in link",
-        signInSent:    "If this email belongs to a Beyond member, a sign-in link is on its way. Check your inbox and your spam folder.",
-        signInWait:    "You can ask for another link in {s} seconds.",
-        signInTooMany: "Too many sign-in requests. Please try again in a few minutes.",
+        signIn:        "Log in",
+        signingIn:     "Logging in…",
+        signInWrong:   "This email and password don't match. Please try again, or choose a new password.",
+        signInTooMany: "Too many sign-in attempts. Please try again in a few minutes.",
         signInError:   "Sorry, something went wrong. Please try again, or write to us at {email}.",
+        resetSend:     "Email me a link",
+        resetSent:     "If this email belongs to a Beyond member, a link to choose a new password is on its way. Check your inbox and your spam folder.",
+        resetWait:     "You can ask for another link in {s} seconds.",
+        passwordShort: "Please choose a password of at least {min} characters.",
+        passwordMismatch: "The two passwords are different.",
+        passwordSaved: "Your new password is saved.",
+        passwordError: "Your password could not be saved. Please try again, or ask for a new link.",
+        joinHello:     "Welcome to Beyond, {name}!",
+        joinHelloNoName: "Welcome to Beyond!",
+        joinInvalid:   "This join link is not valid. Please check that you copied the whole address from the email, or write to us at {email}.",
+        joinUsed:      "This join link was already used. Log in with your email and password.",
+        joinExpired:   "This join link has expired. Write to us at {email} and we will send you a new one.",
+        joinExisting:  "Good news: this email already has an account with us, so you don't need a new password. Log in with the password you already use for it, or choose a new one with \"Forgot your password?\".",
+        joinError:     "Sorry, something went wrong. Please try again, or write to us at {email}.",
+        joinSaving:    "Creating your account…",
         notActive:     "Your account is not active. If you think this is a mistake, write to us at {email}.",
         loading:       "Loading…",
         loadError:     "The directory could not be loaded. Please check your connection and try again.",
         mentor:        "Mentor",
         mentee:        "Mentee",
         team:          "Beyond team",
-        linkExpired:   "This sign-in link has expired or was already used. Enter your email to get a new one.",
+        linkExpired:   "This link has expired or was already used. Ask for a new one on the login page.",
+        resetNoLink:   "To choose a new password, open the link we emailed you. No email? Ask for one on the login page.",
         count:         "{n} members",
         countOne:      "1 member",
         empty:         "No members match your search.",
         refreshWait:   "Already up to date. You can refresh again in a moment.",
         studies:       "Studies",
         experience:    "Experience",
-        welcome:       "Welcome to Beyond! Fill in your card so other members can find you.",
+        welcome:       "Welcome to Beyond! We filled in your card from your application. Check it, add a photo if you like, and save it to appear in the directory.",
         saving:        "Saving…",
         saved:         "Saved. Your card is up to date.",
         saveError:     "Your card could not be saved. Please try again.",

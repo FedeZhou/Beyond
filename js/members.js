@@ -1,9 +1,12 @@
 /* ==========================================================================
    BEYOND — members.js
    --------------------------------------------------------------------------
-   The members area: sign-in and the directory (members.html), and editing
-   your own card (my-card.html). The data lives in Supabase (free plan);
-   the rules that protect it are in supabase/schema.sql.
+   The members area: logging in (login.html), the directory (members.html),
+   your profile, i.e. your card in the directory (my-card.html), the join link from the acceptance email
+   (join.html) and choosing a new password (reset-password.html).
+   The data lives in Supabase (free plan); the rules that protect it are in
+   supabase/schema.sql and supabase/002-applications.sql, and the emails are
+   sent by the Edge Functions in supabase/functions/.
    The Supabase address and key come from js/config.js (kept out of GitHub,
    see js/config.example.js); the max lines are in js/content.js → members.
 
@@ -14,8 +17,8 @@
      and only load when they scroll into view.
    - Photo links last 7 days and are remembered, so a returning member's
      browser reuses the photos it already downloaded.
-   - Sign-in links: at most one request per minute from this browser
-     (Supabase also has its own limits).
+   - "Forgot password" emails: at most one request per minute from this
+     browser (the Edge Function has its own limits too).
    - Saving a card: at most once every 3 seconds and 30 times an hour
      (the database enforces this too).
    ========================================================================== */
@@ -27,7 +30,7 @@
   var UI = window.BEYOND_UI;
   if (!DATA || !UI) return;
 
-  var PAGE = document.body.getAttribute("data-page");   // "members" or "my-card"
+  var PAGE = document.body.getAttribute("data-page");   // "login", "members", "my-card", "join" or "reset"
   var CFG = DATA.members || {};
   var T = UI.strings.members;
   var esc = UI.esc;
@@ -37,8 +40,9 @@
   var REFRESH_GAP = 30 * 1000;               // manual refresh at most every 30 seconds
   var PHOTO_LINK_SECONDS = 7 * 24 * 3600;    // photo links last 7 days
   var PHOTO_RENEW = 24 * 3600 * 1000;        // renew links with less than a day left
-  var SIGNIN_GAP = 60 * 1000;                // one sign-in email per minute
+  var RESET_GAP = 60 * 1000;                 // one "forgot password" email per minute
   var SAVE_GAP = 3 * 1000;                   // same as the database rule
+  var MIN_PASSWORD = 10;                     // same as the beyond-join Edge Function
   var PHOTO_SIZE = 400;
   var PHOTO_QUALITY = 0.82;
   var PHOTO_MAX_BYTES = 15 * 1024 * 1024;    // largest original photo we accept
@@ -47,9 +51,10 @@
   var TABLE = "beyond_profiles";
   var BUCKET = "beyond-avatars";
   var COLUMNS = "id, role, status, is_listed, first_name, last_name, city, country, " +
-                "position, company, studies, experience, photo_path";
+                "position, company, studies, experience, photo_path, onboarded_at";
   var PLACEHOLDER = UI.assetUrl(DATA.placeholderPhoto);
-  var MEMBERS_URL = UI.pageUrl("members.html");
+  var LOGIN_URL = UI.pageUrl("login.html");
+  var PROFILE_URL = UI.pageUrl("my-card.html");
 
   // Demo mode until js/config.js gives the Supabase address and key
   var CONN = window.BEYOND_CONFIG || {};
@@ -78,7 +83,7 @@
     drop: function (key) { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } }
   };
   var PHOTOS_KEY = "beyond.photos.v1";
-  var SIGNIN_KEY = "beyond.signin.next";
+  var RESET_KEY = "beyond.reset.next";
   function directoryKey(uid) { return "beyond.directory.v1." + uid; }
 
   // Lower case, without accents: "Zürich" is found by typing "zurich"
@@ -107,8 +112,37 @@
   function signOut(uid) {
     store.drop(PHOTOS_KEY);
     if (uid) store.drop(directoryKey(uid));
-    var done = function () { location.href = MEMBERS_URL; };
+    var done = function () { location.href = LOGIN_URL; };
     if (db) db.auth.signOut().then(done, done); else done();
+  }
+
+  // Calls a Beyond Edge Function (supabase/functions/). Resolves with
+  // { status, data } whatever the answer, so callers can show the right message.
+  function callFunction(name, body) {
+    return db.functions.invoke(name, { body: body }).then(function (res) {
+      if (!res.error) return { status: 200, data: res.data || {} };
+      var reply = res.error.context;
+      if (reply && typeof reply.json === "function") {
+        return reply.json().then(
+          function (data) { return { status: reply.status, data: data || {} }; },
+          function () { return { status: reply.status, data: {} }; });
+      }
+      return { status: 0, data: {} };
+    }, function () { return { status: 0, data: {} }; });
+  }
+
+  // Checks a new password and its repetition; shows the problem under the field
+  function checkNewPassword(input, repeat) {
+    var problem = input.value.length < MIN_PASSWORD ? T.passwordShort.replace("{min}", MIN_PASSWORD) : "";
+    var mismatch = !problem && input.value !== repeat.value ? T.passwordMismatch : "";
+    [[input, problem], [repeat, mismatch]].forEach(function (pair) {
+      var errorEl = $(pair[0].id + "-error");
+      if (pair[1]) pair[0].setAttribute("aria-invalid", "true"); else pair[0].removeAttribute("aria-invalid");
+      say(errorEl, pair[1], true);
+    });
+    if (problem) { input.focus(); return false; }
+    if (mismatch) { repeat.focus(); return false; }
+    return true;
   }
 
   // Calls onUser(user) or onNoUser() once the session is known, and again on sign-in/out
@@ -180,11 +214,149 @@
   }
 
   /* ========================================================================
+     0. Login (login.html): email and password, or "Forgot your password?"
+     After signing in you go to your profile (my-card.html), or back to the
+     page that sent you here (?next=members or ?next=admin).
+     ======================================================================== */
+  function loginTarget() {
+    var match = /[?&]next=(members|admin)(&|$)/.exec(location.search);
+    return match ? UI.pageUrl(match[1] + ".html") : PROFILE_URL;
+  }
+
+  function setupLoginPage() {
+    var loading = $("members-loading");
+    loading.textContent = T.loading;
+    var panel = $("members-signin");
+
+    // --- Sign-in form ---
+    function setupSignIn() {
+      var form = $("signin-form");
+      var email = $("signin-email");
+      var password = $("signin-password");
+      var status = $("signin-status");
+      var button = form.querySelector('[type="submit"]');
+
+      form.addEventListener("input", function (event) {
+        if (event.target.getAttribute("aria-invalid") === "true") UI.validateField(event.target);
+      });
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        say(status, "");
+        var firstInvalid = [email, password].filter(function (f) { return !UI.validateField(f); })[0];
+        if (firstInvalid) { firstInvalid.focus(); return; }
+        if (DEMO) { location.href = loginTarget(); return; }
+
+        button.disabled = true;
+        button.textContent = T.signingIn;
+        db.auth.signInWithPassword({ email: email.value.trim().toLowerCase(), password: password.value })
+          .then(function (res) {
+            var error = res.error;
+            if (!error) return;                      // watchSession takes them to their profile
+            if (error.status === 429) say(status, T.signInTooMany, true);
+            else if (error.status === 400) say(status, T.signInWrong, true);
+            else say(status, withEmail(T.signInError), true);
+          })
+          .catch(function () { say(status, withEmail(T.signInError), true); })
+          .then(function () {
+            button.disabled = false;
+            button.textContent = T.signIn;
+          });
+      });
+    }
+
+    // --- Forgot password: the beyond-password-reset Edge Function emails a link ---
+    function setupForgotPassword() {
+      var signinPanel = $("signin-panel");
+      var resetPanel = $("reset-panel");
+      var form = $("reset-form");
+      var input = $("reset-email");
+      var status = $("reset-status");
+      var button = form.querySelector('[type="submit"]');
+      var timer = null;
+
+      function switchTo(reset) {
+        show(signinPanel, !reset);
+        show(resetPanel, reset);
+        if (reset) {
+          if (!input.value) input.value = $("signin-email").value.trim();
+          input.focus();
+        } else {
+          $("signin-email").focus();
+        }
+      }
+      signinPanel.querySelector("[data-show-reset]").addEventListener("click", function () { switchTo(true); });
+      resetPanel.querySelector("[data-show-signin]").addEventListener("click", function () { switchTo(false); });
+
+      function secondsLeft() {
+        return Math.max(0, Math.ceil(((store.get(RESET_KEY) || 0) - Date.now()) / 1000));
+      }
+
+      // While waiting, the button shows a countdown
+      function tick() {
+        clearTimeout(timer);
+        var s = secondsLeft();
+        button.disabled = s > 0;
+        button.textContent = s > 0 ? T.resetSend + " (" + s + ")" : T.resetSend;
+        if (s > 0) timer = setTimeout(tick, 1000);
+      }
+      tick();
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!UI.validateField(input)) { input.focus(); return; }
+        if (DEMO) { say(status, T.resetSent); return; }
+        if (secondsLeft() > 0) { say(status, T.resetWait.replace("{s}", secondsLeft())); return; }
+
+        store.set(RESET_KEY, Date.now() + RESET_GAP);
+        button.disabled = true;
+        callFunction("beyond-password-reset", { email: input.value.trim().toLowerCase() })
+          .then(function (res) {
+            if (res.status === 429) {
+              say(status, T.signInTooMany, true);
+            } else if (res.status !== 200) {
+              store.drop(RESET_KEY);
+              say(status, withEmail(T.signInError), true);
+            } else {
+              // Same message whether or not the email is a member, so nobody can check who is
+              say(status, T.resetSent);
+            }
+            tick();
+          });
+      });
+    }
+
+    setupSignIn();
+    setupForgotPassword();
+
+    // --- Start ---
+    if (DEMO) {
+      say($("members-demo"), T.demoNote);
+      show(loading, false);
+      show(panel, true);
+      return;
+    }
+    if (!db) {
+      show(loading, false);
+      say($("members-notice"), T.loadError, true);
+      return;
+    }
+
+    watchSession(function () {
+      location.replace(loginTarget());              // already signed in
+    }, function () {
+      show(loading, false);
+      show(panel, true);
+      if (LINK_ERROR) say($("signin-status"), T.linkExpired, true);
+      $("signin-email").focus();
+    });
+  }
+
+  /* ========================================================================
      1. Directory (members.html)
      ======================================================================== */
   function setupDirectoryPage() {
     var loading = $("members-loading");
-    var signin = $("members-signin");
     var directory = $("members-directory");
     var grid = $("member-grid");
     var search = $("members-search");
@@ -298,18 +470,19 @@
 
     function open(user, force) {
       state.user = user;
-      show(signin, false);
       if (!force) show(loading, true);
       fetchRows(user, force)
         .then(function (rows) {
           var me = rows.filter(function (r) { return r.id === user.id; })[0];
           if (!me || me.status !== "approved") { showInactive(user.id); return null; }
-          if (!me.first_name) {                    // first visit: fill in your card first
-            location.replace(UI.pageUrl("my-card.html") + "?welcome=1");
+          if (!me.onboarded_at) {                  // first visit: check and save your card first
+            location.replace(PROFILE_URL + "?welcome=1");
             return null;
           }
+          show(directory.querySelector("[data-admin-link]"), me.role === "admin");
+          // Admins can read every card: the directory still shows only the finished, visible ones
           state.rows = prepare(rows.filter(function (r) {
-            return r.status === "approved" && r.is_listed && r.first_name;
+            return r.status === "approved" && r.is_listed && r.onboarded_at;
           }));
           return photoLinks(state.rows.map(function (r) { return r.photo_path; }));
         })
@@ -341,60 +514,6 @@
       signOut(state.user && state.user.id);
     });
 
-    // --- Sign-in form ---
-    function setupSignIn() {
-      var form = $("signin-form");
-      var input = $("signin-email");
-      var status = $("signin-status");
-      var button = form.querySelector('[type="submit"]');
-      var timer = null;
-
-      function secondsLeft() {
-        return Math.max(0, Math.ceil(((store.get(SIGNIN_KEY) || 0) - Date.now()) / 1000));
-      }
-
-      // While waiting, the button shows a countdown
-      function tick() {
-        clearTimeout(timer);
-        var s = secondsLeft();
-        button.disabled = s > 0;
-        button.textContent = s > 0 ? T.sendLink + " (" + s + ")" : T.sendLink;
-        if (s > 0) timer = setTimeout(tick, 1000);
-      }
-      tick();
-
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        if (!UI.validateField(input)) { input.focus(); return; }
-        if (secondsLeft() > 0) { say(status, T.signInWait.replace("{s}", secondsLeft())); return; }
-
-        store.set(SIGNIN_KEY, Date.now() + SIGNIN_GAP);
-        button.disabled = true;
-        db.auth.signInWithOtp({
-          email: input.value.trim().toLowerCase(),
-          options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname }
-        })
-          .then(function (res) {
-            var error = res.error;
-            if (error && error.status === 429) {
-              say(status, T.signInTooMany, true);
-            } else if (error && (!error.status || error.status >= 500)) {
-              store.drop(SIGNIN_KEY);
-              say(status, withEmail(T.signInError), true);
-            } else {
-              // Same message whether or not the email is a member, so nobody can check who is
-              say(status, T.signInSent);
-            }
-            tick();
-          })
-          .catch(function () {
-            store.drop(SIGNIN_KEY);
-            say(status, withEmail(T.signInError), true);
-            tick();
-          });
-      });
-    }
-
     // --- Start ---
     if (DEMO) {
       say($("members-demo"), T.demoNote);
@@ -412,12 +531,8 @@
       return;
     }
 
-    setupSignIn();
     watchSession(open, function () {
-      show(loading, false);
-      show(directory, false);
-      show(signin, true);
-      if (LINK_ERROR) say($("signin-status"), T.linkExpired, true);
+      location.replace(LOGIN_URL + "?next=members");   // not signed in: log in first
     });
   }
 
@@ -692,13 +807,190 @@
           say($("members-notice"), T.loadError, true);
         });
     }, function () {
-      location.replace(MEMBERS_URL);              // not signed in: go to the sign-in page
+      location.replace(LOGIN_URL);                // not signed in: log in first
+    });
+  }
+
+  /* ========================================================================
+     3. Join link from the acceptance email (join.html?token=…)
+     The beyond-join Edge Function checks the link, then creates the account
+     with the chosen password; the database pre-fills the card from the
+     application. Then: sign in, and check the card on my-card.html.
+     ======================================================================== */
+  function setupJoinPage() {
+    var loading = $("members-loading");
+    loading.textContent = T.loading;
+    var panel = $("join-panel");
+    var form = $("join-form");
+    var password = $("join-password");
+    var repeat = $("join-password2");
+    var status = $("join-status");
+    var button = form.querySelector('[type="submit"]');
+    var label = button.textContent;
+
+    var match = /[?&]token=([A-Za-z0-9_-]+)/.exec(location.search);
+    var token = match ? match[1] : "";
+    var email = "";
+
+    // The link is private: keep it out of the address bar (and the browser history)
+    if (token) history.replaceState(null, "", location.pathname);
+
+    function message(text, signOutFirst) {
+      show(loading, false);
+      show(panel, false);
+      $("join-message-text").textContent = withEmail(text);
+      show($("join-message"), true);
+      // Someone else signed in on this browser? Sign them out so this person can sign in
+      if (signOutFirst && db) db.auth.signOut();
+    }
+
+    function linkProblem(res) {
+      var error = res.data && res.data.error;
+      if (error === "used") return T.joinUsed;
+      if (error === "expired") return T.joinExpired;
+      if (error === "invalid_token") return T.joinInvalid;
+      return T.joinError;
+    }
+
+    if (DEMO) {
+      say($("members-demo"), T.demoNote);
+      $("join-hello").textContent = T.joinHello.replace("{name}", "Sample");
+      $("join-email").value = "sample@example.com";
+      show(loading, false);
+      show(panel, true);
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (checkNewPassword(password, repeat)) say(status, T.demoSave);
+      });
+      return;
+    }
+    if (!db) { message(T.loadError); return; }
+    if (!token) { message(T.joinInvalid); return; }
+
+    callFunction("beyond-join", { action: "check", token: token }).then(function (res) {
+      if (res.status !== 200) { message(linkProblem(res)); return; }
+      email = res.data.email;
+      if (res.data.accountExists) {
+        // Nothing to choose: mark the link as used and send them to sign in
+        callFunction("beyond-join", { action: "claim", token: token });
+        message(T.joinExisting, true);
+        return;
+      }
+      $("join-hello").textContent = res.data.firstName
+        ? T.joinHello.replace("{name}", res.data.firstName) : T.joinHelloNoName;
+      $("join-email").value = email;
+      show(loading, false);
+      show(panel, true);
+      password.focus();
+    });
+
+    form.addEventListener("input", function (event) {
+      if (event.target.getAttribute("aria-invalid") === "true") checkNewPassword(password, repeat);
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      say(status, "");
+      if (!checkNewPassword(password, repeat)) return;
+
+      button.disabled = true;
+      button.textContent = T.joinSaving;
+      callFunction("beyond-join", { action: "claim", token: token, password: password.value })
+        .then(function (res) {
+          if (res.status === 400 && res.data.error === "password") {
+            say(status, res.data.message || T.passwordShort.replace("{min}", MIN_PASSWORD), true);
+            return;
+          }
+          if (res.status !== 200) { say(status, linkProblem(res), true); return; }
+          if (res.data.accountExists) { message(T.joinExisting, true); return; }
+          return db.auth.signInWithPassword({ email: email, password: password.value }).then(function (signin) {
+            if (signin.error) { message(T.joinUsed); return; }
+            location.replace(PROFILE_URL + "?welcome=1");
+          });
+        })
+        .catch(function () { say(status, withEmail(T.joinError), true); })
+        .then(function () {
+          button.disabled = false;
+          button.textContent = label;
+        });
+    });
+  }
+
+  /* ========================================================================
+     4. Choose a new password (reset-password.html)
+     Reached from the "forgot password" email (Supabase signs the person in
+     from the link), or from My card while signed in.
+     ======================================================================== */
+  function setupResetPage() {
+    var loading = $("members-loading");
+    loading.textContent = T.loading;
+    var panel = $("password-panel");
+    var form = $("password-form");
+    var password = $("new-password");
+    var repeat = $("new-password2");
+    var status = $("password-status");
+    var button = form.querySelector('[type="submit"]');
+    var label = button.textContent;
+
+    function message(text) {
+      show(loading, false);
+      show(panel, false);
+      $("password-message-text").textContent = text;
+      show($("password-message"), true);
+    }
+
+    form.addEventListener("input", function (event) {
+      if (event.target.getAttribute("aria-invalid") === "true") checkNewPassword(password, repeat);
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      say(status, "");
+      if (!checkNewPassword(password, repeat)) return;
+      if (DEMO) { say(status, T.demoSave); return; }
+
+      button.disabled = true;
+      db.auth.updateUser({ password: password.value })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          form.reset();
+          say(status, T.passwordSaved);
+          show($("password-done"), true);
+        })
+        .catch(function (error) {
+          console.error("Beyond: the password could not be saved.", error);
+          say(status, (error && error.status === 422 && error.message) || T.passwordError, true);
+        })
+        .then(function () {
+          button.disabled = false;
+          button.textContent = label;
+        });
+    });
+
+    if (DEMO) {
+      say($("members-demo"), T.demoNote);
+      show(loading, false);
+      show(panel, true);
+      return;
+    }
+    if (!db) { message(T.loadError); return; }
+
+    watchSession(function () {
+      show(loading, false);
+      show($("password-message"), false);
+      show(panel, true);
+      password.focus();
+    }, function () {
+      message(LINK_ERROR ? T.linkExpired : T.resetNoLink);
     });
   }
 
   /* ------------------------------------------------------------------------
      Start the right page
      ------------------------------------------------------------------------ */
+  if (PAGE === "login") setupLoginPage();
   if (PAGE === "members") setupDirectoryPage();
   if (PAGE === "my-card") setupCardPage();
+  if (PAGE === "join") setupJoinPage();
+  if (PAGE === "reset") setupResetPage();
 })();

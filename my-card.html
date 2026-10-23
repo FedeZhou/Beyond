@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My card | Beyond</title>
+  <title>My profile | Beyond</title>
   <meta name="description" content="Edit your card in the Beyond members directory.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#051C2C">
@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="css/styles.css">
 
   <script src="js/content.js" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
   <script src="js/main.js" defer></script>
   <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
-  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
-  <script src="js/config.js" defer></script>
   <script src="js/members.js" defer></script>
 </head>
 
@@ -31,7 +31,7 @@
       <nav class="container noscript-nav" aria-label="Main">
         <a href="index.html">Home</a> <a href="about.html">About</a>
         <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
-        <a href="members.html">Members</a>
+        <a href="login.html">Login</a>
       </nav>
     </noscript>
   </header>
@@ -44,7 +44,7 @@
     <section class="page-hero page-hero--compact" aria-labelledby="page-title">
       <div class="container">
         <p class="eyebrow eyebrow--light">Members</p>
-        <h1 id="page-title" class="page-title">My card.</h1>
+        <h1 id="page-title" class="page-title">My profile.</h1>
         <p class="lead">This is what other members see in the directory. Keep it short and up to date.</p>
       </div>
     </section>
@@ -59,7 +59,7 @@
         <!-- Signed in, but the account is not active -->
         <div class="members-inactive" id="members-inactive" hidden>
           <p id="members-inactive-text"></p>
-          <button class="btn btn-outline" type="button" data-signout>Sign out</button>
+          <button class="btn btn-outline" type="button" data-signout>Log out</button>
         </div>
 
         <div class="card-editor" id="card-editor" hidden>
@@ -165,8 +165,9 @@
           </div>
 
           <p class="members-aside card-footer-links">
-            <a href="members.html">Back to the directory</a>
-            <button class="members-link" id="card-signout" type="button">Sign out</button>
+            <a href="members.html">Go to the directory</a>
+            <a href="reset-password.html">Change my password</a>
+            <button class="members-link" id="card-signout" type="button">Log out</button>
           </p>
         </div>
       </div>

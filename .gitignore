@@ -8,3 +8,6 @@ js/config.js
 # Supabase local files
 supabase/.temp/
 supabase/.branches/
+
+# Built site (made by scripts/build.mjs on Vercel)
+dist/

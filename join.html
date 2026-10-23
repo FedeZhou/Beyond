@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Join | Beyond</title>
+  <meta name="description" content="Join Beyond: choose your password and check your card.">
+  <meta name="robots" content="noindex">
+  <!-- The address of this page contains a private link: never send it to other sites -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#051C2C">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="js/content.js" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
+  <script src="js/main.js" defer></script>
+  <!-- Supabase library, pinned to one version; the integrity hash makes the browser refuse a modified copy -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous" defer></script>
+  <script src="js/members.js" defer></script>
+</head>
+
+<body data-page="join">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header id="site-header" class="site-header">
+    <noscript>
+      <nav class="container noscript-nav" aria-label="Main">
+        <a href="index.html">Home</a> <a href="about.html">About</a>
+        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </noscript>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- =====================================================================
+         PAGE HEADER
+         ===================================================================== -->
+    <section class="page-hero page-hero--compact" aria-labelledby="page-title">
+      <div class="container">
+        <p class="eyebrow eyebrow--light">Members</p>
+        <h1 id="page-title" class="page-title">Join Beyond.</h1>
+        <p class="lead">Choose a password, then check your card. It takes two minutes.</p>
+      </div>
+    </section>
+
+    <section class="section members-section">
+      <div class="container">
+        <noscript><p class="members-notice is-error">The members area needs JavaScript. Please turn it on and reload the page.</p></noscript>
+        <p class="form-demo-note members-demo" id="members-demo" hidden></p>
+        <p class="members-notice" id="members-notice" role="alert" hidden></p>
+        <p class="members-loading" id="members-loading" role="status">Loading&hellip;</p>
+
+        <!-- =================================================================
+             THE LINK IS VALID: choose a password
+             ================================================================= -->
+        <div class="members-signin" id="join-panel" hidden>
+          <div class="form-card">
+            <h2 id="join-hello">Welcome to Beyond!</h2>
+            <p>Choose a password for your Beyond account. You will use it with your email to sign in. Next, you will check your card: we have already filled it in from your application.</p>
+            <form class="form" id="join-form" novalidate>
+              <div class="field">
+                <label for="join-email">Email</label>
+                <input class="input" id="join-email" name="email" type="email" autocomplete="username" readonly>
+              </div>
+              <div class="field">
+                <label for="join-password">
+                  Password
+                  <span class="field-hint" id="join-password-hint">At least 10 characters. A short sentence is easy to remember and hard to guess.</span>
+                </label>
+                <input class="input" id="join-password" name="password" type="password" autocomplete="new-password" maxlength="72" required aria-describedby="join-password-hint join-password-error">
+                <p class="field-error" id="join-password-error" hidden></p>
+              </div>
+              <div class="field">
+                <label for="join-password2">Repeat the password</label>
+                <input class="input" id="join-password2" name="password2" type="password" autocomplete="new-password" maxlength="72" required aria-describedby="join-password2-error">
+                <p class="field-error" id="join-password2-error" hidden></p>
+              </div>
+              <p class="members-notice" id="join-status" role="status" hidden></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit">Create my account</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             THE LINK CAN'T BE USED (or the email already has an account)
+             ================================================================= -->
+        <div class="members-inactive" id="join-message" hidden>
+          <p id="join-message-text"></p>
+          <a class="btn btn-primary" href="login.html">Go to login</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+</body>
+</html>

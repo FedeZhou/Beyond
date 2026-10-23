@@ -1,0 +1,19 @@
+# BEYOND — settings the Supabase CLI reads when deploying the Edge Functions:
+#   npx supabase functions deploy beyond-apply beyond-admin beyond-join beyond-password-reset --project-ref <your-project-ref>
+# Only Beyond's functions are listed here; nothing else in the shared project is affected.
+
+# Only a local name the CLI needs; the real project is chosen with --project-ref
+project_id = "beyond"
+
+# verify_jwt = false: these three are called by visitors who are not signed in,
+# so they do their own checks (website address, spam check, rate limits, tokens).
+# beyond-admin keeps the default (true) and also checks that the caller is an admin.
+
+[functions.beyond-apply]
+verify_jwt = false
+
+[functions.beyond-join]
+verify_jwt = false
+
+[functions.beyond-password-reset]
+verify_jwt = false

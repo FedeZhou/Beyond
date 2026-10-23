@@ -12,8 +12,9 @@
      8.  Inner page hero
      9.  About page
      10. Join pages and forms
-     11. Members area (directory and My card)
-     12. Accessibility and utilities
+     11. Members area (directory, My card, join, new password)
+     12. Admin portal
+     13. Accessibility and utilities
    ========================================================================== */
 
 
@@ -1160,6 +1161,16 @@ section[id] {
   color: var(--on-navy);
 }
 
+/* Between the full and the compact banner (Become a mentor / mentee) */
+.page-hero--medium {
+  padding-block: clamp(3.5rem, 7.5vw, 5.75rem) clamp(3rem, 6vw, 4.5rem);
+}
+.page-hero--medium .page-title {
+  max-width: none;
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+}
+
 
 /* ==========================================================================
    9. About page
@@ -1618,7 +1629,7 @@ select.input {
 
 
 /* ==========================================================================
-   11. Members area (members.html, my-card.html)
+   11. Members area (members.html, my-card.html, join.html, reset-password.html)
    ========================================================================== */
 .page-hero--compact {
   padding-block: clamp(3rem, 6vw, 4.5rem) clamp(2.5rem, 5vw, 3.5rem);
@@ -1900,9 +1911,271 @@ select.input {
   font-weight: 600;
 }
 
+/* "Are you a person?" check on the application forms */
+.form-captcha {
+  min-height: 65px;
+}
+
+/* Join and new password pages */
+#join-email[readonly] {
+  background: var(--grey-050);
+  color: var(--grey-700);
+}
+
 
 /* ==========================================================================
-   12. Accessibility and utilities
+   12. Admin portal (admin.html)
+   ========================================================================== */
+.admin-top,
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.admin-top {
+  justify-content: space-between;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--grey-200);
+}
+.admin-toolbar .members-search {
+  flex: 1 1 220px;
+}
+/* Phones: the row of tabs scrolls sideways instead of overflowing */
+.admin .members-tabs {
+  overflow-x: auto;
+}
+.admin .members-tab {
+  white-space: nowrap;
+}
+
+.admin-select {
+  width: auto;
+  padding-block: 0.7rem;
+  font-size: 0.9375rem;
+}
+.admin-select--small {
+  padding: 0.45rem 2.25rem 0.45rem 0.6rem;
+  background-position: right 0.7rem center;
+  font-size: 0.875rem;
+}
+
+/* --- List and detail side by side on wide screens --- */
+.admin-split {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .admin-split:has(.admin-detail:not([hidden])) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+  .admin-detail {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+    max-height: calc(100vh - var(--header-h) - 2rem);
+    overflow-y: auto;
+  }
+  .admin-back {
+    display: none;
+  }
+}
+/* Narrow screens: the open application replaces the list */
+@media (max-width: 1099px) {
+  .admin-split:has(.admin-detail:not([hidden])) .admin-list {
+    display: none;
+  }
+}
+
+/* --- Tables --- */
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--grey-200);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.admin-table th {
+  padding: 0.75rem 1rem;
+  background: var(--grey-050);
+  font: 700 0.6875rem/1.2 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--grey-500);
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--grey-200);
+  vertical-align: top;
+  color: var(--ink);
+}
+.admin-row {
+  cursor: pointer;
+}
+.admin-row:hover td {
+  background: var(--grey-050);
+}
+.admin-row[aria-current="true"] td {
+  background: #EEF2FF;
+}
+.admin-row[aria-current="true"] td:first-child {
+  box-shadow: inset 3px 0 0 var(--blue);
+}
+
+/* The name works as a button, so the list can be used with the keyboard */
+.admin-row-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+}
+.admin-row-link:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+.admin-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--grey-500);
+  word-break: break-word;
+}
+
+.admin-row-actions {
+  white-space: nowrap;
+}
+.admin-row-actions .members-link + .members-link {
+  margin-left: 1rem;
+}
+
+.admin-danger {
+  color: var(--error);
+}
+
+/* --- Status labels --- */
+.admin-pill {
+  display: inline-block;
+  padding: 0.3rem 0.55rem;
+  font: 700 0.6875rem/1 var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--grey-050);
+  color: var(--grey-700);
+  border: 1px solid var(--grey-200);
+}
+.admin-pill--pending,
+.admin-pill--invited,
+.admin-pill--joined {
+  background: #FFF7E6;
+  border-color: #F2D49B;
+  color: #7A4B00;
+}
+.admin-pill--accepted,
+.admin-pill--active {
+  background: #EAF7EF;
+  border-color: #A9DDBC;
+  color: #17603A;
+}
+.admin-pill--rejected,
+.admin-pill--suspended,
+.admin-pill--expired {
+  background: #FDF3F2;
+  border-color: #F1C0BB;
+  color: var(--error);
+}
+
+/* --- One application --- */
+.admin-detail {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--grey-200);
+  border-top: 3px solid var(--navy);
+  background: var(--white);
+}
+.admin-detail:focus {
+  outline: none;
+}
+.admin-back {
+  margin-bottom: 1.25rem;
+}
+.admin-detail-name {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.625rem, 3vw, 2rem);
+  font-weight: 300;
+}
+.admin-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--grey-500);
+  word-break: break-word;
+}
+
+.admin-h3 {
+  margin: 2rem 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+
+.admin-answers,
+.admin-facts {
+  margin: 1.25rem 0 0;
+}
+.admin-answers > div,
+.admin-facts > div {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--grey-200);
+}
+.admin-answers dt,
+.admin-facts dt {
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--grey-500);
+}
+.admin-answers dd,
+.admin-facts dd {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ink);
+}
+.admin-facts dd {
+  font-size: 0.9375rem;
+}
+
+.admin-actions {
+  display: grid;
+  gap: 1rem;
+}
+.admin-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.admin-danger-line {
+  margin: 0.5rem 0 0;
+}
+.admin-detail .members-notice {
+  margin: 1.25rem 0 0;
+}
+
+
+/* ==========================================================================
+   13. Accessibility and utilities
    ========================================================================== */
 
 /* Anything with the "hidden" attribute stays hidden, whatever its other styles */

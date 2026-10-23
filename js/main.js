@@ -7,7 +7,7 @@
      1. Builds the shared header and footer on every page
      2. Renders the mentor cards (Home), founders and projects (About)
      3. Opens and closes the mobile menu
-     4. Checks the application forms and sends them
+     4. Checks the application forms and sends them to Supabase
      5. Shares its small helpers with js/members.js (members area)
    ========================================================================== */
 
@@ -22,15 +22,36 @@
 
   /* ------------------------------------------------------------------------
      Pages of the site, in menu order. The id must match the
-     data-page="..." attribute on each page's <body>.
+     data-page="..." attribute on each page's <body>; "label" is the name
+     in strings.nav (content.js) when it differs from the id. Logged-out
+     visitors see "Login"; members see "Directory" and "My profile".
      ------------------------------------------------------------------------ */
   var PAGES = [
     { id: "home",   file: "index.html" },
     { id: "about",  file: "about.html" },
     { id: "mentor", file: "mentor.html" },
-    { id: "mentee", file: "mentee.html" },
-    { id: "members", file: "members.html" }
-  ];
+    { id: "mentee", file: "mentee.html" }
+  ].concat(isLoggedIn() ? [
+    { id: "members", file: "members.html", label: "directory", alsoCurrent: ["admin"] },
+    { id: "my-card", file: "my-card.html", label: "profile", alsoCurrent: ["reset"] }
+  ] : [
+    { id: "login",  file: "login.html", label: "members", alsoCurrent: ["members", "my-card", "join", "reset", "admin"] }
+  ]);
+
+  // True when this browser holds a Beyond sign-in (Supabase keeps it in localStorage
+  // as "sb-<project>-auth-token"). Only used to choose the menu links; the members
+  // pages check the session properly and send anyone else to the login page.
+  function isLoggedIn() {
+    var conn = window.BEYOND_CONFIG || {};
+    var project = /^https?:\/\/([^.\/]+)\./.exec(conn.supabaseUrl || "");
+    if (!project) return false;
+    try {
+      var saved = JSON.parse(localStorage.getItem("sb-" + project[1] + "-auth-token"));
+      return !!(saved && saved.refresh_token);
+    } catch (e) {
+      return false;
+    }
+  }
 
   /* ------------------------------------------------------------------------
      Language and paths
@@ -92,8 +113,9 @@
     if (!header) return;
 
     var links = PAGES.map(function (page) {
-      var current = page.id === CURRENT_PAGE ? ' aria-current="page"' : "";
-      return '<li><a href="' + pageUrl(page.file) + '"' + current + ">" + esc(T.nav[page.id]) + "</a></li>";
+      var isCurrent = page.id === CURRENT_PAGE || (page.alsoCurrent || []).indexOf(CURRENT_PAGE) !== -1;
+      var current = isCurrent ? ' aria-current="page"' : "";
+      return '<li><a href="' + pageUrl(page.file) + '"' + current + ">" + esc(T.nav[page.label || page.id]) + "</a></li>";
     }).join("");
 
     // Language switch: only shown when more than one language is listed in content.js
@@ -458,21 +480,76 @@
     return !message;
   }
 
+  // Where applications go: the "beyond-apply" Edge Function in Supabase.
+  // The address comes from js/config.js; without it the forms run in demo mode.
+  function applyEndpoint() {
+    var conn = window.BEYOND_CONFIG || {};
+    if (!conn.supabaseUrl || !conn.supabaseAnonKey) return null;
+    return {
+      url: conn.supabaseUrl.replace(/\/+$/, "") + "/functions/v1/beyond-apply",
+      key: conn.supabaseAnonKey
+    };
+  }
+
+  // Cloudflare Turnstile ("are you a person?"), loaded only on pages with a form
+  var turnstileReady = null;
+  function loadTurnstile() {
+    if (!turnstileReady) {
+      turnstileReady = new Promise(function (resolve, reject) {
+        window.beyondTurnstileLoaded = function () { resolve(window.turnstile); };
+        var script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=beyondTurnstileLoaded";
+        script.async = true;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    return turnstileReady;
+  }
+
+  // The answers as { name: value }: tick boxes become true / false
+  function formValues(form) {
+    var values = {};
+    Array.prototype.forEach.call(form.elements, function (field) {
+      if (!field.name || field.closest(".hp") || field.disabled) return;
+      if (field.type === "checkbox") values[field.name] = field.checked;
+      else if (field.type !== "submit" && field.type !== "button") values[field.name] = field.value.trim();
+    });
+    return values;
+  }
+
   function setupForm(form) {
     var key = form.getAttribute("data-form");
-    var endpoint = (DATA.forms && DATA.forms[key]) || "";
-    var demo = !endpoint || endpoint.indexOf("YOUR_") !== -1;
+    var endpoint = applyEndpoint();
+    var demo = !endpoint;
     var thanks = document.getElementById(form.getAttribute("data-thanks"));
     var status = form.querySelector(".form-status");
     var submit = form.querySelector('[type="submit"]');
+    var captchaBox = form.querySelector(".form-captcha");
+    var siteKey = (DATA.applications && DATA.applications.turnstileSiteKey) || "";
+    var captchaId = null;
 
     form.noValidate = true; // we show our own, friendlier messages
-    if (!demo) form.setAttribute("action", endpoint);
 
     var demoNote = form.querySelector(".form-demo-note");
     if (demo && demoNote) {
       demoNote.textContent = T.form.demoNote;
       demoNote.hidden = false;
+    }
+
+    if (!demo && siteKey && captchaBox) {
+      loadTurnstile().then(function (turnstile) {
+        captchaBox.hidden = false;
+        captchaId = turnstile.render(captchaBox, { sitekey: siteKey, theme: "light" });
+      }, function () {
+        console.error("Beyond: the spam check could not be loaded.");
+      });
+    }
+
+    function showStatus(message) {
+      if (!status) return;
+      status.textContent = message.replace("{email}", DATA.contact.email);
+      status.hidden = false;
     }
 
     // "Other" option in a select reveals an extra text field
@@ -524,7 +601,14 @@
         return;
       }
 
-      // 3. Send
+      // 3. The "are you a person?" check must be done
+      var captchaToken = captchaId !== null && window.turnstile ? window.turnstile.getResponse(captchaId) : "";
+      if (captchaId !== null && !captchaToken) {
+        showStatus(T.form.captchaMissing);
+        return;
+      }
+
+      // 4. Send
       var originalLabel = submit.textContent;
       submit.disabled = true;
       submit.textContent = T.form.sending;
@@ -538,23 +622,36 @@
         return;
       }
 
-      fetch(endpoint, {
+      fetch(endpoint.url, {
         method: "POST",
-        body: new FormData(form),
-        headers: { Accept: "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          apikey: endpoint.key,
+          Authorization: "Bearer " + endpoint.key
+        },
+        body: JSON.stringify({
+          role: key,
+          fields: formValues(form),
+          honeypot: trap ? trap.value : "",
+          turnstileToken: captchaToken
+        })
       })
         .then(function (response) {
-          if (!response.ok) throw new Error("Status " + response.status);
-          reset();
-          showThanks();
+          return response.json().catch(function () { return {}; }).then(function (data) {
+            if (response.ok) {
+              reset();
+              showThanks();
+              return;
+            }
+            var messages = { duplicate: T.form.duplicate, rate_limited: T.form.tooMany, captcha: T.form.captcha, invalid: T.form.invalid };
+            throw { message: messages[data.error] || T.form.error, status: response.status };
+          });
         })
         .catch(function (error) {
           console.error("Beyond: form could not be sent.", error);
           reset();
-          if (status) {
-            status.textContent = T.form.error.replace("{email}", DATA.contact.email);
-            status.hidden = false;
-          }
+          if (captchaId !== null && window.turnstile) window.turnstile.reset(captchaId);
+          showStatus((error && typeof error.message === "string" && error.status) ? error.message : T.form.error);
         });
     });
 

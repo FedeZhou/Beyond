@@ -17,6 +17,8 @@
   <link rel="stylesheet" href="css/styles.css">
 
   <script src="js/content.js" defer></script>
+  <!-- Supabase address and key: js/config.js is kept out of GitHub (see js/config.example.js) -->
+  <script src="js/config.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 
@@ -28,7 +30,7 @@
       <nav class="container noscript-nav" aria-label="Main">
         <a href="index.html">Home</a> <a href="about.html">About</a>
         <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
-        <a href="members.html">Members</a>
+        <a href="login.html">Login</a>
       </nav>
     </noscript>
   </header>
@@ -38,7 +40,7 @@
     <!-- =====================================================================
          PAGE HEADER
          ===================================================================== -->
-    <section class="page-hero" aria-labelledby="page-title">
+    <section class="page-hero page-hero--medium" aria-labelledby="page-title">
       <div class="container">
         <p class="eyebrow eyebrow--light">Become a mentor</p>
         <h1 id="page-title" class="page-title">Be the role model you never had.</h1>
@@ -75,7 +77,7 @@
 
         <!-- ===================================================================
              02 — APPLICATION FORM
-             Where it is sent: "forms.mentor" in js/content.js
+             Sent to Supabase (the "beyond-apply" Edge Function, see the README)
              =================================================================== -->
         <div class="join-form">
           <p class="eyebrow"><span class="eyebrow-num">02</span>Apply</p>
@@ -86,67 +88,85 @@
               <p class="form-required-note">All fields are required.</p>
               <p class="form-demo-note" hidden></p>
 
-              <!-- Subject line of the email you receive -->
-              <input type="hidden" name="_subject" value="New mentor application: Beyond">
+              <div class="form-row form-row--2">
+                <div class="field">
+                  <label for="first-name">Name</label>
+                  <input class="input" id="first-name" name="first_name" type="text" autocomplete="given-name" maxlength="60" required aria-describedby="first-name-error">
+                  <p class="field-error" id="first-name-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="last-name">Surname</label>
+                  <input class="input" id="last-name" name="last_name" type="text" autocomplete="family-name" maxlength="60" required aria-describedby="last-name-error">
+                  <p class="field-error" id="last-name-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="email">Email</label>
+                <input class="input" id="email" name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby="email-error">
+                <p class="field-error" id="email-error" hidden></p>
+              </div>
 
               <div class="form-row form-row--2">
                 <div class="field">
-                  <label for="name">Full name</label>
-                  <input class="input" id="name" name="name" type="text" autocomplete="name" required aria-describedby="name-error">
-                  <p class="field-error" id="name-error" hidden></p>
+                  <label for="city">City</label>
+                  <input class="input" id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required aria-describedby="city-error">
+                  <p class="field-error" id="city-error" hidden></p>
                 </div>
                 <div class="field">
-                  <label for="email">Email</label>
-                  <input class="input" id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-error">
-                  <p class="field-error" id="email-error" hidden></p>
+                  <label for="country">Country</label>
+                  <input class="input" id="country" name="country" type="text" autocomplete="country-name" maxlength="80" required aria-describedby="country-error">
+                  <p class="field-error" id="country-error" hidden></p>
                 </div>
               </div>
 
               <div class="form-row form-row--2">
                 <div class="field">
                   <label for="company">Company</label>
-                  <input class="input" id="company" name="company" type="text" autocomplete="organization" required aria-describedby="company-error">
+                  <input class="input" id="company" name="company" type="text" autocomplete="organization" maxlength="120" required aria-describedby="company-error">
                   <p class="field-error" id="company-error" hidden></p>
                 </div>
                 <div class="field">
-                  <label for="role">Role</label>
-                  <input class="input" id="role" name="role" type="text" autocomplete="organization-title" required aria-describedby="role-error">
-                  <p class="field-error" id="role-error" hidden></p>
+                  <label for="position">Role</label>
+                  <input class="input" id="position" name="position" type="text" autocomplete="organization-title" maxlength="120" required aria-describedby="position-error">
+                  <p class="field-error" id="position-error" hidden></p>
                 </div>
               </div>
 
-              <div class="form-row form-row--2">
-                <div class="field">
-                  <label for="field">Field</label>
-                  <select class="input" id="field" name="field" required aria-describedby="field-error" data-other-target="field-other-wrap">
-                    <option value="">Choose your field</option>
-                    <option>Engineering</option>
-                    <option>Mathematics</option>
-                    <option>Physics</option>
-                    <option>Computer Science</option>
-                    <option>Medicine</option>
-                    <option>Research</option>
-                    <option>Finance</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <p class="field-error" id="field-error" hidden></p>
-                </div>
-                <div class="field">
-                  <label for="city">City</label>
-                  <input class="input" id="city" name="city" type="text" autocomplete="address-level2" required aria-describedby="city-error">
-                  <p class="field-error" id="city-error" hidden></p>
-                </div>
+              <div class="field">
+                <label for="field">Field</label>
+                <select class="input" id="field" name="field" required aria-describedby="field-error" data-other-target="field-other-wrap">
+                  <option value="">Choose your field</option>
+                  <option>Engineering</option>
+                  <option>Mathematics</option>
+                  <option>Physics</option>
+                  <option>Computer Science</option>
+                  <option>Medicine</option>
+                  <option>Research</option>
+                  <option>Finance</option>
+                  <option value="Other">Other</option>
+                </select>
+                <p class="field-error" id="field-error" hidden></p>
               </div>
 
               <div class="field" id="field-other-wrap" hidden>
                 <label for="field-other">Please specify your field</label>
-                <input class="input" id="field-other" name="field_other" type="text" aria-describedby="field-other-error">
+                <input class="input" id="field-other" name="field_other" type="text" maxlength="120" aria-describedby="field-other-error">
                 <p class="field-error" id="field-other-error" hidden></p>
               </div>
 
               <div class="field">
+                <label for="highest-degree">
+                  Highest degree and university
+                  <span class="field-hint" id="highest-degree-hint">For example: Politecnico di Milano, MSc Aerospace Engineering.</span>
+                </label>
+                <input class="input" id="highest-degree" name="highest_degree" type="text" maxlength="200" required aria-describedby="highest-degree-hint highest-degree-error">
+                <p class="field-error" id="highest-degree-error" hidden></p>
+              </div>
+
+              <div class="field">
                 <label for="linkedin">LinkedIn profile URL</label>
-                <input class="input" id="linkedin" name="linkedin" type="url" inputmode="url" placeholder="https://www.linkedin.com/in/your-name" required aria-describedby="linkedin-error">
+                <input class="input" id="linkedin" name="linkedin" type="url" inputmode="url" maxlength="300" placeholder="https://www.linkedin.com/in/your-name" required aria-describedby="linkedin-error">
                 <p class="field-error" id="linkedin-error" hidden></p>
               </div>
 
@@ -155,8 +175,16 @@
                   Why do you want to become a mentor?
                   <span class="field-hint" id="motivation-hint"></span>
                 </label>
-                <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" required aria-describedby="motivation-hint motivation-error"></textarea>
+                <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" maxlength="3000" required aria-describedby="motivation-hint motivation-error"></textarea>
                 <p class="field-error" id="motivation-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <div class="checkbox">
+                  <input id="age" name="age_confirmed" type="checkbox" value="yes" required aria-describedby="age-error">
+                  <label for="age">I am 18 or older.</label>
+                </div>
+                <p class="field-error" id="age-error" hidden></p>
               </div>
 
               <!-- The two links get their address from "legal" in js/content.js -->
@@ -174,6 +202,9 @@
                 <input id="website" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
               </div>
 
+              <!-- "Are you a person?" check (Cloudflare Turnstile), see js/content.js -> applications -->
+              <div class="form-captcha" hidden></div>
+
               <p class="form-status" role="alert" hidden></p>
 
               <div class="form-actions">
@@ -185,7 +216,7 @@
             <div class="form-thanks" id="mentor-thanks" tabindex="-1" role="status" hidden>
               <p class="eyebrow eyebrow--blue">Application received</p>
               <h2>Thank you for stepping up.</h2>
-              <p>We have received your application and will be in touch by email soon. Thank you for wanting to open doors for the next generation.</p>
+              <p>We have received your application and sent a copy of it to your email. We will be in touch soon. Thank you for wanting to open doors for the next generation.</p>
               <a class="link-arrow" href="index.html">Back to home <span aria-hidden="true">&rarr;</span></a>
             </div>
           </div>
