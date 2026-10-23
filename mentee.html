@@ -42,7 +42,7 @@
       <div class="container">
         <p class="eyebrow eyebrow--light">Become a mentee</p>
         <h1 id="page-title" class="page-title">You belong in these fields too.</h1>
-        <p class="lead">For Italian-Chinese students who want to aim higher, and want someone who has done it to show them how.</p>
+        <p class="lead">For Italian-Chinese students who want to aim higher.</p>
       </div>
     </section>
 
@@ -111,6 +111,15 @@
                 <p class="field-error" id="school-error" hidden></p>
               </div>
 
+              <div class="field">
+                <label for="gpa">
+                  GPA
+                  <span class="field-hint" id="gpa-hint">Your current average and its scale. For example: 28.5/30, 95/100, or 3.8/4.0.</span>
+                </label>
+                <input class="input" id="gpa" name="gpa" type="text" required aria-describedby="gpa-hint gpa-error">
+                <p class="field-error" id="gpa-error" hidden></p>
+              </div>
+
               <div class="form-row form-row--2">
                 <div class="field">
                   <label for="field">Field of interest</label>
@@ -162,7 +171,7 @@
               <div class="field">
                 <div class="checkbox">
                   <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
-                  <label for="consent">I confirm I am 18 or over, and I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
+                  <label for="consent">I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
                 </div>
                 <p class="field-error" id="consent-error" hidden></p>
               </div>

@@ -274,16 +274,33 @@
       prev.setAttribute("aria-label", T.membersRow.previous);
       next.setAttribute("aria-label", T.membersRow.next);
 
+      // A card sticking out past the margin by less than this still counts as in view
+      var TOLERANCE = 16;
+
       // Width of the cards that fit on screen, so one click shows the next "page"
       var pageWidth = function () {
         var style = getComputedStyle(viewport);
         var visible = viewport.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
         var first = track.firstElementChild;
-        var step = (first ? first.getBoundingClientRect().width : 250) + (parseFloat(getComputedStyle(track).columnGap) || 0);
-        return Math.max(1, Math.floor((visible + 1) / step)) * step;
+        var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+        var step = (first ? first.getBoundingClientRect().width : 250) + gap;
+        // n cards fit when n cards plus the n - 1 gaps between them fit
+        return Math.max(1, Math.floor((visible + TOLERANCE + gap) / step)) * step;
       };
 
       var update = function () {
+        // Cards sticking out past the page margins are faded (see .is-outside in styles.css)
+        var box = viewport.getBoundingClientRect();
+        var style = getComputedStyle(viewport);
+        var inner = {
+          left: box.left + parseFloat(style.paddingLeft) - TOLERANCE,
+          right: box.right - parseFloat(style.paddingRight) + TOLERANCE
+        };
+        Array.prototype.forEach.call(track.children, function (item) {
+          var r = item.getBoundingClientRect();
+          item.classList.toggle("is-outside", r.left < inner.left || r.right > inner.right);
+        });
+
         var max = viewport.scrollWidth - viewport.clientWidth;
         // An arrow disappears at its end of the row (and both when everything fits)
         prev.disabled = viewport.scrollLeft <= 1;
@@ -421,6 +438,8 @@
       message = field.type === "checkbox" ? T.form.checkbox : T.form.required;
     } else if (v.typeMismatch && field.type === "email") {
       message = T.form.email;
+    } else if (v.typeMismatch && field.type === "url") {
+      message = T.form.url;
     } else if (field.minLength > 0 && field.value.trim().length < field.minLength) {
       message = T.form.tooShort.replace("{min}", field.minLength);
     } else if (!v.valid) {

@@ -102,66 +102,67 @@ window.BEYOND = {
      ------------------------------------------------------------------------ */
   mentors: [
     {
+      photo:      "assets/img/mentors/kaixi-matteo-chen.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "High Performance Computing",
+      role:       "Deep Learning Compiler Engineer @ NVIDIA",
+      location:   "Amsterdam, NL",
+      linkedin:   "https://www.linkedin.com/in/kaixi-matteo-chen-5334b6198/"                                       // PLACEHOLDER
+    },
+    {
       photo:      "assets/img/mentors/alessia-lin.jpg",   // TEXT BELOW IS PLACEHOLDER
       field:      "Data Science",
-      role:       "Data Scientist",
+      role:       "Data Scientist @ Microsoft",
       location:   "London, UK",
-      linkedin:   "#"                                       // PLACEHOLDER
+      linkedin:   "https://www.linkedin.com/in/alessialin/"                                       // PLACEHOLDER
     },
     {
       photo:      "assets/img/mentors/andrea-jiang.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Medicine",
-      role:       "Cardiology resident",
-      location:   "Milan, Italy",
-      linkedin:   "#"                                       // PLACEHOLDER
+      field:      "Computer Science",
+      role:       "Software Engineer @ Amazon (AWS)",
+      location:   "Amsterdam, NL",
+      linkedin:   "https://www.linkedin.com/in/jiang-jia-hao-andrea/"                                       // PLACEHOLDER
     },
     {
       photo:      "assets/img/mentors/chengchen-zhu.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Applied Mathematics",
-      role:       "PhD candidate in Applied Mathematics",
-      location:   "Paris, France",
-      linkedin:   "#"                                       // PLACEHOLDER
-    },
-    {
-      photo:      "assets/img/mentors/jessica-wu.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Finance",
-      role:       "Investment banking analyst",
-      location:   "London, UK",
-      linkedin:   "#"                                       // PLACEHOLDER
-    },
-    {
-      photo:      "assets/img/mentors/kaixi-matteo-chen.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Particle Physics",
-      role:       "Researcher in particle physics",
-      location:   "Geneva, Switzerland",
-      linkedin:   "#"                                       // PLACEHOLDER
-    },
-    {
-      photo:      "assets/img/mentors/leonardo-zheng.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Computer Science",
-      role:       "Machine learning engineer",
-      location:   "Zürich, Switzerland",
-      linkedin:   "#"                                       // PLACEHOLDER
+      field:      "Medical Physics",
+      role:       "PhD candidate @ ETH Zurich & Insel Gruppe",
+      location:   "Bern, CH",
+      linkedin:   "https://www.linkedin.com/in/chengchen-zhu-4073ab231/"                                       // PLACEHOLDER
     },
     {
       photo:      "assets/img/mentors/giovanni-zhang.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Electronic Engineering",
-      role:       "Hardware engineer",
-      location:   "Turin, Italy",
-      linkedin:   "#"                                       // PLACEHOLDER
-    },
-    {
-      photo:      "assets/img/mentors/xuanqiang-angelo-huang.jpg",   // TEXT BELOW IS PLACEHOLDER
-      field:      "Medicine",
-      role:       "Medical student",
-      location:   "Florence, Italy",
-      linkedin:   "#"                                       // PLACEHOLDER
+      field:      "Quantum Computing",
+      role:       "Researcher @ ETH Zurich",
+      location:   "Zurich, CH",
+      linkedin:   "https://www.linkedin.com/in/giovanni-zhang-297932170/"                                       // PLACEHOLDER
     },
     {
       photo:      "assets/img/mentors/yifei-fu.jpg",   // TEXT BELOW IS PLACEHOLDER
-      role:       "Quantitative analyst",
-      location:   "Milan, Italy",
-      linkedin:   "#"                                       // PLACEHOLDER
+      field:      "Mechanical Engineering",
+      role:       "R&D Engineer @ Climeworks",
+      location:   "Zurich, CH",
+      linkedin:   "https://www.linkedin.com/in/yifei-fu-y1f31/"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/jessica-wu.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Mathematics and Finance",
+      role:       "Equity Analyst @ North Rock",
+      location:   "London, UK",
+      linkedin:   "https://www.linkedin.com/in/jixi-jessica-wu-732219170/"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/leonardo-zheng.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Mathematics",
+      role:       "PhD Candidate @ Imperial College",
+      location:   "London, UK",
+      linkedin:   "https://www.linkedin.com/in/leonardo-zheng-067928227/"                                       // PLACEHOLDER
+    },
+    {
+      photo:      "assets/img/mentors/xuanqiang-angelo-huang.jpg",   // TEXT BELOW IS PLACEHOLDER
+      field:      "Computer Science",
+      role:       "Research @ University of Oxford",
+      location:   "Oxford, UK",
+      linkedin:   "https://www.linkedin.com/in/angelo-huang/?isSelfProfile=false"                                       // PLACEHOLDER
     }
   ],
 
@@ -265,8 +266,8 @@ window.BEYOND = {
       membersRow: {
         previous:  "Previous members",
         next:      "Next members",
-        moreTitle: "…and many more members",
-        moreLink:  "Join as a mentor or a mentee"
+        moreTitle: "…and many more",
+        moreLink:  "Join us"
       },
       mentorLabels: {
         linkedin:   "LinkedIn profile"
@@ -277,6 +278,7 @@ window.BEYOND = {
         required:  "Please fill in this field.",
         choose:    "Please choose an option.",
         email:     "Please enter a valid email address, like name@example.com.",
+        url:       "Please enter the full link, starting with https://",
         tooShort:  "Please write a little more (at least {min} characters).",
         checkbox:  "Please tick this box to continue.",
         generic:   "Please check this field.",

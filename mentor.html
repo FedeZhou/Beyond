@@ -42,7 +42,7 @@
       <div class="container">
         <p class="eyebrow eyebrow--light">Become a mentor</p>
         <h1 id="page-title" class="page-title">Be the role model you never had.</h1>
-        <p class="lead">You are a researcher or a professional who made it into a challenging field. Share your path with Italian-Chinese students who are aiming high, and show them they belong there too.</p>
+        <p class="lead">For Italian Chinese who made it into a challenging field.</p>
       </div>
     </section>
 
@@ -104,6 +104,19 @@
 
               <div class="form-row form-row--2">
                 <div class="field">
+                  <label for="company">Company</label>
+                  <input class="input" id="company" name="company" type="text" autocomplete="organization" required aria-describedby="company-error">
+                  <p class="field-error" id="company-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="role">Role</label>
+                  <input class="input" id="role" name="role" type="text" autocomplete="organization-title" required aria-describedby="role-error">
+                  <p class="field-error" id="role-error" hidden></p>
+                </div>
+              </div>
+
+              <div class="form-row form-row--2">
+                <div class="field">
                   <label for="field">Field</label>
                   <select class="input" id="field" name="field" required aria-describedby="field-error" data-other-target="field-other-wrap">
                     <option value="">Choose your field</option>
@@ -119,9 +132,9 @@
                   <p class="field-error" id="field-error" hidden></p>
                 </div>
                 <div class="field">
-                  <label for="workplace">University or workplace</label>
-                  <input class="input" id="workplace" name="university_or_workplace" type="text" autocomplete="organization" required aria-describedby="workplace-error">
-                  <p class="field-error" id="workplace-error" hidden></p>
+                  <label for="city">City</label>
+                  <input class="input" id="city" name="city" type="text" autocomplete="address-level2" required aria-describedby="city-error">
+                  <p class="field-error" id="city-error" hidden></p>
                 </div>
               </div>
 
@@ -132,14 +145,14 @@
               </div>
 
               <div class="field">
-                <label for="city">Current city</label>
-                <input class="input" id="city" name="city" type="text" autocomplete="address-level2" required aria-describedby="city-error">
-                <p class="field-error" id="city-error" hidden></p>
+                <label for="linkedin">LinkedIn profile URL</label>
+                <input class="input" id="linkedin" name="linkedin" type="url" inputmode="url" placeholder="https://www.linkedin.com/in/your-name" required aria-describedby="linkedin-error">
+                <p class="field-error" id="linkedin-error" hidden></p>
               </div>
 
               <div class="field">
                 <label for="motivation">
-                  Why do you want to mentor?
+                  Why do you want to become a mentor?
                   <span class="field-hint" id="motivation-hint"></span>
                 </label>
                 <textarea class="input" id="motivation" name="motivation" rows="5" minlength="30" required aria-describedby="motivation-hint motivation-error"></textarea>
@@ -150,7 +163,7 @@
               <div class="field">
                 <div class="checkbox">
                   <input id="consent" name="consent" type="checkbox" value="yes" required aria-describedby="consent-error">
-                  <label for="consent">I confirm I am 18 or over, and I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
+                  <label for="consent">I agree to the <a href="#" data-legal="terms" target="_blank" rel="noopener">Terms of Use</a> and the <a href="#" data-legal="privacy" target="_blank" rel="noopener">Privacy Policy</a>.</label>
                 </div>
                 <p class="field-error" id="consent-error" hidden></p>
               </div>

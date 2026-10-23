@@ -772,7 +772,7 @@ a:hover {
   scroll-snap-align: start;
 }
 
-/* Previous / next arrows: see-through, over the left and right edges of the row,
+/* Previous / next arrows: just the arrow, no box, in the side margins of the row,
    level with the middle of the photos. Each one disappears at its end of the row. */
 .carousel-arrow {
   position: absolute;
@@ -781,42 +781,47 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
+  width: 60px;                       /* the tap area; only the arrow is visible */
   height: 120px;
   padding: 0;
   border: 0;
-  background: rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  background: none;
   color: var(--navy);
   cursor: pointer;
   transform: translateY(-50%);
-  transition: background-color 0.15s ease, opacity 0.2s ease, visibility 0.2s;
+  transition: color 0.15s ease, opacity 0.2s ease, visibility 0.2s;
 }
 .carousel-arrow--prev {
-  left: max(0.25rem, calc(var(--row-edge) - 30px));
+  left: max(0px, calc(var(--row-edge) - 68px));
 }
 .carousel-arrow--next {
-  right: max(0.25rem, calc(var(--row-edge) - 30px));
+  right: max(0px, calc(var(--row-edge) - 68px));
 }
 .carousel-arrow:hover {
-  background: rgba(255, 255, 255, 0.95);
+  color: var(--blue);
 }
 .carousel-arrow:disabled {
   opacity: 0;
   visibility: hidden;
 }
-/* Phones: just the arrow, no box. White with a soft shadow so it shows on any photo;
-   the tap area stays the same size. */
+/* Phones: the margins are narrow, so the arrow sits over the photos:
+   white with a soft shadow so it shows on any photo */
 @media (max-width: 899px) {
   .carousel-arrow,
   .carousel-arrow:hover {
-    background: transparent;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
     color: var(--white);
     filter: drop-shadow(0 1px 3px rgba(5, 28, 44, 0.6));
   }
+}
+
+/* Cards that stick out past the page margins are faded and blurred;
+   they come into full view when the arrows bring them inside (set by js/main.js) */
+.mentor-track > li {
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+.mentor-track > li.is-outside {
+  opacity: 0.35;
+  filter: blur(2px);
 }
 
 /* Last card of the row: "…and many more members", links to the Join section */
@@ -1000,11 +1005,17 @@ section[id] {
   display: inline-flex;
   padding: 2px;
   color: var(--grey-500);
-  transition: color 0.15s ease;
+  transition: color 0.45s ease;   /* same timing as the photo's colours */
 }
-.mentor-linkedin:hover,
+/* Grey like the photo's blue tint; it takes LinkedIn's blue together with the
+   photo's original colours (card hovered, or tapped on phones) */
+.mentor-track .mentor-card:hover .mentor-linkedin,
+.mentor-track .mentor-card.is-color .mentor-linkedin,
 .mentor-linkedin:focus-visible {
-  color: #0A66C2; /* LinkedIn blue */
+  color: #0A66C2; /* LinkedIn's own blue */
+}
+.mentor-linkedin:hover {
+  color: #004182; /* LinkedIn's darker blue */
 }
 
 /* Smaller heading and intro (Home: story and mentors sections) */
