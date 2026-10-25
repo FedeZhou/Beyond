@@ -5,9 +5,15 @@
 # Only a local name the CLI needs; the real project is chosen with --project-ref
 project_id = "beyond"
 
-# verify_jwt = false: these three are called by visitors who are not signed in,
-# so they do their own checks (website address, spam check, rate limits, tokens).
-# beyond-admin keeps the default (true) and also checks that the caller is an admin.
+# verify_jwt = false: Supabase's gateway check is skipped and each function
+# does its own. beyond-apply, beyond-join and beyond-password-reset are called by
+# visitors who are not logged in (they check the website address, the spam check,
+# rate limits and tokens). beyond-admin checks the session itself (auth.getUser)
+# and that the person is an admin: this also works with Supabase's new JWT
+# signing keys, which the gateway check doesn't support.
+
+[functions.beyond-admin]
+verify_jwt = false
 
 [functions.beyond-apply]
 verify_jwt = false
