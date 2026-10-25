@@ -246,7 +246,9 @@ end;
 $$;
 
 -- Rate limit for card edits made from the website (dashboard and admin edits
--- are not limited), and the date of a member's first save
+-- are not limited), and the date of a member's first save.
+-- The first save is never held back: the card was pre-filled moments
+-- before, when the account was created.
 create or replace function public.beyond_profiles_before_update()
 returns trigger
 language plpgsql
@@ -254,7 +256,7 @@ set search_path = ''
 as $$
 begin
   if current_user = 'authenticated' then
-    if old.updated_at > now() - interval '3 seconds' then
+    if old.onboarded_at is not null and old.updated_at > now() - interval '3 seconds' then
       raise exception 'rate_limited: please wait a few seconds before saving again'
         using errcode = 'P0001';
     end if;

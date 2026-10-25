@@ -1708,6 +1708,69 @@ select.input {
   color: var(--grey-700);
 }
 
+/* --- Login page: smaller, quieter type and a narrower card --- */
+[data-page="login"] .page-hero {
+  padding-block: clamp(2.5rem, 5vw, 3.75rem) clamp(2rem, 4vw, 3rem);
+}
+[data-page="login"] .page-title {
+  margin-bottom: 0.75rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+[data-page="login"] .page-hero .lead {
+  font-size: 1rem;
+}
+[data-page="login"] .members-section {
+  padding-block: clamp(2rem, 4vw, 3.25rem);
+}
+[data-page="login"] .members-signin {
+  max-width: 440px;
+}
+[data-page="login"] .form-card {
+  padding: clamp(1.5rem, 3.5vw, 2.25rem);
+  border-top-width: 2px;
+  font-size: 0.9375rem;
+}
+[data-page="login"] .members-signin h2 {
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.375rem, 2.2vw, 1.625rem);
+}
+[data-page="login"] .form {
+  gap: 1.1rem;
+}
+[data-page="login"] .field label {
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-page="login"] .input {
+  padding: 0.65rem 0.85rem;
+  border-color: var(--grey-200);
+  font-size: 0.9375rem;
+}
+[data-page="login"] .input:hover {
+  border-color: var(--grey-400);
+}
+[data-page="login"] .field-error,
+[data-page="login"] .members-notice {
+  font-size: 0.875rem;
+}
+[data-page="login"] .card-actions {
+  align-items: center;
+  gap: 1.25rem;
+}
+[data-page="login"] .btn {
+  padding: 0.8rem 1.35rem;
+  font-size: 0.75rem;
+}
+[data-page="login"] .members-link,
+[data-page="login"] .members-aside {
+  font-size: 0.8125rem;
+}
+[data-page="login"] .members-aside {
+  margin-top: 1.25rem;
+}
+
 /* --- Toolbar: tabs, search, actions --- */
 .members-toolbar {
   display: grid;
@@ -1964,8 +2027,13 @@ select.input {
 /* --- List and detail side by side on wide screens --- */
 .admin-split {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
+}
+/* Let wide tables scroll inside their box instead of widening the page */
+.admin-split > * {
+  min-width: 0;
 }
 @media (min-width: 1100px) {
   .admin-split:has(.admin-detail:not([hidden])) {
@@ -1990,6 +2058,7 @@ select.input {
 
 /* --- Tables --- */
 .admin-table-wrap {
+  position: relative;   /* keeps the hidden screen-reader labels inside the scroll box */
   overflow-x: auto;
   border: 1px solid var(--grey-200);
 }
