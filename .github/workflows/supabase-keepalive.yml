@@ -33,11 +33,23 @@ jobs:
             echo "The SUPABASE_URL and SUPABASE_ANON_KEY secrets are not set yet: nothing to do."
             exit 0
           fi
-          curl --fail --silent --show-error --max-time 30 \
-            -X POST "$SUPABASE_URL/rest/v1/rpc/beyond_ping" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+          # Forgive small copy-paste slips: quotes, spaces, "NAME=" in front, a "/" at the end
+          URL=$(printf '%s' "$SUPABASE_URL" | sed -E 's/^[A-Z_]+=//; s/["'"'"' ]//g; s#/+$##')
+          KEY=$(printf '%s' "$SUPABASE_ANON_KEY" | sed -E 's/^[A-Z_]+=//; s/["'"'"' ]//g' | tr -d '\r\n')
+          case "$URL" in
+            https://*.supabase.co) ;;
+            *) echo "SUPABASE_URL should look like https://abcdefgh.supabase.co (check the repository secret)."; exit 1 ;;
+          esac
+          STATUS=$(curl --silent --max-time 30 -o answer.txt -w "%{http_code}" \
+            -X POST "$URL/rest/v1/rpc/beyond_ping" \
+            -H "apikey: $KEY" \
             -H "Content-Type: application/json" \
-            -d '{}'
-          echo
+            -d '{}')
+          if [ "$STATUS" != "200" ]; then
+            echo "Supabase answered HTTP $STATUS:"
+            cat answer.txt; echo
+            echo "401: the SUPABASE_ANON_KEY secret is wrong (use the sb_publishable_... or anon key)."
+            echo "404: beyond_ping is missing (run supabase/schema.sql) or the URL is wrong."
+            exit 1
+          fi
           echo "Supabase answered: it is awake."
