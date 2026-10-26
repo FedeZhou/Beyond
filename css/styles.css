@@ -1788,17 +1788,6 @@ select.input {
 .team-grid .mentor-photo {
   aspect-ratio: 3 / 4;
 }
-@media (max-width: 559px) {
-  .team-grid {
-    grid-template-columns: 1fr;   /* phones: full-width cards, small photo beside the text */
-  }
-  .team-grid .member-card {
-    grid-template-columns: 84px 1fr;
-  }
-  .team-grid .mentor-role {
-    font-size: 0.8125rem;
-  }
-}
 .member-card {
   width: auto;
   margin: 0;
@@ -1816,6 +1805,16 @@ select.input {
   .member-card .mentor-body {
     min-width: 0;
     padding: 0.9rem 1rem 1rem;
+  }
+  /* The Team keeps the full mentor-card format on phones too (photo on top, 250px wide) */
+  .team-grid .member-card {
+    display: block;
+  }
+  .team-grid .member-card .mentor-photo {
+    margin: 0;
+  }
+  .team-grid .member-card .mentor-body {
+    padding: 0.9rem 1.25rem 1.1rem;
   }
 }
 
