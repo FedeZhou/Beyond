@@ -1,0 +1,46 @@
+#!/bin/sh
+# BEYOND — runs the regression tests before anything is pushed to main.
+# Turned on by `npm install` (package.json "prepare" sets core.hooksPath to .githooks).
+# Skip once, only if you really must: git push --no-verify
+#
+# What runs here (about a minute, no network, no email, no live data):
+#   npm test  =  static checks + unit tests + browser tests
+# Live checks are separate: npm run test:smoke (read-only) and
+# npm run test:integration (see tests/TESTPLAN.md).
+
+zero=0000000000000000000000000000000000000000
+to_main=no
+changed=""
+while read local_ref local_sha remote_ref remote_sha; do
+  [ "$remote_ref" = "refs/heads/main" ] || continue
+  [ "$local_sha" = "$zero" ] && continue            # deleting main: nothing to test
+  to_main=yes
+  if [ "$remote_sha" = "$zero" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
+  changed="$changed $(git diff --name-only $range 2>/dev/null)"
+done
+
+[ "$to_main" = yes ] || exit 0
+
+if [ ! -d node_modules/playwright-core ]; then
+  echo "pre-push: the test tools are missing. Run: npm install"
+  exit 1
+fi
+
+echo "pre-push: running the regression tests before pushing to main…"
+if ! npm test --silent; then
+  echo ""
+  echo "pre-push: TESTS FAILED, nothing was pushed. Fix them, or see tests/TESTPLAN.md."
+  exit 1
+fi
+
+case "$changed" in
+  *supabase/*)
+    echo ""
+    echo "pre-push: you changed supabase/. Pushing does NOT update Supabase:"
+    echo "  - SQL: run the changed file in the SQL Editor"
+    echo "  - functions: npx supabase functions deploy <name> --project-ref <ref>"
+    echo "  then check the live backend: npm run test:integration"
+    ;;
+esac
+echo "pre-push: all tests passed."
+exit 0

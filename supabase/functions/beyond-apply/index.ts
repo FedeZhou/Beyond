@@ -17,7 +17,7 @@ import { db, withinLimit } from "../_shared/db.ts";
 import { env, siteUrl } from "../_shared/env.ts";
 import { isRole, parseApplication } from "../_shared/application.ts";
 import { passesTurnstile } from "../_shared/turnstile.ts";
-import { trySend } from "../_shared/mail.ts";
+import { isTestAddress, trySend } from "../_shared/mail.ts";
 
 Deno.serve(async (req) => {
   const cors = corsHeaders(req);
@@ -64,10 +64,13 @@ Deno.serve(async (req) => {
       throw error;
     }
 
-    // The application is saved: an email that fails is noted, not reported to the visitor
+    // The application is saved: an email that fails is noted, not reported to the visitor.
+    // Test applications (Resend's never-delivered …@resend.dev addresses) don't
+    // notify the real admin inbox either, so automatic tests can't fill it.
     const reviewUrl = siteUrl() + "/admin.html#application=" + row.id;
+    const adminTo = isTestAddress(app.email) ? "delivered+admin@resend.dev" : env("BEYOND_ADMIN_EMAIL");
     const [adminError, applicantError] = await Promise.all([
-      trySend(env("BEYOND_ADMIN_EMAIL"), adminNotification(app, reviewUrl), app.email),
+      trySend(adminTo, adminNotification(app, reviewUrl), app.email),
       trySend(app.email, applicantConfirmation(app)),
     ]);
     const now = new Date().toISOString();

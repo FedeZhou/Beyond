@@ -11,3 +11,7 @@ supabase/.branches/
 
 # Built site (made by scripts/build.mjs on Vercel)
 dist/
+
+# Test tools (npm install) and test output
+node_modules/
+tests/.integration-runs.json

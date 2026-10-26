@@ -56,11 +56,11 @@
   var LOGIN_URL = UI.pageUrl("login.html");
   var PROFILE_URL = UI.pageUrl("my-card.html");
 
-  // Demo mode until js/config.js gives the Supabase address and key
+  // The Supabase address and key come from js/config.js (written while publishing).
+  // Without it the members pages say they can't load, instead of half-working.
   var CONN = window.BEYOND_CONFIG || {};
-  var DEMO = !CONN.supabaseUrl || !CONN.supabaseAnonKey;
   var db = null;
-  if (!DEMO && window.supabase) {
+  if (CONN.supabaseUrl && CONN.supabaseAnonKey && window.supabase) {
     db = window.supabase.createClient(CONN.supabaseUrl, CONN.supabaseAnonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
@@ -109,7 +109,9 @@
     }
   }
 
+  var leaving = false;                       // logging out: the logout decides where to go
   function signOut(uid) {
+    leaving = true;
     store.drop(PHOTOS_KEY);
     if (uid) store.drop(directoryKey(uid));
     var done = function () { location.href = LOGIN_URL; };
@@ -155,6 +157,7 @@
       handled = uid;
       // Run after Supabase has finished its own work for this event
       setTimeout(function () {
+        if (leaving) return;
         cleanAddress();
         if (user) onUser(user); else onNoUser();
       }, 0);
@@ -245,7 +248,6 @@
         say(status, "");
         var firstInvalid = [email, password].filter(function (f) { return !UI.validateField(f); })[0];
         if (firstInvalid) { firstInvalid.focus(); return; }
-        if (DEMO) { location.href = loginTarget(); return; }
 
         button.disabled = true;
         button.textContent = T.signingIn;
@@ -305,7 +307,6 @@
       form.addEventListener("submit", function (event) {
         event.preventDefault();
         if (!UI.validateField(input)) { input.focus(); return; }
-        if (DEMO) { say(status, T.resetSent); return; }
         if (secondsLeft() > 0) { say(status, T.resetWait.replace("{s}", secondsLeft())); return; }
 
         store.set(RESET_KEY, Date.now() + RESET_GAP);
@@ -326,16 +327,7 @@
       });
     }
 
-    setupSignIn();
-    setupForgotPassword();
-
     // --- Start ---
-    if (DEMO) {
-      say($("members-demo"), T.demoNote);
-      show(loading, false);
-      show(panel, true);
-      return;
-    }
     if (!db) {
       show(loading, false);
       say($("members-notice"), T.loadError, true);
@@ -350,6 +342,8 @@
       if (LINK_ERROR) say($("signin-status"), T.linkExpired, true);
       $("signin-email").focus();
     });
+    setupSignIn();
+    setupForgotPassword();
   }
 
   /* ========================================================================
@@ -515,16 +509,6 @@
     });
 
     // --- Start ---
-    if (DEMO) {
-      say($("members-demo"), T.demoNote);
-      directory.querySelector("[data-signout]").hidden = true;
-      directory.querySelector("[data-refresh]").hidden = true;
-      state.rows = prepare(demoRows());
-      show(loading, false);
-      show(directory, true);
-      render();
-      return;
-    }
     if (!db) {
       show(loading, false);
       say(notice, T.loadError, true);
@@ -534,37 +518,6 @@
     watchSession(open, function () {
       location.replace(LOGIN_URL + "?next=members");   // not signed in: log in first
     });
-  }
-
-  // Sample cards for demo mode, built from the Home page mentors
-  function demoRows() {
-    var rows = (DATA.mentors || []).map(function (m, i) {
-      var place = UI.pick(m.location).split(", ");
-      return {
-        id: "demo-mentor-" + i, role: "mentor", status: "approved", is_listed: true,
-        first_name: "Sample", last_name: "Mentor " + (i + 1),
-        city: place[0] || "", country: place.slice(1).join(", "),
-        position: UI.pick(m.role), company: UI.pick(m.company),
-        studies: m.studied ? [UI.pick(m.studied)] : [],
-        experience: m.experience ? [UI.pick(m.experience)] : [], photo_path: null
-      };
-    });
-    rows.push(
-      {
-        id: "demo-mentee-1", role: "mentee", status: "approved", is_listed: true,
-        first_name: "Sample", last_name: "Mentee 1", city: "Milan", country: "Italy",
-        position: "MSc student in Biomedical Engineering", company: "Politecnico di Milano",
-        studies: ["Politecnico di Milano, BSc Biomedical Engineering"],
-        experience: ["Research assistant in a bioengineering lab"], photo_path: null
-      },
-      {
-        id: "demo-mentee-2", role: "mentee", status: "approved", is_listed: true,
-        first_name: "Sample", last_name: "Mentee 2", city: "Bologna", country: "Italy",
-        position: "BSc student in Physics", company: "Università di Bologna",
-        studies: ["Università di Bologna, BSc Physics (2nd year)"], experience: [], photo_path: null
-      }
-    );
-    return rows;
   }
 
   /* ========================================================================
@@ -715,7 +668,6 @@
       say(status, "");
       var firstInvalid = validate();
       if (firstInvalid) { firstInvalid.focus(); return; }
-      if (DEMO) { say(status, T.demoSave); return; }
       if (Date.now() - lastSave < SAVE_GAP) { say(status, T.saveWait, true); return; }
 
       var changes = {};
@@ -775,15 +727,6 @@
     // --- Start ---
     if (/[?&]welcome=1/.test(location.search)) say($("card-welcome"), T.welcome);
 
-    if (DEMO) {
-      say($("members-demo"), T.demoNote);
-      $("card-signout").hidden = true;
-      profile = demoRows()[0];
-      fill(profile);
-      show(loading, false);
-      show(editor, true);
-      return;
-    }
     if (!db) {
       show(loading, false);
       say($("members-notice"), T.loadError, true);
@@ -852,18 +795,6 @@
       return T.joinError;
     }
 
-    if (DEMO) {
-      say($("members-demo"), T.demoNote);
-      $("join-hello").textContent = T.joinHello.replace("{name}", "Sample");
-      $("join-email").value = "sample@example.com";
-      show(loading, false);
-      show(panel, true);
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        if (checkNewPassword(password, repeat)) say(status, T.demoSave);
-      });
-      return;
-    }
     if (!db) { message(T.loadError); return; }
     if (!token) { message(T.joinInvalid); return; }
 
@@ -947,7 +878,6 @@
       event.preventDefault();
       say(status, "");
       if (!checkNewPassword(password, repeat)) return;
-      if (DEMO) { say(status, T.demoSave); return; }
 
       button.disabled = true;
       db.auth.updateUser({ password: password.value })
@@ -967,12 +897,6 @@
         });
     });
 
-    if (DEMO) {
-      say($("members-demo"), T.demoNote);
-      show(loading, false);
-      show(panel, true);
-      return;
-    }
     if (!db) { message(T.loadError); return; }
 
     watchSession(function () {

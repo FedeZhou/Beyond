@@ -44,8 +44,6 @@
   var TEXT = {
     mentor: "Mentor", mentee: "Mentee", admin: "Admin",
     pending: "Pending", accepted: "Accepted", rejected: "Rejected",
-    demo: "Demo mode: these are sample applications, and nothing is saved. Add your Supabase details in js/config.js (see the README).",
-    demoAction: "Demo mode: nothing was changed.",
     loadError: "The portal could not be loaded. Please check your connection and try again.",
     working: "Working…",
     done: "Done.",
@@ -73,11 +71,10 @@
     }
   };
 
-  // Demo mode until js/config.js gives the Supabase address and key
+  // The Supabase address and key come from js/config.js (written while publishing)
   var CONN = window.BEYOND_CONFIG || {};
-  var DEMO = !CONN.supabaseUrl || !CONN.supabaseAnonKey;
   var db = null;
-  if (!DEMO && window.supabase) {
+  if (CONN.supabaseUrl && CONN.supabaseAnonKey && window.supabase) {
     db = window.supabase.createClient(CONN.supabaseUrl, CONN.supabaseAnonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
@@ -183,13 +180,6 @@
 
   // --- Loading ---
   function load() {
-    if (DEMO) {
-      state.apps = demoApplications();
-      state.invites = {};
-      state.members = [];
-      state.log = [];
-      return Promise.resolve();
-    }
     return Promise.all([
       db.from("beyond_applications").select("*").order("created_at", { ascending: false }).limit(2000),
       db.from("beyond_invites").select("email, role, application_id, sent_at, expires_at, claimed_at, created_at"),
@@ -396,7 +386,6 @@
     if (action === "accept" || action === "reject") body.message = noteEl ? noteEl.value.trim() : "";
     if (action === "reject") body.notify = !!(notify && notify.checked);
     if (action === "delete-application" && !window.confirm(TEXT.confirmDelete)) return;
-    if (DEMO) { say(status, TEXT.demoAction); return; }
 
     var buttons = detail.querySelectorAll("button[data-action]");
     buttons.forEach(function (b) { b.disabled = true; });
@@ -513,7 +502,6 @@
     } else {
       return;
     }
-    if (DEMO) { say(memberStatus, TEXT.demoAction); return; }
 
     say(memberStatus, TEXT.working);
     callAdmin(body).then(function (res) {
@@ -620,11 +608,6 @@
   });
   document.querySelectorAll("[data-signout]").forEach(function (b) { b.addEventListener("click", signOut); });
 
-  if (DEMO) {
-    say($("members-demo"), TEXT.demo);
-    start();
-    return;
-  }
   if (!db) {
     show(loading, false);
     say(notice, TEXT.loadError, true);
@@ -654,43 +637,4 @@
     }, 0);
   });
 
-  // Sample applications for demo mode
-  function demoApplications() {
-    var now = Date.now();
-    var day = 24 * 3600 * 1000;
-    return [
-      {
-        id: "00000000-0000-0000-0000-000000000001", role: "mentor", status: "pending",
-        first_name: "Sample", last_name: "Mentor", email: "mentor@example.com", city: "Zurich", country: "Switzerland",
-        created_at: new Date(now - day).toISOString(), confirmation_sent_at: new Date(now - day).toISOString(),
-        admin_notified_at: new Date(now - day).toISOString(),
-        answers: {
-          company: "ETH Zurich", position: "Researcher", field: "Physics",
-          highest_degree: "ETH Zurich, PhD Physics", linkedin: "https://www.linkedin.com/in/example",
-          motivation: "I grew up without role models in science. I would like to be the person I needed back then."
-        }
-      },
-      {
-        id: "00000000-0000-0000-0000-000000000002", role: "mentee", status: "pending",
-        first_name: "Sample", last_name: "Mentee", email: "mentee@example.com", city: "Milan", country: "Italy",
-        created_at: new Date(now - 3 * day).toISOString(), confirmation_sent_at: new Date(now - 3 * day).toISOString(),
-        admin_notified_at: new Date(now - 3 * day).toISOString(),
-        answers: {
-          school: "Politecnico di Milano", programme: "BSc Aerospace Engineering, 2nd year", gpa: "28.5/30",
-          field: "Engineering", goals: "An MSc abroad, then a career in the space industry.",
-          achievement: "Winning a regional physics olympiad while working part-time in my family's shop."
-        }
-      },
-      {
-        id: "00000000-0000-0000-0000-000000000003", role: "mentee", status: "accepted",
-        first_name: "Accepted", last_name: "Example", email: "accepted@example.com", city: "Bologna", country: "Italy",
-        created_at: new Date(now - 9 * day).toISOString(), reviewed_at: new Date(now - 7 * day).toISOString(),
-        answers: { school: "Università di Bologna", programme: "BSc Physics", gpa: "29/30", field: "Physics",
-          goals: "A PhD in theoretical physics.", achievement: "My first research internship." }
-      }
-    ].map(function (a) {
-      a.searchText = fold([a.first_name, a.last_name, a.email, a.city, a.country].join(" "));
-      return a;
-    });
-  }
 })();

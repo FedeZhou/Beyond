@@ -55,8 +55,6 @@ window.BEYOND = {
      EDIT HERE: Application forms (Become a mentor / Become a mentee)
      Applications are saved in Supabase and emailed to you and to the person
      who applied (see the README, "Applications and the admin portal").
-     Without js/config.js the forms run in demo mode: they show the
-     thank-you message but send nothing.
      turnstileSiteKey: the PUBLIC "site key" of your free Cloudflare Turnstile
        widget (the "are you a person?" check). Leave "" to hide it.
      ------------------------------------------------------------------------ */
@@ -68,7 +66,6 @@ window.BEYOND = {
      EDIT HERE: Members area (login.html, members.html, my-card.html, join.html, reset-password.html)
      The Supabase address and key are NOT here: they live in js/config.js,
      which is kept out of GitHub (see js/config.example.js and the README).
-     Without that file, the members pages run in demo mode with sample cards.
      ------------------------------------------------------------------------ */
   members: {
     maxStudies:      3,                     // lines of Studies per card (also set in supabase/schema.sql)
@@ -287,7 +284,6 @@ window.BEYOND = {
         checkbox:  "Please tick this box to continue.",
         generic:   "Please check this field.",
         sending:   "Sending…",
-        demoNote:  "Demo mode: this form is not connected to Supabase yet, so nothing will be sent. Add your Supabase details in js/config.js (see the README).",
         error:     "Sorry, something went wrong and your application was not sent. Please try again, or write to us at {email}.",
         invalid:   "Some answers could not be accepted. Please check the form and try again.",
         duplicate: "You have already sent us an application with this email, and we are still reading it. We will be in touch soon.",
@@ -296,7 +292,6 @@ window.BEYOND = {
         captchaMissing: "Please complete the \"are you a person?\" check just above the button."
       },
       members: {
-        demoNote:      "Demo mode: the members area is not connected to Supabase yet, so these are sample cards. Add your Supabase details in js/config.js (see the README).",
         signIn:        "Log in",
         signingIn:     "Logging in…",
         signInWrong:   "This email and password don't match. Please try again, or choose a new password.",
@@ -337,7 +332,6 @@ window.BEYOND = {
         saveError:     "Your card could not be saved. Please try again.",
         saveWait:      "Please wait a few seconds before saving again.",
         saveTooMany:   "You have made many changes in a short time. Please try again later.",
-        demoSave:      "Demo mode: nothing was saved.",
         photoType:     "Please choose an image file (JPG, PNG or HEIC).",
         photoTooBig:   "This image is too large. Please choose one under 15 MB.",
         photoUnreadable: "This image could not be read. Please try another one.",

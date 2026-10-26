@@ -481,7 +481,7 @@
   }
 
   // Where applications go: the "beyond-apply" Edge Function in Supabase.
-  // The address comes from js/config.js; without it the forms run in demo mode.
+  // The address comes from js/config.js (written while publishing).
   function applyEndpoint() {
     var conn = window.BEYOND_CONFIG || {};
     if (!conn.supabaseUrl || !conn.supabaseAnonKey) return null;
@@ -521,7 +521,6 @@
   function setupForm(form) {
     var key = form.getAttribute("data-form");
     var endpoint = applyEndpoint();
-    var demo = !endpoint;
     var thanks = document.getElementById(form.getAttribute("data-thanks"));
     var status = form.querySelector(".form-status");
     var submit = form.querySelector('[type="submit"]');
@@ -531,13 +530,7 @@
 
     form.noValidate = true; // we show our own, friendlier messages
 
-    var demoNote = form.querySelector(".form-demo-note");
-    if (demo && demoNote) {
-      demoNote.textContent = T.form.demoNote;
-      demoNote.hidden = false;
-    }
-
-    if (!demo && siteKey && captchaBox) {
+    if (endpoint && siteKey && captchaBox) {
       loadTurnstile().then(function (turnstile) {
         captchaBox.hidden = false;
         captchaId = turnstile.render(captchaBox, { sitekey: siteKey, theme: "light" });
@@ -617,8 +610,10 @@
         submit.textContent = originalLabel;
       }
 
-      if (demo) {
-        setTimeout(function () { reset(); showThanks(); }, 600);
+      if (!endpoint) {                       // js/config.js missing: nothing to send to
+        console.error("Beyond: js/config.js is missing, so the form can't be sent.");
+        reset();
+        showStatus(T.form.error);
         return;
       }
 
@@ -648,7 +643,9 @@
           });
         })
         .catch(function (error) {
-          console.error("Beyond: form could not be sent.", error);
+          // A refusal the visitor can act on (already applied, too many, check the answers)
+          // is not an error of the site; only log real failures
+          if (!error || !error.status || error.status >= 500) console.error("Beyond: form could not be sent.", error);
           reset();
           if (captchaId !== null && window.turnstile) window.turnstile.reset(captchaId);
           showStatus((error && typeof error.message === "string" && error.status) ? error.message : T.form.error);

@@ -1599,13 +1599,6 @@ select.input {
   margin-top: 0.5rem;
 }
 
-.form-demo-note {
-  margin: 0;
-  padding: 0.85rem 1rem;
-  border: 1px dashed var(--grey-400);
-  font-size: 0.875rem;
-  color: var(--grey-700);
-}
 
 .form-status {
   margin: 0;
@@ -1666,9 +1659,6 @@ select.input {
   margin: 0;
 }
 
-.members-demo {
-  margin-bottom: 1.5rem;
-}
 
 /* Button that looks like a text link */
 .members-link {

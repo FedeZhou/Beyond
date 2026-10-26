@@ -5,7 +5,7 @@
 // dist/js/config.js from two Vercel environment variables:
 //   SUPABASE_URL       e.g. https://abcdefgh.supabase.co
 //   SUPABASE_ANON_KEY  the "anon public" key, never the service_role key
-// Without them the site still builds; the members pages show demo mode.
+// Without them the site still builds, but the forms and members pages can't reach Supabase.
 //
 // Try it on your computer: node scripts/build.mjs   (then look inside dist/)
 
@@ -37,6 +37,6 @@ writeFileSync(
 );
 
 if (!config.supabaseUrl || !config.supabaseAnonKey) {
-  console.log("No SUPABASE_URL / SUPABASE_ANON_KEY yet: the members pages will run in demo mode.");
+  console.warn("WARNING: SUPABASE_URL / SUPABASE_ANON_KEY are not set: the forms and members pages won't work.");
 }
 console.log("Built the site into dist/");

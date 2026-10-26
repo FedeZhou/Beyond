@@ -1,0 +1,55 @@
+# Runs the regression tests on GitHub (see tests/TESTPLAN.md).
+#   - On every push to main and every pull request: static + unit + browser
+#     tests (no network, no email, no live data).
+#   - Every day at 06:23 UTC, and with "Run workflow": the read-only smoke
+#     tests against the live site (no keys needed, nothing is saved or sent).
+# The integration tests are never run here: they need the service key and are
+# run by hand (npm run test:integration).
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Static checks
+        run: npm run test:static
+      - name: Unit tests (Edge Functions, no network)
+        run: npm run test:unit
+      - name: Browser tests (Google Chrome, fake backend)
+        env:
+          BROWSER_CHANNEL: chrome
+        run: npm run test:frontend
+
+  smoke:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Smoke tests against https://beyondicmc.com (read-only)
+        run: npm run test:smoke

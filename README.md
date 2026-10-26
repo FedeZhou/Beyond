@@ -27,6 +27,8 @@ supabase/functions/             Edge Functions: save applications, send the emai
 supabase/functions/_shared/templates.ts  ← the text of every email Beyond sends
 js/config.example.js  Template for js/config.js (Supabase address and key; the real file is never uploaded)
 vercel.json, scripts/build.mjs  Publishing on Vercel (writes js/config.js from Vercel's settings)
+tests/                The automatic tests, run before every push to main (see tests/TESTPLAN.md)
+package.json, .githooks/  Test tools and the pre-push check (npm install once)
 .github/workflows/    Keeping the free Supabase project awake
 js/hero-particles.js  The Home hero animation: dots that morph between field symbols (timing, colours and dot counts in SETTINGS at the top)
 assets/img/       Images (placeholder portrait, favicon). Put your photos here.
@@ -73,7 +75,7 @@ How it works, end to end:
 3. On the join page they choose a **password**, then land on **My profile**, already filled in from their application. They can add a photo (without one, the directory shows a grey portrait) and save.
 4. As soon as they save their card, they appear in the **members directory**. Only members can see it. Later they log in with email and password (the **Login** link in the menu, which takes them to their profile; when logged in, the menu shows **Directory** and **My profile**); "Forgot your password?" emails them a link to choose a new one.
 
-Until Supabase is connected, the forms, the members pages and the admin portal run in **demo mode** with sample data.
+The forms, the members pages and the admin portal need the Supabase settings (`js/config.js`, see below). Without them the forms show an error and the members pages say they can't load.
 
 **Shared Supabase project.** Beyond uses a Supabase project that another app also uses. So everything Beyond creates starts with `beyond_` (tables, functions, the photo bucket `beyond-avatars`, the Edge Functions `beyond-…`, the secrets `BEYOND_…`), and the setup below changes **nothing project-wide** (sign-ups, Site URL, SMTP, email templates). Beyond sends its own emails, as `info@beyondicmc.com`, through Resend. People who use the other app get no access to Beyond unless you accept them.
 
@@ -164,11 +166,20 @@ These limits are for the **whole project**, so they are shared with the other ap
 | 1 GB file storage | Photos are cropped and shrunk to 400 × 400 px (~40 KB) in the browser before upload; max 3 files per member |
 | ~5 GB data transfer a month | The directory is one request, kept in the browser for 10 minutes; photos load only when scrolled into view, and their links (7 days) are reused so browsers keep them cached. Roughly 1,500 full directory views a month with 100 members |
 | 500,000 Edge Function calls a month | One call per application, per admin action, per join and per "forgot password" |
-| Email sending | Resend free plan: 3,000 a month, 100 a day (shared with emails you write from `info@` in Gmail). Applications: 5 an hour per connection, 3 a day per email. "Forgot password": 3 an hour per email |
+| Email sending | Resend free plan: 3,000 a month, 100 a day (shared with emails you write from `info@` in Gmail). The site itself never sends more than 30 an hour, 90 a day, and 5 a day to the same address (`supabase/functions/_shared/mail.ts`), so neither bots nor tests can get the domain flagged as spam. Applications: 5 an hour per connection, 3 a day per email. "Forgot password": 3 an hour per email |
 | No image resizing on the server | Done in the browser instead |
 | No backups | Monthly CSV export from the admin portal |
 
 The database also limits each member to one card save every 3 seconds and 30 an hour, and checks every field's length and the 3-line maximum for Studies and Experience.
+
+## Testing
+
+Everything is covered by automatic tests: see **[tests/TESTPLAN.md](tests/TESTPLAN.md)**.
+
+- **Once:** install [Node.js](https://nodejs.org) 22 or newer, then run `npm install` in this folder. This also turns on the check that runs before every push.
+- **Every push to `main`** runs `npm test` (about a minute: no internet, no emails, no live data) and is refused if a test fails. GitHub runs the same tests (*Actions → Tests*).
+- **After publishing:** `npm run test:smoke` checks the live site (read-only).
+- **After changing `supabase/`** (and deploying it): `npm run test:integration` runs the whole journey on the live backend. It only uses Resend's never-delivered test addresses, at most once an hour and 4 times a day, and removes everything it created.
 
 ## Publish the website (Vercel + beyondicmc.com)
 
