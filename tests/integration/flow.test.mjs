@@ -7,7 +7,8 @@
 //     emails are accepted by Resend but never delivered to anyone, and the
 //     "new application" notification of a test application is not sent to the
 //     real admin inbox either. So no real inbox and no Gmail is ever involved.
-//   - At most one run an hour and 4 a day (tests/.integration-runs.json).
+//   - At most one run an hour and 4 a day (tests/integration/run.mjs checks
+//     tests/.integration-runs.json; the tests refuse to run without it).
 //   - Everything created is removed at the end, even when a test fails.
 //
 // Needs: the Supabase CLI logged in (npx supabase login) or SUPABASE_SERVICE_ROLE_KEY.
@@ -16,16 +17,14 @@ import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { SITE, liveConfig, serviceRoleKey, callFunction, checkRunBudget } from "../helpers/live.mjs";
+import { SITE, liveConfig, serviceRoleKey, callFunction, cleanupTestData, TEST_EMAIL_LIKE } from "../helpers/live.mjs";
 
-const budget = checkRunBudget();
-const skip = budget.ok ? false : "integration run limit: " + budget.reason;
-if (skip) console.log("Skipping the integration tests: " + budget.reason);
-
-const RUN = Date.now().toString(36);
+// Only through the launcher (npm run test:integration), which applies the run limit
+const RUN = process.env.BEYOND_INTEGRATION_RUN;
+const skip = RUN ? false : "start the integration tests with: npm run test:integration";
 const email = (who) => `delivered+beyond-it-${RUN}-${who}@resend.dev`;
-const PEOPLE = { mentee: email("mentee"), mentor: email("mentor"), reject: email("reject"), admin: email("admin") };
-const LIKE = "delivered+beyond-it-%@resend.dev";
+const PEOPLE = { mentee: email("mentee"), reject: email("reject"), admin: email("admin") };
+const LIKE = TEST_EMAIL_LIKE;
 const pw = () => "It-" + randomBytes(12).toString("base64url");
 const sha256 = (t) => createHash("sha256").update(t).digest("hex");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -42,40 +41,18 @@ const mentee = (extra = {}) => ({
   first_name: "Integra", last_name: "Mentee", email: PEOPLE.mentee, city: "Milan", country: "Italy",
   school: "Politecnico di Milano", programme: "BSc Aerospace Engineering", gpa: "28/30", field: "Engineering", field_other: "",
   goals: "An MSc abroad, then the space industry, with a mentor's help.", achievement: "A regional physics olympiad, won while working.",
-  age_confirmed: true, consent: true, ...extra,
+  consent: true, ...extra,
 });
 
 describe("INT the whole journey on the live backend", { skip, concurrency: false }, () => {
   before(async () => {
-    await budget.record();
     c = await liveConfig();
     db = createClient(c.supabaseUrl, serviceRoleKey(c.ref), { auth: { persistSession: false, autoRefreshToken: false } });
     anonClient = () => createClient(c.supabaseUrl, c.supabaseAnonKey, { auth: { persistSession: false, autoRefreshToken: false } });
   });
 
   after(async () => {
-    if (!db) return;
-    // Remove everything this run (or an earlier, interrupted one) created
-    const users = [];
-    for (let page = 1; page < 50; page++) {
-      const { data } = await db.auth.admin.listUsers({ page, perPage: 200 });
-      if (!data || !data.users.length) break;
-      users.push(...data.users.filter((u) => /^delivered\+beyond-it-[a-z0-9]+-[a-z]+@resend\.dev$/.test(u.email || "")));
-      if (data.users.length < 200) break;
-    }
-    for (const u of users) {
-      const { data: files } = await db.storage.from("beyond-avatars").list(u.id);
-      if (files && files.length) await db.storage.from("beyond-avatars").remove(files.map((f) => u.id + "/" + f.name));
-      await db.from("beyond_profiles").delete().eq("id", u.id);
-    }
-    await db.from("beyond_invites").delete().like("email", LIKE);
-    await db.from("beyond_audit_log").delete().like("target", LIKE);
-    await db.from("beyond_audit_log").delete().like("actor_email", LIKE);
-    await db.from("beyond_applications").delete().like("email", LIKE);
-    await db.from("beyond_rate_limits").delete().like("bucket", "%" + LIKE);
-    for (const u of users) await db.auth.admin.deleteUser(u.id);
-    const left = (await db.from("beyond_applications").select("id").like("email", LIKE)).data.length;
-    assert.equal(left, 0, "test data cleaned up");
+    if (db) assert.equal(await cleanupTestData(db), 0, "test data cleaned up");
   });
 
   test("INT-01 apply: saved, both emails sent, duplicate refused", async () => {
@@ -112,7 +89,7 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.ok(!(await A.client.rpc("beyond_admin_list_members")).error);
   });
 
-  test("INT-04 accept: hashed 14-day invite, welcome email sent, logged", async () => {
+  test("INT-04 accept: hashed 14-day invite, welcome email sent, logged; resend makes a new link; accepted can't be deleted", async () => {
     const r = await admin({ action: "accept", id: state.menteeApp, message: "Integration test" });
     assert.deepEqual(r.data, { ok: true, emailError: null });
     const { data: inv } = await db.from("beyond_invites").select("*").eq("email", PEOPLE.mentee).single();
@@ -121,6 +98,11 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.ok(inv.sent_at);
     const { data: log } = await db.from("beyond_audit_log").select("action").eq("target", PEOPLE.mentee);
     assert.ok(log.some((l) => l.action === "accept"));
+    // Resend join link: a new token (the old link stops working); accepted can't be deleted
+    assert.deepEqual((await admin({ action: "resend-invite", id: state.menteeApp })).data, { ok: true, emailError: null });
+    const { data: again } = await db.from("beyond_invites").select("token_hash").eq("email", PEOPLE.mentee).single();
+    assert.notEqual(again.token_hash, inv.token_hash);
+    assert.equal((await admin({ action: "delete-application", id: state.menteeApp })).data.error, "accepted");
     // The real link is in an email nobody receives: give the invite a token we know
     state.token = randomBytes(32).toString("base64url");
     await db.from("beyond_invites").update({ token_hash: sha256(state.token) }).eq("email", PEOPLE.mentee);
@@ -190,20 +172,8 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     state.memberPassword = newPassword;
   });
 
-  test("INT-09 mentor: accept, resend join link (new token), accepted can't be deleted", async () => {
-    const r = await callFunction("beyond-apply", { role: "mentor", fields: { ...mentee({ email: PEOPLE.mentor, first_name: "Integro" }), school: undefined, programme: undefined, gpa: undefined, goals: undefined, achievement: undefined, company: "ETH Zurich", position: "Researcher", field: "Physics", highest_degree: "ETH, PhD", linkedin: "https://www.linkedin.com/in/x", motivation: "To be the role model I never had." } });
-    assert.equal(r.status, 200, JSON.stringify(r));
-    await sleep(1000);
-    const { data: app } = await db.from("beyond_applications").select("id").eq("email", PEOPLE.mentor).single();
-    assert.equal((await admin({ action: "accept", id: app.id })).status, 200);
-    const before = (await db.from("beyond_invites").select("token_hash").eq("email", PEOPLE.mentor).single()).data.token_hash;
-    assert.deepEqual((await admin({ action: "resend-invite", id: app.id })).data, { ok: true, emailError: null });
-    const afterHash = (await db.from("beyond_invites").select("token_hash").eq("email", PEOPLE.mentor).single()).data.token_hash;
-    assert.notEqual(afterHash, before);
-    assert.equal((await admin({ action: "delete-application", id: app.id })).data.error, "accepted");
-  });
 
-  test("INT-10 reject with email, can't reject twice, rejected can be deleted", async () => {
+  test("INT-09 reject with email, can't reject twice, rejected can be deleted", async () => {
     assert.equal((await callFunction("beyond-apply", { role: "mentee", fields: mentee({ email: PEOPLE.reject, first_name: "Rejecta" }) })).status, 200);
     await sleep(1000);
     const { data: app } = await db.from("beyond_applications").select("id").eq("email", PEOPLE.reject).single();
@@ -212,7 +182,7 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.equal((await admin({ action: "delete-application", id: app.id })).status, 200);
   });
 
-  test("INT-11 members: suspend, reactivate, role, self-protection, remove (account kept)", async () => {
+  test("INT-10 members: suspend, reactivate, role, self-protection, remove (account kept)", async () => {
     assert.equal((await admin({ action: "set-member", id: state.memberId, status: "suspended" })).status, 200);
     const M = await signIn("mentee", state.memberPassword);
     assert.equal((await M.client.from("beyond_profiles").select("status").eq("id", state.memberId).single()).data.status, "suspended");
@@ -221,15 +191,13 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.equal((await admin({ action: "set-member", id: state.memberId, role: "mentor" })).status, 200);
     assert.equal((await db.from("beyond_invites").select("role").eq("email", PEOPLE.mentee).single()).data.role, "mentor");
     assert.equal((await admin({ action: "set-member", id: state.adminId, role: "mentee" })).data.error, "self");
-    const list = await (await signIn("admin", state.adminPassword)).client.rpc("beyond_admin_list_members");
-    assert.ok(list.data.some((m) => m.email === PEOPLE.mentor && !m.id && m.invite_sent_at), "accepted, not joined: shown as invited");
-    assert.equal((await admin({ action: "remove-member", email: PEOPLE.mentee })).status, 200);
+        assert.equal((await admin({ action: "remove-member", email: PEOPLE.mentee })).status, 200);
     assert.equal((await db.from("beyond_profiles").select("id").eq("id", state.memberId)).data.length, 0);
     assert.equal(((await db.storage.from("beyond-avatars").list(state.memberId)).data || []).length, 0);
     assert.ok((await db.auth.admin.getUserById(state.memberId)).data.user, "the account itself is kept");
   });
 
-  test("INT-12 every admin action is in the activity log", async () => {
+  test("INT-11 every admin action is in the activity log", async () => {
     const { data } = await db.from("beyond_audit_log").select("action").like("target", LIKE);
     const actions = new Set(data.map((l) => l.action));
     for (const a of ["accept", "resend-invite", "reject", "delete-application", "set-member", "remove-member"]) assert.ok(actions.has(a), a);

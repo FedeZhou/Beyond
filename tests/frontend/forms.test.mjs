@@ -28,7 +28,7 @@ async function fillMentee(page) {
   await page.selectOption("#field", "Engineering");
   await page.fill("#goals", "An MSc abroad, then the space industry, with a mentor's help.");
   await page.fill("#achievement", "Winning a regional physics olympiad while working.");
-  await page.check("#age"); await page.check("#consent");
+  await page.check("#consent");
 }
 async function fillMentor(page) {
   await page.fill("#first-name", "Leo"); await page.fill("#last-name", "Chen"); await page.fill("#email", "leo@example.com");
@@ -37,7 +37,7 @@ async function fillMentor(page) {
   await page.selectOption("#field", "Other"); await page.fill("#field-other", "Quantum computing");
   await page.fill("#highest-degree", "ETH Zurich, PhD Physics"); await page.fill("#linkedin", "https://www.linkedin.com/in/leo");
   await page.fill("#motivation", "I want to be the role model I never had growing up.");
-  await page.check("#age"); await page.check("#consent");
+  await page.check("#consent");
 }
 const submit = (page) => page.click("form[data-form] button[type=submit]");
 const statusText = (page) => page.locator(".form-status").innerText();
@@ -47,7 +47,7 @@ describe("FE-FORM checking the answers in the browser", () => {
     test(`FE-FORM-01 ${role}: an empty form shows every error and sends nothing`, async () => {
       const { page, api } = await openForm(role);
       await submit(page);
-      for (const id of ["first-name", "last-name", "email", "city", "country", "field", "age", "consent"]) {
+      for (const id of ["first-name", "last-name", "email", "city", "country", "field", "consent"]) {
         assert.ok(await page.locator(`#${id}-error`).isVisible(), id);
         assert.equal(await page.locator("#" + id).getAttribute("aria-invalid"), "true", id);
       }
@@ -104,7 +104,7 @@ describe("FE-FORM sending", () => {
       first_name: "Mia", last_name: "Rossi", email: "Mia@Example.com", city: "Milan", country: "Italy",
       school: "Politecnico di Milano", programme: "BSc Aerospace Engineering", gpa: "28/30",
       field: "Engineering", field_other: "", goals: "An MSc abroad, then the space industry, with a mentor's help.",
-      achievement: "Winning a regional physics olympiad while working.", age_confirmed: true, consent: true,
+      achievement: "Winning a regional physics olympiad while working.", consent: true,
     });
     assert.ok(await page.locator("form[data-form]").isHidden());
     assert.equal(await page.evaluate(() => document.activeElement.id), "mentee-thanks");

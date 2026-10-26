@@ -16,7 +16,7 @@
    1. Edit the text here: mentors, founders, projects.
    2. Crop the photo to the right shape:
         mentors  square    800 x 800 px
-        founders portrait  800 x 1000 px
+        founders square    800 x 800 px
         projects landscape 1200 x 675 px
    3. Compress it at https://squoosh.app (aim for under ~150 KB).
    4. Name the file in lowercase with hyphens, no spaces or accents,
@@ -166,35 +166,41 @@ window.BEYOND = {
   ],
 
   /* ------------------------------------------------------------------------
-     EDIT HERE: Founder and Co-founder (About page)
+     EDIT HERE: The Team (About page)
+     Each person gets a card like the members directory, with the LinkedIn
+     logo of the Home mentor cards.
+     role:       small label on top, e.g. "Founder", "Co-founder"
+     name:       full name
+     position:   job title and company in one line, like the mentor cards,
+            e.g. "Product Owner @ ABB E-mobility". Leave "" to hide.
+     city / country:       shown as "City, Country". Leave "" to hide.
+     linkedin:   the full address of the profile, e.g.
+            "https://www.linkedin.com/in/anna-chen". Leave "" to hide the logo.
      photo: put the image in assets/img/founders/ and write its path, e.g.
             "assets/img/founders/federico-zhou.jpg". Leave "" to show the placeholder.
-            Portrait photos (4:5, e.g. 800 x 1000 px) look best.
-     bio:   one line per paragraph, inside the [ ] brackets.
-     linkedin / email: optional, leave "" to hide.
+            Square photos (1:1, e.g. 800 x 800 px) look best.
+     photoPosition (optional): which part of the photo to keep when it is
+            cropped to a square, e.g. "50% 10%" keeps the top (the face).
+     Add a person: copy a block { ... } and keep the comma between blocks.
      ------------------------------------------------------------------------ */
   founders: [
     {
-      role:     "Founder",
-      name:     "[FOUNDER NAME]",
-      photo:    "",
-      bio: [
-        "[Short bio, replace this text. For example: where you grew up, what you studied, and what you do today.]",
-        "[Optional second paragraph. For example: why you started Beyond, FullyFunded and Thesis Away.]"
-      ],
-      linkedin: "",
-      email:    ""
+      role:       "Founder",
+      name:       "Federico Zhou",
+      position:   "Product Owner @ ABB E-mobility",
+      city:       "Delft",
+      country:    "Netherlands",
+      linkedin:   "https://www.linkedin.com/in/federico-zhou/",                           // PLACEHOLDER
+      photo:      "assets/img/founders/federico-zhou.png"
     },
     {
-      role:     "Co-founder",
-      name:     "[CO-FOUNDER NAME]",
-      photo:    "",
-      bio: [
-        "[Short bio, replace this text. For example: where you grew up, what you studied, and what you do today.]",
-        "[Optional second paragraph. For example: what you hope Beyond will mean for the next generation.]"
-      ],
-      linkedin: "",
-      email:    ""
+      role:       "Co-founder",
+      name:       "Lihao Liu",
+      position:   "Quantitative Developer @ QRT",
+      city:       "Paris",
+      country:    "France",
+      linkedin:   "https://www.linkedin.com/in/lihaoliu01/",                           // PLACEHOLDER
+      photo:      "assets/img/founders/lihao-liu.jpg"
     }
   ],
 

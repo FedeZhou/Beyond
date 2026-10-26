@@ -105,6 +105,18 @@
     return 'href="' + esc(url) + '"' + (isExternal(url) ? ' target="_blank" rel="noopener"' : "");
   }
 
+  var LINKEDIN_ICON =
+    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">' +
+      '<path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>' +
+    "</svg>";
+
+  // LinkedIn logo linking to a profile (mentor and team cards); "" when there is no link
+  function linkedinButton(url, who) {
+    if (!url) return "";
+    return '<a class="mentor-linkedin" ' + linkAttrs(url) +
+      ' aria-label="' + esc(T.mentorLabels.linkedin + ": " + who) + '">' + LINKEDIN_ICON + "</a>";
+  }
+
   /* ========================================================================
      1. Header
      ======================================================================== */
@@ -226,19 +238,6 @@
     var placeholder = assetUrl(DATA.placeholderPhoto);
     var mentors = DATA.mentors || [];
 
-    var linkedinIcon =
-      '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">' +
-        '<path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>' +
-      "</svg>";
-
-    function linkedin(m) {
-      if (!m.linkedin) return "";
-      return (
-        '<a class="mentor-linkedin" ' + linkAttrs(m.linkedin) +
-          ' aria-label="' + esc(T.mentorLabels.linkedin + ": " + pick(m.role)) + '">' + linkedinIcon + "</a>"
-      );
-    }
-
     function card(m) {
       return (
         '<li class="mentor-card">' +
@@ -252,7 +251,7 @@
               '<p class="mentor-role">' + esc(pick(m.role)) + "</p>" +
               (m.location ? '<p class="mentor-location">' + esc(pick(m.location)) + "</p>" : "") +
             "</div>" +
-            linkedin(m) +
+            linkedinButton(m.linkedin, pick(m.role)) +
           "</div>" +
         "</li>"
       );
@@ -353,7 +352,7 @@
   }
 
   /* ========================================================================
-     2. Founders (About)
+     2. The Team (About): the members directory card, with the LinkedIn logo
      ======================================================================== */
   function renderFounders() {
     var wrap = document.getElementById("founders");
@@ -363,30 +362,31 @@
 
     wrap.innerHTML = (DATA.founders || []).map(function (f) {
       var name = pick(f.name);
-      var bio = pick(f.bio);
-      if (!Array.isArray(bio)) bio = [bio];
-
-      var links = [];
-      if (f.linkedin) links.push('<li><a class="link-arrow" ' + linkAttrs(f.linkedin) + '>LinkedIn <span aria-hidden="true">&rarr;</span></a></li>');
-      if (f.email) links.push('<li><a class="link-arrow" href="mailto:' + esc(f.email) + '">Email <span aria-hidden="true">&rarr;</span></a></li>');
+      var work = pick(f.position);
+      var place = [pick(f.city), pick(f.country)].filter(Boolean).join(", ");
 
       return (
-        '<article class="founder">' +
-          '<figure class="founder-photo">' +
-            '<img src="' + esc(assetUrl(f.photo) || placeholder) + '" alt="' + esc(T.portraitOf.replace("{name}", name)) + '" width="800" height="1000" loading="lazy" decoding="async">' +
-          "</figure>" +
-          '<div class="founder-body">' +
-            '<p class="eyebrow eyebrow--blue">' + esc(pick(f.role)) + "</p>" +
-            '<h3 class="founder-name">' + esc(name) + "</h3>" +
-            '<div class="founder-bio">' + bio.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") + "</div>" +
-            (links.length ? '<ul class="founder-links">' + links.join("") + "</ul>" : "") +
+        '<li class="mentor-card member-card">' +
+          '<div class="mentor-photo">' +
+            '<img src="' + esc(assetUrl(f.photo) || placeholder) + '" alt="' + esc(T.portraitOf.replace("{name}", name)) +
+            '" width="300" height="400" loading="lazy" decoding="async"' +
+              (f.photoPosition ? ' style="object-position: ' + esc(f.photoPosition) + '"' : "") + ">" +
           "</div>" +
-        "</article>"
+          '<div class="mentor-body">' +
+            '<div class="mentor-text">' +
+              (f.role ? '<p class="member-badge">' + esc(pick(f.role)) + "</p>" : "") +
+              '<h3 class="member-name">' + esc(name) + "</h3>" +
+              (work ? '<p class="mentor-role">' + esc(work) + "</p>" : "") +
+              (place ? '<p class="mentor-location">' + esc(place) + "</p>" : "") +
+            "</div>" +
+            linkedinButton(f.linkedin, name) +
+          "</div>" +
+        "</li>"
       );
     }).join("");
 
     // If a photo path is wrong or the file is missing, show the placeholder instead
-    wrap.querySelectorAll(".founder-photo img").forEach(function (img) {
+    wrap.querySelectorAll(".mentor-photo img").forEach(function (img) {
       img.addEventListener("error", function onError() {
         img.removeEventListener("error", onError);
         img.src = placeholder;

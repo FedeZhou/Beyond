@@ -91,9 +91,10 @@ describe("FE-PUB public pages", () => {
     assert.equal(broken, 0);
     await closePage(page, assert);
   });
-  test("FE-PUB-03 about: the founders come from content.js", async () => {
+  test("FE-PUB-03 about: the team cards come from content.js, like the directory", async () => {
     const page = await open("about.html");
-    assert.equal(await page.locator("#founders .founder").count(), C.founders.length);
+    assert.equal(await page.locator("#founders .member-card").count(), C.founders.length);
+    assert.equal(await page.locator("#founders .member-name").first().textContent(), C.founders[0].name);
     await closePage(page, assert);
   });
 });

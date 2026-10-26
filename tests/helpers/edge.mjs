@@ -235,7 +235,7 @@ export function menteeFields(email = "mia@example.com", extra = {}) {
     field: "Engineering", field_other: "",
     goals: "An MSc abroad, then a career in the space industry with a mentor's help.",
     achievement: "Winning a regional physics olympiad while working in the family shop.",
-    age_confirmed: true, consent: true, ...extra,
+    consent: true, ...extra,
   };
 }
 export function mentorFields(email = "leo@example.com", extra = {}) {
@@ -244,6 +244,6 @@ export function mentorFields(email = "leo@example.com", extra = {}) {
     company: "ETH Zurich", position: "Researcher", field: "Physics", field_other: "",
     highest_degree: "ETH Zurich, PhD Physics", linkedin: "https://www.linkedin.com/in/leo",
     motivation: "I grew up without role models in science and want to be one for others.",
-    age_confirmed: true, consent: true, ...extra,
+    consent: true, ...extra,
   };
 }

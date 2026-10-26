@@ -117,6 +117,11 @@ describe("S-REF JavaScript ↔ pages ↔ texts", () => {
       assert.ok(m.role && m.location, "mentor card text");
       if (m.photo) assert.ok(exists(m.photo), m.photo);
     }
+    for (const f of c.founders) {
+      assert.ok(f.name, "team card name");
+      assert.equal(typeof f.linkedin, "string", f.name);
+      if (f.photo) assert.ok(exists(f.photo), f.photo);
+    }
     for (const l of c.legal) assert.ok(l.id && l.label);
   });
   test("S-REF-05 the members area limits match the database", () => {
@@ -149,10 +154,11 @@ describe("S-FORM application forms ↔ server validation ↔ admin portal", () =
         if (!/^<select/.test(tag)) assert.ok(max && Number(max) <= q.max, `${role}.${q.name}: maxlength ${max} vs server ${q.max}`);
       }
     });
-    test(`S-FORM-03 ${role}.html: spam trap, 18+ and consent boxes, captcha slot, thank-you panel`, () => {
+    test(`S-FORM-03 ${role}.html: spam trap, one consent box (18+, terms, privacy), captcha slot, thank-you panel`, () => {
       const h = html[role + ".html"];
       assert.match(h, /<div class="hp" aria-hidden="true">[\s\S]*?name="_gotcha"[^>]*tabindex="-1"/);
-      assert.match(h, /name="age_confirmed" type="checkbox"[^>]*required/);
+      assert.doesNotMatch(h, /age_confirmed/);
+      assert.match(h, /I am 18 or older and I agree to the/);
       assert.match(h, /name="consent" type="checkbox"[^>]*required/);
       assert.match(h, /class="form-captcha"/);
       assert.match(h, new RegExp(`data-thanks="${role}-thanks"`));

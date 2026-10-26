@@ -30,13 +30,13 @@ describe("U-APP application answers (application.ts)", () => {
   test("U-APP-03 every missing required answer is reported", () => {
     const r = parseApplication("mentee", {});
     assert.equal(r.ok, false);
-    for (const f of ["first_name", "last_name", "email", "city", "country", "school", "programme", "gpa", "field", "goals", "achievement", "age_confirmed", "consent"]) {
+    for (const f of ["first_name", "last_name", "email", "city", "country", "school", "programme", "gpa", "field", "goals", "achievement", "consent"]) {
       assert.ok(r.invalid.includes(f), f);
     }
   });
-  test("U-APP-04 18+ and consent must be ticked (true, not 'yes')", () => {
-    const r = parseApplication("mentee", menteeFields(undefined, { age_confirmed: "yes", consent: false }));
-    assert.deepEqual(r.invalid.sort(), ["age_confirmed", "consent"]);
+  test("U-APP-04 consent (18+, terms, privacy) must be ticked (true, not 'yes')", () => {
+    const r = parseApplication("mentee", menteeFields(undefined, { consent: "yes" }));
+    assert.deepEqual(r.invalid, ["consent"]);
   });
   test("U-APP-05 'Other' needs an explanation; otherwise the explanation is dropped", () => {
     assert.deepEqual(parseApplication("mentor", mentorFields(undefined, { field: "Other", field_other: "" })).invalid, ["field_other"]);
@@ -182,8 +182,10 @@ describe("U-MAIL sending and safety caps (mail.ts)", () => {
     assert.match(await mail.trySend("mia@example.com", msg), /daily limit of 5 emails to mia@example\.com/);
     assert.equal(store.emails.length, mail.MAX_PER_RECIPIENT_DAY);
   });
-  test("U-MAIL-03 the admin address is only held to the totals", async () => {
+  test("U-MAIL-03 the admin address and Resend's test inbox are only held to the totals", async () => {
     for (let i = 0; i < 12; i++) assert.equal(await mail.trySend(ADMIN_EMAIL, msg), null);
+    for (let i = 0; i < 12; i++) assert.equal(await mail.trySend("delivered+admin@resend.dev", msg), null);
+    assert.equal(store.limits["mail:hour"], 24, "they still count toward the totals");
   });
   test(`U-MAIL-04 at most ${mail.MAX_PER_HOUR} emails an hour and ${mail.MAX_PER_DAY} a day in total`, async () => {
     for (let i = 0; i < mail.MAX_PER_HOUR; i++) await mail.trySend(`p${i}@example.com`, msg);

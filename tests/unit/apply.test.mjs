@@ -32,9 +32,9 @@ describe("F-APPLY applications (beyond-apply)", () => {
     assert.equal(apps()[0].answers.linkedin, "https://www.linkedin.com/in/leo");
   });
   test("F-APPLY-03 wrong answers: 400 with the field names, nothing saved, no email", async () => {
-    const r = await apply({ role: "mentee", fields: menteeFields("x@example.com", { goals: "short", age_confirmed: false }) });
+    const r = await apply({ role: "mentee", fields: menteeFields("x@example.com", { goals: "short", consent: false }) });
     assert.equal(r.status, 400);
-    assert.deepEqual(r.data, { error: "invalid", fields: ["goals", "age_confirmed"] });
+    assert.deepEqual(r.data, { error: "invalid", fields: ["goals", "consent"] });
     assert.equal(apps().length + store.emails.length, 0);
   });
   test("F-APPLY-04 bad requests are refused (role, body, JSON)", async () => {

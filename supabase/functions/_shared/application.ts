@@ -42,8 +42,7 @@ const ANSWERS: Record<Role, Question[]> = {
 };
 
 const CHECKS: Question[] = [
-  { name: "age_confirmed", label: "I am 18 or older",                kind: "check", max: 0 },
-  { name: "consent",       label: "I agree to the Terms and Privacy Policy", kind: "check", max: 0 },
+  { name: "consent", label: "I am 18 or older and I agree to the Terms and Privacy Policy", kind: "check", max: 0 },
 ];
 
 export type Application = {

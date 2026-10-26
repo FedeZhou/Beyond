@@ -989,8 +989,9 @@ section[id] {
   color: var(--grey-500);
 }
 
-/* Home cards: role and location on the left, LinkedIn logo on the right */
-.mentor-track .mentor-body {
+/* Home and About team cards: text on the left, LinkedIn logo on the right */
+.mentor-track .mentor-body,
+.team-grid .mentor-body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1012,6 +1013,7 @@ section[id] {
    photo's original colours (card hovered, or tapped on phones) */
 .mentor-track .mentor-card:hover .mentor-linkedin,
 .mentor-track .mentor-card.is-color .mentor-linkedin,
+.team-grid .mentor-card:hover .mentor-linkedin,
 .mentor-linkedin:focus-visible {
   color: #0A66C2; /* LinkedIn's own blue */
 }
@@ -1275,68 +1277,6 @@ section[id] {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   color: var(--navy);
-}
-
-/* --- Founders: small portrait beside the bio --- */
-.founders {
-  display: grid;
-  gap: 2.5rem;
-}
-
-@media (min-width: 900px) {
-  .founders {
-    grid-template-columns: 1fr 1fr;
-    gap: 2.5rem 4rem;
-  }
-}
-
-.founder {
-  display: grid;
-  grid-template-columns: minmax(96px, 160px) 1fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-
-@media (max-width: 479px) {
-  .founder {
-    grid-template-columns: 1fr;
-  }
-  .founder-photo {
-    max-width: 160px;
-  }
-}
-
-.founder-photo {
-  aspect-ratio: 4 / 5;
-  margin: 0;
-  overflow: hidden;
-  background: var(--grey-200);
-}
-.founder-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.founder-name {
-  margin-bottom: 0.75rem;
-  font-size: clamp(1.5rem, 2.4vw, 1.875rem);
-  font-weight: 400;
-}
-
-.founder-bio p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--grey-700);
-}
-
-.founder-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  list-style: none;
 }
 
 /* --- Other projects --- */
@@ -1838,6 +1778,26 @@ select.input {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+/* About, The Team: same size as the mentor cards on the home page
+   (250px wide, portrait photo 3:4); long positions wrap onto a second line */
+.team-grid {
+  grid-template-columns: repeat(auto-fill, 250px);
+  gap: 2rem;
+}
+.team-grid .mentor-photo {
+  aspect-ratio: 3 / 4;
+}
+@media (max-width: 559px) {
+  .team-grid {
+    grid-template-columns: 1fr;   /* phones: full-width cards, small photo beside the text */
+  }
+  .team-grid .member-card {
+    grid-template-columns: 84px 1fr;
+  }
+  .team-grid .mentor-role {
+    font-size: 0.8125rem;
+  }
 }
 .member-card {
   width: auto;

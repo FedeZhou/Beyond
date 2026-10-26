@@ -9,8 +9,8 @@
 // domain flagged as spam, or use up the Resend quota):
 //   - at most MAX_PER_HOUR / MAX_PER_DAY emails in total,
 //   - at most MAX_PER_RECIPIENT_DAY emails a day to the same address
-//     (the admin address, which gets one notification per application, is
-//     only held to the totals).
+//     (the admin address, which gets one notification per application, and
+//     Resend's never-delivered test addresses are only held to the totals).
 // Over a cap the email is NOT sent; trySend() returns the reason, which the
 // admin portal shows ("Last email problem"), and nothing else breaks.
 // Resend's test addresses (…@resend.dev) are accepted but never delivered:
@@ -69,7 +69,8 @@ export async function send(to: string, mail: Mail, replyTo?: string): Promise<vo
 async function overCap(to: string): Promise<string | null> {
   const address = to.trim().toLowerCase();
   const isAdmin = address === env("BEYOND_ADMIN_EMAIL", "").trim().toLowerCase();
-  if (!isAdmin && !(await withinLimit("mail:to:" + address, MAX_PER_RECIPIENT_DAY, "1 day"))) {
+  // Resend's test inbox is never delivered to anyone: only the totals apply to it
+  if (!isAdmin && !isTestAddress(address) && !(await withinLimit("mail:to:" + address, MAX_PER_RECIPIENT_DAY, "1 day"))) {
     return "Not sent: daily limit of " + MAX_PER_RECIPIENT_DAY + " emails to " + address + " reached";
   }
   if (!(await withinLimit("mail:hour", MAX_PER_HOUR, "1 hour"))) {

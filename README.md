@@ -47,7 +47,7 @@ Almost everything you'll want to change is in **`js/content.js`**, inside the bl
 | What | Where in `content.js` |
 |---|---|
 | Mentor cards in the sliding row on Home (photo, Studied / Experience / Now) | `mentors` |
-| Founder and Co-founder (name, role, photo, bio, LinkedIn) | `founders` |
+| The Team on About (photo, role, name, position, company, city, country, LinkedIn) | `founders` |
 | Lead the Future / FullyFunded / Thesis Away links | `projects` |
 | Contact email, social links | `contact`, `social` |
 | Spam check on the application forms (Turnstile site key) | `applications` |
@@ -58,7 +58,7 @@ Only change the text between quotes, and keep the commas. Save, then refresh the
 
 **Mentor photos:** put them in `assets/img/mentors/` (landscape, around 800 × 600 px) and set `photo: "assets/img/mentors/name.jpg"`. You can add as many mentors as you like; the row keeps looping.
 
-**Founder photos:** put the image in `assets/img/` (e.g. `founder.jpg`, portrait format around 800 × 1000 px) and set `photo: "assets/img/founder.jpg"`. Leave `photo: ""` to show the grey placeholder.
+**Team photos (About):** crop square (around 800 × 800 px), compress at <https://squoosh.app>, name it in lowercase with hyphens (e.g. `federico-zhou.jpg`), put it in `assets/img/founders/` and set `photo: "assets/img/founders/federico-zhou.jpg"`. Leave `photo: ""` to show the grey placeholder. Add `photoPosition: "50% 10%"` to keep the top of the photo when it is cropped.
 
 **Email texts:** the emails Beyond sends (confirmation, new application, welcome, rejection, new password) are in `supabase/functions/_shared/templates.ts`. After changing them, publish the functions again (see step 5 below).
 

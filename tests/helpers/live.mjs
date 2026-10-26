@@ -71,6 +71,34 @@ export function checkRunBudget() {
   return { ok: true, record: () => import("node:fs").then((fs) => fs.writeFileSync(RUNS, JSON.stringify([...runs, now]))) };
 }
 
+// Every integration test person: delivered+beyond-it-<run>-<who>@resend.dev
+export const TEST_EMAIL_LIKE = "delivered+beyond-it-%@resend.dev";
+export const isTestPerson = (email) => /^delivered\+beyond-it-[a-z0-9]+-[a-z0-9-]+@resend\.dev$/.test(String(email || "").toLowerCase());
+
+// Removes everything integration tests created (also left-overs of an interrupted run).
+// Returns how many applications are left (should be 0).
+export async function cleanupTestData(db) {
+  const users = [];
+  for (let page = 1; page < 50; page++) {
+    const { data } = await db.auth.admin.listUsers({ page, perPage: 200 });
+    if (!data || !data.users.length) break;
+    users.push(...data.users.filter((u) => isTestPerson(u.email)));
+    if (data.users.length < 200) break;
+  }
+  for (const u of users) {
+    const { data: files } = await db.storage.from("beyond-avatars").list(u.id);
+    if (files && files.length) await db.storage.from("beyond-avatars").remove(files.map((f) => u.id + "/" + f.name));
+    await db.from("beyond_profiles").delete().eq("id", u.id);
+  }
+  await db.from("beyond_invites").delete().like("email", TEST_EMAIL_LIKE);
+  await db.from("beyond_audit_log").delete().like("target", TEST_EMAIL_LIKE);
+  await db.from("beyond_audit_log").delete().like("actor_email", TEST_EMAIL_LIKE);
+  await db.from("beyond_applications").delete().like("email", TEST_EMAIL_LIKE);
+  await db.from("beyond_rate_limits").delete().like("bucket", "%" + TEST_EMAIL_LIKE);
+  for (const u of users) await db.auth.admin.deleteUser(u.id);
+  return (await db.from("beyond_applications").select("id").like("email", TEST_EMAIL_LIKE)).data.length;
+}
+
 export function readDotEnv() {
   const file = join(ROOT, ".env");
   return existsSync(file) ? readFileSync(file, "utf8") : "";
