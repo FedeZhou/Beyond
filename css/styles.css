@@ -2440,6 +2440,39 @@ body:has(dialog[open]) {
 }
 .admin-invite-row .field { flex: 1 1 260px; margin: 0; }
 .admin-invite-result .input { flex: 1 1 320px; }
+/* Role choice and buttons as tall as the email box, so the row lines up top and bottom */
+.admin-invite {
+  --invite-control-h: calc(1.7rem + 1.0625rem * 1.4 + 2px);   /* .input: padding + one line + border */
+}
+.admin-invite-role {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.admin-invite-role legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+.admin-invite-options {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  height: var(--invite-control-h);
+}
+.admin-invite-options .checkbox {
+  align-items: center;
+}
+.admin-invite-options .checkbox input {
+  margin: 0;
+}
+.admin-invite-row .btn,
+.admin-invite-result .btn {
+  justify-content: center;
+  height: var(--invite-control-h);
+}
 .admin-danger-line {
   margin: 0.5rem 0 0;
 }

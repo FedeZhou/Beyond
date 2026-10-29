@@ -184,7 +184,7 @@ async function deleteApplication(actor: Actor, id: string): Promise<Reply> {
 // A join link the admin hands over personally: no application, no email
 async function createInvite(actor: Actor, email: string, role: string): Promise<Reply> {
   email = email.toLowerCase();
-  if (email.length > 254 || !/^[^s@]+@[^s@]+.[^s@]+$/.test(email)) return fail(400, "invalid_email");
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(400, "invalid_email");
   if (role !== "mentor" && role !== "mentee") return fail(400, "invalid");
   const made = await freshInvite(actor, email, role, null);
   if ("status" in made) return made;

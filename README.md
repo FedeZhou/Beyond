@@ -151,6 +151,7 @@ The first time, you fill in your own card. After that, an **Admin** link appears
   - **Reject** → by default they get a polite email (untick the box to send nothing). The note is included.
   - **Resend join link** if it expired or got lost. **Delete application** for spam or duplicates.
 - **Members:** everyone accepted, with their state: *Invited* (link sent), *Joined, card not saved*, *Active*, *Suspended*. Change a role (mentor, mentee, admin), **Suspend** (they disappear from the directory and can't see it) or **Reactivate**, and **Remove** (deletes their card, photos and invite; their account stays, because the other app may use it).
+  - **Invite someone with a link** (top of the Members tab): for people you already know, without the application form. Enter their email, pick Mentor or Mentee, **Create link**, then **Copy link** and send it yourself (WhatsApp, your own email…): nothing is emailed. The link is personal to that email, works once, and expires after 14 days; creating a new one for the same email replaces the old one. They choose a password, then must fill in their card (name, surname, city, country, position and company; photo optional) before they appear in the directory.
 - **Activity:** the last 100 things admins did.
 - **Export CSV** (Applications and Members): this is also your **monthly backup**, because the free plan has no backups. Keep the files somewhere private, **never** in this repository.
 

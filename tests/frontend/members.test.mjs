@@ -292,6 +292,24 @@ describe("FE-CARD My profile", () => {
     assert.equal(api.find("PATCH", "/rest/v1/beyond_profiles").length, 0);
     await closePage(page, assert);
   });
+  test("FE-CARD-08 joined with an invite link (no application): the card saves only with name, surname, city, country, position and company; photo optional", async () => {
+    const blank = profile({ first_name: "", last_name: "", city: "", country: "", position: "", company: "", studies: [], experience: [], photo_path: null, onboarded_at: null });
+    const { page, api } = await open("my-card.html", { me: blank });
+    await visible(page, "#card-editor");
+    await page.click("#card-form button[type=submit]");
+    for (const id of ["first-name", "last-name", "city", "country", "position", "company"]) {
+      assert.ok(await page.locator("#" + id + "-error").isVisible(), id + " is required");
+    }
+    assert.equal(api.find("PATCH", "/rest/v1/beyond_profiles").length, 0, "nothing saved");
+    const card = { "#first-name": "Sara", "#last-name": "Bianchi", "#city": "Milan", "#country": "Italy", "#position": "Engineer", "#company": "ABB" };
+    for (const [sel, value] of Object.entries(card)) await page.fill(sel, value);
+    await page.click("#card-form button[type=submit]");
+    await visible(page, "#card-done");
+    const patch = api.last("PATCH", "/rest/v1/beyond_profiles");
+    assert.equal(patch.body.company, "ABB");
+    assert.equal(patch.body.photo_path, null, "no photo needed");
+    await closePage(page, assert);
+  });
   test("FE-CARD-05 Studies, LinkedIn and About me are optional; About me stops at 300 characters", async () => {
     const { page, api } = await open("my-card.html");
     await visible(page, "#card-editor");

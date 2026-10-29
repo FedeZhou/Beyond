@@ -138,14 +138,19 @@
                   <label for="invite-email">Their email</label>
                   <input class="input" id="invite-email" type="email" maxlength="254" autocomplete="off" required>
                 </div>
-                <div class="checkbox">
-                  <input id="invite-role-mentor" name="invite-role" type="radio" value="mentor" checked>
-                  <label for="invite-role-mentor">Mentor</label>
-                </div>
-                <div class="checkbox">
-                  <input id="invite-role-mentee" name="invite-role" type="radio" value="mentee">
-                  <label for="invite-role-mentee">Mentee</label>
-                </div>
+                <fieldset class="admin-invite-role">
+                  <legend>Role</legend>
+                  <div class="admin-invite-options">
+                    <div class="checkbox">
+                      <input id="invite-role-mentor" name="invite-role" type="radio" value="mentor" checked>
+                      <label for="invite-role-mentor">Mentor</label>
+                    </div>
+                    <div class="checkbox">
+                      <input id="invite-role-mentee" name="invite-role" type="radio" value="mentee">
+                      <label for="invite-role-mentee">Mentee</label>
+                    </div>
+                  </div>
+                </fieldset>
                 <button class="btn btn-primary" type="submit">Create link</button>
               </div>
               <div class="admin-invite-result" id="invite-result" hidden>

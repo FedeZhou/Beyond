@@ -156,6 +156,13 @@ describe("F-ADM-APP applications: accept, reject, resend, delete", () => {
     assert.equal(inviteFor("zed@example.com").role, "mentee");
     assert.equal(r2.status, 200);
     assert.equal((await act({ action: "create-invite", email: "nope", role: "mentor" })).data.error, "invalid_email");
+    // Ordinary addresses with an "s" in them work (the check once read "s" as a letter, not a space)
+    for (const email of ["sara.rossi@gmail.com", "test-mentor@resend.dev"]) {
+      assert.equal((await act({ action: "create-invite", email, role: "mentee" })).status, 200, email);
+    }
+    for (const email of ["two words@example.com", "a@b", "a@@b.com"]) {
+      assert.equal((await act({ action: "create-invite", email, role: "mentee" })).data.error, "invalid_email", email);
+    }
     assert.equal((await act({ action: "create-invite", email: "a@example.com", role: "admin" })).status, 400);
     inviteFor("zed@example.com").claimed_at = new Date().toISOString();
     assert.equal((await act({ action: "create-invite", email: "zed@example.com", role: "mentor" })).data.error, "already_member");
