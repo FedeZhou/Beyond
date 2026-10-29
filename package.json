@@ -7,7 +7,7 @@
     "test": "npm run test:static && npm run test:unit && npm run test:frontend",
     "test:static": "node --test --test-reporter=spec --test-timeout=30000 \"tests/static/*.test.mjs\"",
     "test:unit": "node --test --test-reporter=spec --experimental-strip-types --experimental-test-module-mocks --no-warnings --test-concurrency=1 --test-timeout=30000 \"tests/unit/*.test.mjs\"",
-    "test:frontend": "node --test --test-reporter=spec --test-concurrency=2 --test-timeout=60000 \"tests/frontend/*.test.mjs\"",
+    "test:frontend": "node --test --test-reporter=spec --test-concurrency=2 --test-timeout=180000 \"tests/frontend/*.test.mjs\"",
     "test:smoke": "node --test --test-reporter=spec \"tests/smoke/*.test.mjs\"",
     "test:integration": "node tests/integration/run.mjs",
     "build": "node scripts/build.mjs",

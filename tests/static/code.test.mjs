@@ -1,22 +1,43 @@
 // Static checks: syntax, settings files, build output, secrets, SQL rules
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync, execSync } from "node:child_process";
+import { execFile, execFileSync, execSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { promisify } from "node:util";
 import { readFileSync, readdirSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT, read, exists, PAGES, PRIVATE_PAGES, trackedFiles } from "../helpers/repo.mjs";
 
+const run = promisify(execFile);
+
+// Parses every file (without running it) in ONE extra Node process: starting Node takes
+// ~2 s on Windows (antivirus, OneDrive), so one "node --check" per file took ~45 s.
+// Pages' scripts are classic scripts; .mjs and .ts are modules (.ts minus its types).
+const CHECKER = `
+  const fs = require("fs"), vm = require("vm"), { stripTypeScriptTypes } = require("module");
+  const bad = [];
+  for (const f of process.argv.slice(1)) {
+    try {
+      let src = fs.readFileSync(f, "utf8");
+      if (f.endsWith(".ts")) src = stripTypeScriptTypes(src);
+      if (/\\.(mjs|ts)$/.test(f)) new vm.SourceTextModule(src, { identifier: f });
+      else new vm.Script(src, { filename: f });
+    } catch (e) { bad.push(f + ": " + e.message); }
+  }
+  if (bad.length) { console.error(bad.join("\\n")); process.exit(1); }`;
+const checkSyntax = (paths) => run(process.execPath, ["--experimental-vm-modules", "--no-warnings", "-e", CHECKER, ...paths])
+  .catch((e) => assert.fail(e.stderr || e.message));
+
 describe("S-SYN syntax and settings", () => {
-  test("S-SYN-01 every JavaScript file parses", () => {
-    const files = ["js/content.js", "js/main.js", "js/members.js", "js/admin.js", "js/hero-particles.js", "js/config.example.js", "scripts/build.mjs"];
-    for (const f of files) execFileSync(process.execPath, ["--check", join(ROOT, f)]);
+  test("S-SYN-01 every JavaScript file parses", async () => {
+    const files = ["js/content.js", "js/main.js", "js/members.js", "js/admin.js", "js/hero-particles.js", "js/config.example.js", "scripts/build.mjs", "scripts/serve.mjs"];
+    await checkSyntax(files.map((f) => join(ROOT, f)));
   });
-  test("S-SYN-02 every Edge Function file parses (TypeScript)", () => {
+  test("S-SYN-02 every Edge Function file parses (TypeScript)", async () => {
     const dir = join(ROOT, "supabase/functions");
     const files = readdirSync(dir, { recursive: true }).filter((f) => String(f).endsWith(".ts"));
     assert.ok(files.length >= 11);
-    for (const f of files) execFileSync(process.execPath, ["--experimental-strip-types", "--no-warnings", "--check", join(dir, f)]);
+    await checkSyntax(files.map((f) => join(dir, f)));
   });
   test("S-SYN-03 vercel.json: build into dist/, no install, security headers, private pages not indexed", () => {
     const v = JSON.parse(read("vercel.json"));
