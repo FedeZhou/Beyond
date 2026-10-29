@@ -29,7 +29,7 @@ describe("FE-ALL every page, desktop and phone", () => {
   test("FE-ALL-02 logged out: menu ends with Login, the current page is marked", async () => {
     for (const [p, current] of [["index.html", "Home"], ["about.html", "About"], ["mentor.html", "Become a mentor"], ["mentee.html", "Become a mentee"], ["login.html", "Login"]]) {
       const page = await open(p);
-      assert.equal(await navText(page), "Home About Become a mentor Become a mentee Login", p);
+      assert.equal(await navText(page), "Home Become a mentor Become a mentee About Login", p);
       assert.equal(await page.locator('#site-nav a[aria-current="page"]').innerText(), current, p);
       assert.match(await page.locator("#site-nav a", { hasText: "Login" }).getAttribute("href"), /login\.html$/);
       await closePage(page, assert);

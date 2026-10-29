@@ -5,9 +5,13 @@ import { env } from "./env.ts";
 
 const MAX_BODY_BYTES = 32 * 1024;
 
+// The secret is a list of addresses. Commas are the documented separator, but spaces,
+// semicolons and new lines work too: the Supabase dashboard can turn commas into spaces
+// on paste, and then no address matched and every form on the site failed.
 function allowedOrigins(): string[] {
   return env("BEYOND_ALLOWED_ORIGINS", "")
-    .split(",")
+    .replace(/["']/g, "")
+    .split(/[\s,;]+/)
     .map((o) => o.trim().replace(/\/+$/, ""))
     .filter(Boolean);
 }

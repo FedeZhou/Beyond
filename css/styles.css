@@ -1493,6 +1493,31 @@ section[id] {
   border-color: var(--error);
 }
 
+/* Password fields: an eye button (show / hide) inside the field, on the right */
+.password-wrap {
+  position: relative;
+}
+.password-wrap .input {
+  padding-right: 3.25rem;
+}
+.password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 0.9rem;
+  border: 0;
+  background: none;
+  color: var(--grey-500);
+  cursor: pointer;
+}
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: var(--blue);
+}
+
 textarea.input {
   min-height: 9rem;
   resize: vertical;
@@ -1555,6 +1580,7 @@ select.input {
 }
 .form-thanks h2 {
   margin-bottom: 1rem;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);   /* smaller than the form title, so it fits on one line */
 }
 .form-thanks p:not(.eyebrow) {
   color: var(--grey-700);
@@ -1785,7 +1811,8 @@ select.input {
   grid-template-columns: repeat(auto-fill, 250px);
   gap: 2rem;
 }
-.team-grid .mentor-photo {
+/* Directory and The Team: 3:4 portrait photos, like the Home mentor cards */
+.member-card .mentor-photo {
   aspect-ratio: 3 / 4;
 }
 .member-card {
@@ -1839,6 +1866,227 @@ select.input {
   color: var(--ink);
 }
 
+/* Directory cards: name, role and place with the LinkedIn logo (as on the Team cards);
+   clicking anywhere on a card opens its details */
+.member-grid .mentor-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.member-grid .mentor-card:hover .mentor-linkedin {
+  color: #0A66C2;
+}
+.member-card {
+  position: relative;
+}
+.member-grid:not(.team-grid) .member-card {   /* the Team cards on About are not clickable */
+  cursor: pointer;
+}
+.member-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.member-open::after {                      /* stretches the button over the whole card */
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.member-card:has(.member-open:focus-visible) {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.member-card .mentor-linkedin {            /* stays clickable above the stretched button */
+  position: relative;
+  z-index: 1;
+}
+
+/* Details pop-up */
+.member-dialog {
+  width: min(720px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 1px solid var(--grey-200);
+  background: var(--white);
+  color: var(--ink);
+  overflow: auto;
+}
+.member-dialog::backdrop {
+  background: rgba(5, 28, 44, 0.6);
+}
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+.member-dialog {
+  border-top: 3px solid var(--navy);
+}
+.member-dialog-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+}
+
+/* Left panel: framed portrait, LinkedIn underneath */
+.member-dialog-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2.25rem 1.75rem;
+  background: var(--grey-050);
+  border-right: 1px solid var(--grey-200);
+}
+.member-dialog .mentor-photo {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: 6px;                              /* white mat around the photo */
+  background: var(--white);
+  border: 1px solid var(--grey-200);
+  box-shadow: 0 1px 2px rgba(5, 28, 44, 0.06), 0 8px 24px rgba(5, 28, 44, 0.08);
+}
+.member-dialog-body {
+  min-width: 0;
+  padding: 2.25rem 2.5rem 2rem 2.25rem;
+}
+
+/* Badge, name, role and place */
+.member-dialog-head {
+  padding: 0 1.5rem 1.25rem 0;               /* right: room for the close button */
+  border-bottom: 1px solid var(--grey-200);
+}
+.member-dialog .member-badge {
+  margin-bottom: 0.6rem;
+}
+.member-dialog .member-name {
+  margin-bottom: 0.4rem;
+  font-size: 1.625rem;
+  font-weight: 300;
+  line-height: 1.15;
+}
+.member-dialog .mentor-role {
+  font-size: 1rem;
+}
+.member-dialog .mentor-location {
+  margin-top: 0.3rem;
+  font-size: 0.8125rem;
+}
+
+/* About, Studies, Experience */
+.member-dialog .mentor-facts {
+  margin: 0;
+}
+.member-dialog .mentor-fact {
+  padding: 1.1rem 0;
+}
+.member-dialog .mentor-fact + .mentor-fact {
+  margin-top: 0;
+  padding-top: 1.1rem;
+}
+.member-dialog .mentor-fact dt {
+  margin-bottom: 0.45rem;
+}
+.member-dialog .mentor-fact dd {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--grey-700);
+}
+.member-dialog .member-lines li + li {
+  margin-top: 0.25rem;
+}
+.member-about {
+  margin: 0;
+  white-space: pre-line;                     /* keeps the member's line breaks */
+  overflow-wrap: anywhere;
+}
+
+.member-dialog .mentor-fact:last-child {
+  padding-bottom: 0;
+}
+
+/* LinkedIn: small outlined button under the photo */
+.member-dialog-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--grey-400);
+  background: var(--white);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--navy);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.member-dialog-link svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: #0A66C2;
+}
+.member-dialog-link:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.member-dialog-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--grey-500);
+  cursor: pointer;
+}
+.member-dialog-close:hover,
+.member-dialog-close:focus-visible {
+  color: var(--blue);
+}
+@media (max-width: 559px) {
+  .member-dialog-inner {
+    grid-template-columns: 1fr;
+  }
+  .member-dialog-side {                      /* photo and LinkedIn side by side, above the text */
+    flex-direction: row;
+    align-items: flex-end;
+    padding: 1.5rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .member-dialog .mentor-photo {
+    flex: none;
+    width: 112px;
+    padding: 4px;
+  }
+  .member-dialog-link {
+    width: auto;
+    white-space: nowrap;
+  }
+  .member-dialog-body {
+    padding: 1.5rem;
+  }
+}
+
+/* "0 / 300" under the About me box */
+.field-count {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--grey-500);
+  text-align: right;
+}
+
 .member-lines {
   margin: 0;
   padding: 0;
@@ -1853,23 +2101,15 @@ select.input {
   max-width: 760px;
 }
 
-.members-welcome {
-  margin: 0 0 1.5rem;
-  padding: 1rem 1.25rem;
-  background: var(--grey-050);
-  border-left: 3px solid var(--blue);
-  color: var(--navy);
-  font-weight: 600;
-}
-
 .photo-field {
   display: grid;
   grid-template-columns: 112px 1fr;
   gap: 1.25rem;
   align-items: start;
 }
+/* Same 3:4 portrait as the directory and the Home mentor cards */
 .photo-preview {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: var(--grey-200);
 }
@@ -1877,6 +2117,7 @@ select.input {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 50% 25%;
 }
 .photo-field > .field {
   min-width: 0;   /* lets the file picker shrink on narrow screens */
@@ -2184,6 +2425,21 @@ select.input {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.admin-invite {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--grey-200);
+}
+.admin-invite-row,
+.admin-invite-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.75rem;
+}
+.admin-invite-row .field { flex: 1 1 260px; margin: 0; }
+.admin-invite-result .input { flex: 1 1 320px; }
 .admin-danger-line {
   margin: 0.5rem 0 0;
 }

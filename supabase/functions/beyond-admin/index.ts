@@ -7,7 +7,9 @@
 //   accept             { id, message? }        accept an application, email the join link
 //   reject             { id, notify, message? } reject it (polite email only if notify)
 //   resend-invite      { id }                  new join link for an accepted application
-//   delete-application { id }                  remove a pending or rejected application (spam)
+//   delete-application { id }                  remove an application, whatever its state
+//                                              (an unused join link of an accepted one stops working)
+//   create-invite      { email, role }         a join link to hand over yourself (no form, no email)
 //   set-member         { id, role?, status? }  change a member's role, suspend or reactivate
 //   remove-member      { email }               remove someone from Beyond (card, photos, invite)
 //                                              Their account is NEVER deleted: the other app may use it.
@@ -59,6 +61,40 @@ function joinUrl(token: string): string {
   return siteUrl() + "/join.html?token=" + encodeURIComponent(token);
 }
 
+// Replaces any unused invite of this email with a new one (pre-fills the card if the account exists).
+// Returns the new link's token, or a Reply when the person is already a member.
+async function freshInvite(actor: Actor, email: string, role: string, applicationId: string | null) {
+  // Already a member with this email? Then change their role in the Members tab instead.
+  const userId = await userIdByEmail(email);
+  const { data: invite } = await db().from("beyond_invites").select("*").eq("email", email).maybeSingle();
+  if (invite) {
+    let onboarded = false;
+    if (userId) {
+      const { data: profile } = await db().from("beyond_profiles")
+        .select("onboarded_at").eq("id", userId).maybeSingle();
+      onboarded = !!(profile && profile.onboarded_at);
+    }
+    if (invite.claimed_at || onboarded) return fail(409, "already_member");
+    await db().from("beyond_invites").delete().eq("email", email);
+  }
+
+  // A fresh invite row: its trigger pre-fills the card if the account already exists
+  const join = await newJoinToken();
+  const { error: inviteError } = await db().from("beyond_invites").insert({
+    email,
+    role,
+    application_id: applicationId,
+    token_hash: join.token_hash,
+    expires_at: join.expires_at,
+    invited_by: actor.id,
+  });
+  if (inviteError) throw inviteError;
+  if (userId) {
+    await db().from("beyond_profiles").update({ role }).eq("id", userId).is("onboarded_at", null);
+  }
+  return join;
+}
+
 async function sendJoinLink(app: Application & { id: string }, token: string, message: string) {
   const emailError = await trySend(app.email, acceptance(app, joinUrl(token), message));
   if (!emailError) {
@@ -76,34 +112,9 @@ async function accept(actor: Actor, id: string, message: string): Promise<Reply>
   if (!app) return fail(404, "not_found");
   if (app.status === "accepted") return fail(409, "already_accepted");
 
-  // Already a member with this email? Then change their role in the Members tab instead.
-  const userId = await userIdByEmail(app.email);
-  const { data: invite } = await db().from("beyond_invites").select("*").eq("email", app.email).maybeSingle();
-  if (invite) {
-    let onboarded = false;
-    if (userId) {
-      const { data: profile } = await db().from("beyond_profiles")
-        .select("onboarded_at").eq("id", userId).maybeSingle();
-      onboarded = !!(profile && profile.onboarded_at);
-    }
-    if (invite.claimed_at || onboarded) return fail(409, "already_member");
-    await db().from("beyond_invites").delete().eq("email", app.email);
-  }
-
-  // A fresh invite row: its trigger pre-fills the card if the account already exists
-  const join = await newJoinToken();
-  const { error: inviteError } = await db().from("beyond_invites").insert({
-    email: app.email,
-    role: app.role,
-    application_id: app.id,
-    token_hash: join.token_hash,
-    expires_at: join.expires_at,
-    invited_by: actor.id,
-  });
-  if (inviteError) throw inviteError;
-  if (userId) {
-    await db().from("beyond_profiles").update({ role: app.role }).eq("id", userId).is("onboarded_at", null);
-  }
+  const made = await freshInvite(actor, app.email, app.role, app.id);
+  if ("status" in made) return made;
+  const join = made;
 
   const { error } = await db().from("beyond_applications").update({
     status: "accepted",
@@ -161,11 +172,24 @@ async function resendInvite(actor: Actor, id: string): Promise<Reply> {
 async function deleteApplication(actor: Actor, id: string): Promise<Reply> {
   const app = await loadApplication(id);
   if (!app) return fail(404, "not_found");
-  if (app.status === "accepted") return fail(409, "accepted");
+  // An accepted application's join link that nobody used yet must stop working;
+  // a member who already joined stays (the invite just loses its link to the application)
+  await db().from("beyond_invites").delete().eq("application_id", app.id).is("claimed_at", null);
   const { error } = await db().from("beyond_applications").delete().eq("id", app.id);
   if (error) throw error;
   await audit(actor, "delete-application", app.email, { application: app.id, role: app.role, status: app.status });
   return ok();
+}
+
+// A join link the admin hands over personally: no application, no email
+async function createInvite(actor: Actor, email: string, role: string): Promise<Reply> {
+  email = email.toLowerCase();
+  if (email.length > 254 || !/^[^s@]+@[^s@]+.[^s@]+$/.test(email)) return fail(400, "invalid_email");
+  if (role !== "mentor" && role !== "mentee") return fail(400, "invalid");
+  const made = await freshInvite(actor, email, role, null);
+  if ("status" in made) return made;
+  await audit(actor, "create-invite", email, { role });
+  return ok({ link: joinUrl(made.token), expiresAt: made.expires_at });
 }
 
 /* ---------------------------------------------------------------------------
@@ -246,6 +270,7 @@ Deno.serve(async (req) => {
       case "reject":             reply = await reject(actor, id, body.notify === true, message); break;
       case "resend-invite":      reply = await resendInvite(actor, id); break;
       case "delete-application": reply = await deleteApplication(actor, id); break;
+      case "create-invite":      reply = await createInvite(actor, str(body.email), str(body.role)); break;
       case "set-member":         reply = await setMember(actor, id, str(body.role), str(body.status)); break;
       case "remove-member":      reply = await removeMember(actor, str(body.email)); break;
       default:                   reply = fail(400, "unknown_action");

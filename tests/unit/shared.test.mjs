@@ -130,6 +130,19 @@ describe("U-HTTP request helpers (http.ts, env.ts)", () => {
     assert.equal(http.corsHeaders(req("POST", "https://beyondicmc.com"))["Access-Control-Allow-Origin"], "https://beyondicmc.com");
     assert.equal(http.corsHeaders(req("POST", "https://evil.example"))["Access-Control-Allow-Origin"], undefined);
   });
+  test("U-HTTP-07 the list of addresses survives copy-paste slips (spaces, semicolons, quotes, slashes)", () => {
+    for (const list of [
+      "https://beyondicmc.com http://localhost:8000 http://localhost:5500",
+      "https://beyondicmc.com, http://localhost:8000;http://localhost:5500",
+      "\"https://beyondicmc.com,http://localhost:8000\nhttp://localhost:5500/\"",
+    ]) {
+      ENV.BEYOND_ALLOWED_ORIGINS = list;
+      for (const origin of ["https://beyondicmc.com", "http://localhost:8000", "http://localhost:5500"]) {
+        assert.equal(http.corsHeaders(req("POST", origin))["Access-Control-Allow-Origin"], origin, list + " → " + origin);
+      }
+      assert.equal(http.corsHeaders(req("POST", "https://evil.example"))["Access-Control-Allow-Origin"], undefined);
+    }
+  });
   test("U-HTTP-02 guard: preflight OK, only POST, only from the website", async () => {
     const cors = {};
     assert.equal(http.guard(req("OPTIONS", "https://beyondicmc.com"), cors).status, 200);

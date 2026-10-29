@@ -13,7 +13,8 @@
    BUILT TO STAY WELL INSIDE THE FREE PLAN
    - The directory is ONE request, kept in this browser for 10 minutes.
      The Refresh button gets a fresh copy, at most once every 30 seconds.
-   - Photos are small (400 × 400 JPEG, resized in the browser before upload)
+   - Photos are small (450 × 600 JPEG portrait, 3:4 like the Home mentor
+     cards, resized in the browser before upload)
      and only load when they scroll into view.
    - Photo links last 7 days and are remembered, so a returning member's
      browser reuses the photos it already downloaded.
@@ -43,7 +44,8 @@
   var RESET_GAP = 60 * 1000;                 // one "forgot password" email per minute
   var SAVE_GAP = 3 * 1000;                   // same as the database rule
   var MIN_PASSWORD = 10;                     // same as the beyond-join Edge Function
-  var PHOTO_SIZE = 400;
+  var PHOTO_WIDTH = 450;                     // 3:4 portrait, the shape of the Home mentor cards
+  var PHOTO_HEIGHT = 600;
   var PHOTO_QUALITY = 0.82;
   var PHOTO_MAX_BYTES = 15 * 1024 * 1024;    // largest original photo we accept
 
@@ -51,7 +53,7 @@
   var TABLE = "beyond_profiles";
   var BUCKET = "beyond-avatars";
   var COLUMNS = "id, role, status, is_listed, first_name, last_name, city, country, " +
-                "position, company, studies, experience, photo_path, onboarded_at";
+                "position, company, studies, experience, description, linkedin, photo_path, onboarded_at";
   var PLACEHOLDER = UI.assetUrl(DATA.placeholderPhoto);
   var LOGIN_URL = UI.pageUrl("login.html");
   var PROFILE_URL = UI.pageUrl("my-card.html");
@@ -366,7 +368,7 @@
 
     usePlaceholderOnError(grid);
 
-    // --- Cards ---
+    // --- Cards: like the Home mentor cards. Click one to see everything about the person ---
     function lines(list) {
       return '<ul class="member-lines">' + list.map(function (line) { return "<li>" + esc(line) + "</li>"; }).join("") + "</ul>";
     }
@@ -375,36 +377,105 @@
       return '<div class="mentor-fact"><dt>' + esc(label) + "</dt><dd>" + lines(list) + "</dd></div>";
     }
 
+    // Only web addresses are ever used as links
+    function webAddress(url) { return /^https?:\/\//i.test(url || "") ? url : ""; }
+
+    function summary(m) {
+      return {
+        name: (m.first_name + " " + m.last_name).trim(),
+        work: [m.position, m.company].filter(Boolean).join(" @ "),
+        place: [m.city, m.country].filter(Boolean).join(", "),
+        badge: m.role === "mentor" ? T.mentor : m.role === "mentee" ? T.mentee : T.team,
+        photo: esc(photoUrl(state.links, m.photo_path)),
+        linkedin: webAddress(m.linkedin)
+      };
+    }
+
     function card(m) {
-      var name = (m.first_name + " " + m.last_name).trim();
-      var work = [m.position, m.company].filter(Boolean).join(" · ");
-      var place = [m.city, m.country].filter(Boolean).join(", ");
-      var badge = m.role === "mentor" ? T.mentor : m.role === "mentee" ? T.mentee : T.team;
-      var facts = (m.studies && m.studies.length ? fact(T.studies, m.studies) : "") +
-                  (m.experience && m.experience.length ? fact(T.experience, m.experience) : "");
+      var s = summary(m);
       return (
         '<li class="mentor-card member-card">' +
           '<div class="mentor-photo">' +
-            '<img src="' + esc(photoUrl(state.links, m.photo_path)) + '" alt="' + esc(UI.strings.portraitOf.replace("{name}", name)) +
-            '" width="400" height="400" loading="lazy" decoding="async">' +
+            '<img src="' + s.photo + '" alt="' + esc(UI.strings.portraitOf.replace("{name}", s.name)) +
+            '" width="450" height="600" loading="lazy" decoding="async">' +
           "</div>" +
           '<div class="mentor-body">' +
-            '<p class="member-badge member-badge--' + esc(m.role) + '">' + esc(badge) + "</p>" +
-            '<h3 class="member-name">' + esc(name) + "</h3>" +
-            (work ? '<p class="mentor-role">' + esc(work) + "</p>" : "") +
-            (place ? '<p class="mentor-location">' + esc(place) + "</p>" : "") +
-            (facts ? '<dl class="mentor-facts">' + facts + "</dl>" : "") +
+            '<div class="mentor-text">' +
+              '<p class="member-badge member-badge--' + esc(m.role) + '">' + esc(s.badge) + "</p>" +
+              // The name is the button that opens the details; the whole card is its click area
+              '<h3 class="member-name"><button class="member-open" type="button" data-member="' + esc(m.id) + '">' + esc(s.name) + "</button></h3>" +
+              (s.work ? '<p class="mentor-role">' + esc(s.work) + "</p>" : "") +
+              (s.place ? '<p class="mentor-location">' + esc(s.place) + "</p>" : "") +
+            "</div>" +
+            UI.linkedinButton(s.linkedin, s.name) +
           "</div>" +
         "</li>"
       );
     }
+
+    // --- Details pop-up: everything on the card ---
+    var dialog = document.createElement("dialog");
+    dialog.className = "member-dialog";
+    dialog.setAttribute("aria-labelledby", "member-dialog-name");
+    document.body.appendChild(dialog);
+
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) closeDialog();            // a click on the dimmed background
+    });
+
+    function closeDialog() {
+      if (typeof dialog.close === "function") dialog.close(); else dialog.removeAttribute("open");
+    }
+
+    function openDialog(m) {
+      var s = summary(m);
+      // About, Studies and Experience share one look: small label, text, fine rule between them
+      var about = m.description
+        ? '<div class="mentor-fact"><dt>' + esc(T.about) + '</dt><dd><p class="member-about">' + esc(m.description) + "</p></dd></div>"
+        : "";
+      var facts = about +
+                  (m.studies.length ? fact(T.studies, m.studies) : "") +
+                  (m.experience.length ? fact(T.experience, m.experience) : "");
+      dialog.innerHTML =
+        '<div class="member-dialog-inner">' +
+          '<button class="member-dialog-close" type="button" aria-label="' + esc(T.close) + '">&times;</button>' +
+          '<div class="member-dialog-side">' +
+            '<div class="mentor-photo">' +
+              '<img src="' + s.photo + '" alt="' + esc(UI.strings.portraitOf.replace("{name}", s.name)) + '" width="450" height="600">' +
+            "</div>" +
+            (s.linkedin ? '<a class="member-dialog-link" href="' + esc(s.linkedin) +
+              '" target="_blank" rel="noopener">' + UI.linkedinIcon + "<span>" + esc(T.linkedinProfile) + "</span></a>" : "") +
+          "</div>" +
+          '<div class="member-dialog-body">' +
+            '<div class="member-dialog-head">' +
+              '<p class="member-badge member-badge--' + esc(m.role) + '">' + esc(s.badge) + "</p>" +
+              '<h2 class="member-name" id="member-dialog-name">' + esc(s.name) + "</h2>" +
+              (s.work ? '<p class="mentor-role">' + esc(s.work) + "</p>" : "") +
+              (s.place ? '<p class="mentor-location">' + esc(s.place) + "</p>" : "") +
+            "</div>" +
+            (facts ? '<dl class="mentor-facts">' + facts + "</dl>" : "") +
+          "</div>" +
+        "</div>";
+      dialog.querySelector(".member-dialog-close").addEventListener("click", closeDialog);
+      var img = dialog.querySelector("img");
+      img.addEventListener("error", function () { img.src = PLACEHOLDER; }, { once: true });
+      if (typeof dialog.showModal === "function") dialog.showModal(); else dialog.setAttribute("open", "");
+    }
+
+    grid.addEventListener("click", function (event) {
+      var opener = event.target.closest ? event.target.closest(".member-open") : null;
+      if (!opener) return;
+      var id = opener.getAttribute("data-member");
+      var m = state.rows.filter(function (r) { return r.id === id; })[0];
+      if (m) openDialog(m);
+    });
 
     // --- Filtering ---
     function prepare(rows) {
       rows.forEach(function (m) {
         m.studies = m.studies || [];
         m.experience = m.experience || [];
-        m.searchText = fold([m.first_name, m.last_name, m.position, m.company, m.city, m.country]
+        m.searchText = fold([m.first_name, m.last_name, m.position, m.company, m.city, m.country, m.description]
           .concat(m.studies, m.experience).join(" "));
       });
       return rows;
@@ -504,10 +575,6 @@
       open(state.user, true);
     });
 
-    directory.querySelector("[data-signout]").addEventListener("click", function () {
-      signOut(state.user && state.user.id);
-    });
-
     // --- Start ---
     if (!db) {
       show(loading, false);
@@ -535,7 +602,12 @@
     var removeButton = $("photo-remove");
     var photoError = $("photo-error");
 
-    var FIELDS = ["first_name", "last_name", "city", "country", "position", "company"];
+    var FIELDS = ["first_name", "last_name", "city", "country", "position", "company", "linkedin", "description"];
+    var DESCRIPTION_MAX = 300;                 // same as the database rule (supabase/003-profile-about.sql)
+    var about = $("description");
+    var aboutCount = $("description-count");
+    function updateAboutCount() { aboutCount.textContent = about.value.length + " / " + DESCRIPTION_MAX; }
+    about.addEventListener("input", updateAboutCount);
     var user = null;
     var profile = null;
     var pendingPhoto = null;     // resized photo waiting to be saved
@@ -568,6 +640,7 @@
 
     function fill(p) {
       FIELDS.forEach(function (f) { form.elements[f].value = p[f] || ""; });
+      updateAboutCount();
       ["studies", "experience"].forEach(function (key) {
         lineInputs(key).forEach(function (input, i) { input.value = (p[key] || [])[i] || ""; });
       });
@@ -580,7 +653,7 @@
       }
     }
 
-    // --- Photo: shrink to 400 × 400 JPEG in the browser before upload ---
+    // --- Photo: crop to 3:4 and shrink to 450 × 600 JPEG in the browser before upload ---
     function resizePhoto(file) {
       return new Promise(function (resolve, reject) {
         if (!/^image\//.test(file.type)) return reject(T.photoType);
@@ -588,13 +661,16 @@
         var url = URL.createObjectURL(file);
         var img = new Image();
         img.onload = function () {
-          var side = Math.min(img.naturalWidth, img.naturalHeight);
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var cropW = Math.min(w, h * PHOTO_WIDTH / PHOTO_HEIGHT);
+          var cropH = cropW * PHOTO_HEIGHT / PHOTO_WIDTH;
           var canvas = document.createElement("canvas");
-          canvas.width = canvas.height = PHOTO_SIZE;
-          // Square crop from the centre
+          canvas.width = PHOTO_WIDTH;
+          canvas.height = PHOTO_HEIGHT;
+          // Centred left to right; from a tall photo keep the upper part, where the face usually is
           canvas.getContext("2d").drawImage(img,
-            (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side,
-            0, 0, PHOTO_SIZE, PHOTO_SIZE);
+            (w - cropW) / 2, (h - cropH) / 4, cropW, cropH,
+            0, 0, PHOTO_WIDTH, PHOTO_HEIGHT);
           URL.revokeObjectURL(url);
           canvas.toBlob(function (blob) {
             if (blob) resolve(blob); else reject(T.photoUnreadable);
@@ -638,21 +714,19 @@
       form.querySelectorAll("[required]").forEach(function (field) {
         if (!UI.validateField(field) && !firstInvalid) firstInvalid = field;
       });
-      var studiesError = $("studies-error");
-      var noStudies = !lineValues("studies").length;
-      say(studiesError, noStudies ? T.atLeastOne : "", true);
-      lineInputs("studies").forEach(function (i) {
-        if (noStudies) i.setAttribute("aria-invalid", "true"); else i.removeAttribute("aria-invalid");
-      });
-      if (noStudies && !firstInvalid) firstInvalid = lineInputs("studies")[0];
+      // LinkedIn is optional, but when filled in it must be a web address (the database checks it too)
+      var linkedin = form.elements.linkedin;
+      var badLinkedin = !!linkedin.value.trim() && !/^https?:\/\//i.test(linkedin.value.trim());
+      if (badLinkedin) {
+        linkedin.setAttribute("aria-invalid", "true");
+        say($("linkedin-error"), UI.strings.form.url, true);
+        if (!firstInvalid) firstInvalid = linkedin;
+      }
       return firstInvalid;
     }
 
     form.addEventListener("input", function (event) {
-      if (event.target.getAttribute("aria-invalid") === "true") {
-        if (event.target.getAttribute("data-line") === "studies") validate();
-        else UI.validateField(event.target);
-      }
+      if (event.target.getAttribute("aria-invalid") === "true") UI.validateField(event.target);
     });
 
     function errorMessage(error) {
@@ -725,8 +799,6 @@
     $("card-signout").addEventListener("click", function () { signOut(user && user.id); });
 
     // --- Start ---
-    if (/[?&]welcome=1/.test(location.search)) say($("card-welcome"), T.welcome);
-
     if (!db) {
       show(loading, false);
       say($("members-notice"), T.loadError, true);
@@ -910,8 +982,42 @@
   }
 
   /* ------------------------------------------------------------------------
+     "Show" / "Hide" button inside every password field
+     ------------------------------------------------------------------------ */
+  // Eye = show the password; crossed-out eye = hide it again
+  var ICON_START = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">';
+  var EYE_ICON = ICON_START + '<path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF_ICON = ICON_START + '<path d="M9.9 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10.5 7 10.5 7a17.6 17.6 0 0 1-3.2 3.9M6.1 6.1C3.3 7.9 1.5 12 1.5 12S5.5 19 12 19c1.8 0 3.4-.5 4.8-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg>';
+
+  function addPasswordToggles() {
+    Array.prototype.forEach.call(document.querySelectorAll('input[type="password"]'), function (input) {
+      var wrap = document.createElement("div");
+      wrap.className = "password-wrap";
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "password-toggle";
+      button.innerHTML = EYE_ICON;
+      button.setAttribute("aria-label", T.passwordShowLabel);
+      button.setAttribute("aria-controls", input.id);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", function () {
+        var visible = input.type === "password";
+        input.type = visible ? "text" : "password";
+        button.innerHTML = visible ? EYE_OFF_ICON : EYE_ICON;
+        button.setAttribute("aria-label", visible ? T.passwordHideLabel : T.passwordShowLabel);
+        button.setAttribute("aria-pressed", String(visible));
+      });
+      wrap.appendChild(button);
+    });
+  }
+
+  /* ------------------------------------------------------------------------
      Start the right page
      ------------------------------------------------------------------------ */
+  addPasswordToggles();
   if (PAGE === "login") setupLoginPage();
   if (PAGE === "members") setupDirectoryPage();
   if (PAGE === "my-card") setupCardPage();

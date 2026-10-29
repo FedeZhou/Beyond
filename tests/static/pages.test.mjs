@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { read, exists, PAGES, PRIVATE_PAGES, LINK_PAGES, content, ids, attr, tags, formBlock, serverQuestions } from "../helpers/repo.mjs";
 
 const html = Object.fromEntries(PAGES.map((p) => [p, read(p)]));
-const NAV_PAGES = ["index.html", "about.html", "mentor.html", "mentee.html", "login.html"];
+const NAV_PAGES = ["index.html", "mentor.html", "mentee.html", "about.html", "login.html"];
 
 describe("S-PG every page", () => {
   test("S-PG-01 the expected pages exist", () => {

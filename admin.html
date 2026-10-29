@@ -30,8 +30,8 @@
   <header id="site-header" class="site-header">
     <noscript>
       <nav class="container noscript-nav" aria-label="Main">
-        <a href="index.html">Home</a> <a href="about.html">About</a>
-        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="index.html">Home</a> <a href="mentor.html">Become a mentor</a>
+        <a href="mentee.html">Become a mentee</a> <a href="about.html">About</a>
         <a href="login.html">Login</a>
       </nav>
     </noscript>
@@ -130,6 +130,31 @@
                Members
                --------------------------------------------------------------- -->
           <div class="admin-panel" id="tab-members" hidden>
+            <form class="admin-invite" id="invite-form" novalidate>
+              <h2 class="admin-h3">Invite someone with a link</h2>
+              <p class="field-hint">For people you already know: they join without the application form. Nothing is emailed; copy the link and send it yourself.</p>
+              <div class="admin-invite-row">
+                <div class="field">
+                  <label for="invite-email">Their email</label>
+                  <input class="input" id="invite-email" type="email" maxlength="254" autocomplete="off" required>
+                </div>
+                <div class="checkbox">
+                  <input id="invite-role-mentor" name="invite-role" type="radio" value="mentor" checked>
+                  <label for="invite-role-mentor">Mentor</label>
+                </div>
+                <div class="checkbox">
+                  <input id="invite-role-mentee" name="invite-role" type="radio" value="mentee">
+                  <label for="invite-role-mentee">Mentee</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Create link</button>
+              </div>
+              <div class="admin-invite-result" id="invite-result" hidden>
+                <label class="visually-hidden" for="invite-link">Invitation link</label>
+                <input class="input" id="invite-link" type="text" readonly>
+                <button class="btn btn-outline" id="invite-copy" type="button">Copy link</button>
+              </div>
+              <p class="members-notice" id="invite-status" role="status" hidden></p>
+            </form>
             <div class="admin-toolbar">
               <div class="members-search">
                 <label class="visually-hidden" for="member-search">Search members</label>

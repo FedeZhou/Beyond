@@ -64,10 +64,10 @@ Test ids: `S-` static, `U-` unit (shared code), `F-` unit (Edge Function), `FE-`
 | **Card pre-filled from the application** (database trigger) | S-FORM-05 | F-ADM-APP-04, F-JOIN-04 | FE-CARD-01 | INT-05 |
 | **Login**: correct, wrong, too many, empty, back to the page you came from, already logged in, expired link | | | FE-LOGIN-01…07 | LIVE-03, 06 |
 | **Forgot password** (`beyond-password-reset`): same answer for everyone, members only, limits, link back to the site, new password | | F-RESET-01…07 | FE-LOGIN-05, FE-RESET-01…03 | INT-08, LIVE-05 |
-| **Log out**: one navigation, nothing left in the browser | | | FE-NAV-03 | LIVE-05 |
+| **Log out** (only on My profile): one navigation, nothing left in the browser | | | FE-NAV-03 | LIVE-05 |
 | **Suspended members** | | F-RESET-04 | FE-NAV-04 | INT-10 |
-| **My profile**: welcome, required fields, Studies, save, first save right after joining, rate limits explained, hidden card | S-SQL-06, S-REF-05 | | FE-CARD-01…06 | INT-06, 07, LIVE-03, 04 |
-| **Photos**: resized to 400×400 JPEG, own folder only, old photo removed, remove photo, private bucket | | | FE-CARD-04, 05, FE-DIR-01 | INT-06, LIVE-04, SMK-API-03 |
+| **My profile**: filled in from the application, required fields, Studies, save, first save right after joining, rate limits explained, hidden card | S-SQL-06, S-REF-05 | | FE-CARD-01…06 | INT-06, 07, LIVE-03, 04 |
+| **Photos**: cropped to a 3:4 portrait, 450×600 JPEG, own folder only, old photo removed, remove photo, private bucket | | | FE-CARD-04, 05, FE-DIR-01 | INT-06, LIVE-04, SMK-API-03 |
 | **Directory**: finished and visible cards only, photo or grey portrait, filters, search, admin button, kept for 10 minutes, refresh limit, load errors, first visit goes to My profile | | | FE-DIR-01…06 | INT-07, LIVE-04 |
 | **Database rules**: everything `beyond_`, nothing project-wide, RLS on every table, locked-down functions, visitors get nothing | S-SQL-01…05 | | | INT-02, SMK-API-02 |
 | **Publishing**: build output, settings file, no private files, security headers, `www` redirect, public key only | S-SYN-03, S-BLD-01…02 | | | SMK-SITE-02…04 |

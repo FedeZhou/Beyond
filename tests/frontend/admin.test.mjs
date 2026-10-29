@@ -128,7 +128,7 @@ describe("FE-ADM access and lists", () => {
     assert.match(await page.locator("#app-detail").innerText(), /Ana Wu/);
     assert.equal(await page.locator('[data-status="accepted"]').getAttribute("aria-pressed"), "true");
     assert.ok(await page.locator('[data-action="resend-invite"]').isVisible(), "not joined yet: resend is offered");
-    assert.ok(await page.locator('[data-action="delete-application"]').count() === 0, "accepted applications can't be deleted");
+    assert.ok(await page.locator('[data-action="delete-application"]').isVisible(), "accepted applications can be deleted too");
     await closePage(page, assert);
   });
 });
@@ -207,6 +207,28 @@ describe("FE-ADM decisions", () => {
 });
 
 describe("FE-ADM members, activity, export", () => {
+  test("FE-ADM-11b invite link: email and role go to the server, the link is shown and can be copied; errors are clear", async () => {
+    const link = "https://beyondicmc.com/join.html?token=abc";
+    let { page, api } = await openPortal({ adminReply: { ok: true, link, expiresAt: new Date(Date.now() + 14 * day).toISOString() } });
+    await page.click('[data-tab="members"]');
+    assert.ok(await page.locator("#invite-result").isHidden());
+    await page.fill("#invite-email", "new.mentor@example.com");
+    await page.check("#invite-role-mentee");
+    await page.click('#invite-form button[type="submit"]');
+    await page.waitForSelector("#invite-result:not([hidden])");
+    assert.equal(await page.inputValue("#invite-link"), link);
+    assert.match(await page.locator("#invite-status").innerText(), /new.mentor@example.com/);
+    assert.deepEqual(adminCalls(api), [{ action: "create-invite", email: "new.mentor@example.com", role: "mentee" }]);
+    await closePage(page, assert);
+    ({ page } = await openPortal({ adminReply: { status: 409, json: { error: "already_member" } } }));
+    await page.click('[data-tab="members"]');
+    await page.fill("#invite-email", "ana@example.com");
+    await page.click('#invite-form button[type="submit"]');
+    await page.waitForSelector("#invite-status.is-error");
+    assert.match(await page.locator("#invite-status").innerText(), /already a Beyond member/);
+    assert.ok(await page.locator("#invite-result").isHidden());
+    await closePage(page, assert);
+  });
   test("FE-ADM-11 Members tab: everyone with their state; your own row is locked", async () => {
     const { page } = await openPortal();
     await page.click('[data-tab="members"]');

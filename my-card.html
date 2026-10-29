@@ -29,8 +29,8 @@
   <header id="site-header" class="site-header">
     <noscript>
       <nav class="container noscript-nav" aria-label="Main">
-        <a href="index.html">Home</a> <a href="about.html">About</a>
-        <a href="mentor.html">Become a mentor</a> <a href="mentee.html">Become a mentee</a>
+        <a href="index.html">Home</a> <a href="mentor.html">Become a mentor</a>
+        <a href="mentee.html">Become a mentee</a> <a href="about.html">About</a>
         <a href="login.html">Login</a>
       </nav>
     </noscript>
@@ -62,7 +62,6 @@
         </div>
 
         <div class="card-editor" id="card-editor" hidden>
-          <p class="members-welcome" id="card-welcome" hidden></p>
 
           <div class="form-card">
             <form class="form" id="card-form" novalidate>
@@ -71,12 +70,12 @@
               <!-- Photo -->
               <div class="photo-field">
                 <div class="photo-preview">
-                  <img id="photo-preview" src="assets/img/placeholder-person.svg" alt="" width="400" height="400">
+                  <img id="photo-preview" src="assets/img/placeholder-person.svg" alt="" width="450" height="600">
                 </div>
                 <div class="field">
                   <label for="photo">
                     Photo
-                    <span class="field-hint" id="photo-hint">Optional. A clear, friendly photo of your face works best. We crop it to a square.</span>
+                    <span class="field-hint" id="photo-hint">A clear, friendly photo of your face works best. In the directory it is shown as a portrait (3:4), like the mentor photos on the home page: we crop it to that shape, as in the preview.</span>
                   </label>
                   <input class="photo-input" id="photo" type="file" accept="image/*" aria-describedby="photo-hint photo-error">
                   <button class="members-link" id="photo-remove" type="button" hidden>Remove photo</button>
@@ -114,7 +113,7 @@
                 <div class="field">
                   <label for="position">
                     Current position *
-                    <span class="field-hint" id="position-hint">For example: Propulsion engineer, or MSc student in Physics.</span>
+                    <span class="field-hint" id="position-hint">Ex. Data Scientist, or MSc student in Physics.</span>
                   </label>
                   <input class="input" id="position" name="position" type="text" maxlength="120" required aria-describedby="position-hint position-error">
                   <p class="field-error" id="position-error" hidden></p>
@@ -129,9 +128,28 @@
                 </div>
               </div>
 
+              <div class="field">
+                <label for="linkedin">
+                  LinkedIn profile
+                  <span class="field-hint" id="linkedin-hint">The full link, starting with https://. For example: https://www.linkedin.com/in/your-name</span>
+                </label>
+                <input class="input" id="linkedin" name="linkedin" type="url" autocomplete="url" maxlength="300" aria-describedby="linkedin-hint linkedin-error">
+                <p class="field-error" id="linkedin-error" hidden></p>
+              </div>
+
+              <div class="field">
+                <label for="description">
+                  About me
+                  <span class="field-hint" id="description-hint">Your hobbies, interests, anything you would like other members to know. Up to 300 characters.</span>
+                </label>
+                <textarea class="input" id="description" name="description" rows="4" maxlength="300" aria-describedby="description-hint description-count description-error"></textarea>
+                <p class="field-count" id="description-count" aria-live="polite">0 / 300</p>
+                <p class="field-error" id="description-error" hidden></p>
+              </div>
+
               <fieldset class="field lines-field">
                 <legend>
-                  Studies *
+                  Studies
                   <span class="field-hint" id="studies-hint">Up to <span id="studies-max">3</span> lines, one per degree or school. For example: Politecnico di Milano, MSc Aerospace Engineering.</span>
                 </legend>
                 <div class="lines-list" id="studies-list"></div>

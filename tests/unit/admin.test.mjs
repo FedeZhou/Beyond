@@ -122,13 +122,44 @@ describe("F-ADM-APP applications: accept, reject, resend, delete", () => {
     inviteFor("mia@example.com").claimed_at = new Date().toISOString();
     assert.equal((await act({ action: "resend-invite", id })).data.error, "already_joined");
   });
-  test("F-ADM-APP-09 delete: pending/rejected yes, accepted no", async () => {
+  test("F-ADM-APP-09 delete: pending, rejected and accepted; an unused join link stops working", async () => {
     await apply({ role: "mentor", fields: mentorFields("leo@example.com") });
     assert.equal((await act({ action: "delete-application", id: appFor("leo@example.com").id })).status, 200);
     assert.equal(appFor("leo@example.com"), undefined);
     const id = appFor("mia@example.com").id;
     await act({ action: "accept", id });
-    assert.equal((await act({ action: "delete-application", id })).data.error, "accepted");
+    assert.ok(inviteFor("mia@example.com"));
+    assert.equal((await act({ action: "delete-application", id })).status, 200);
+    assert.equal(appFor("mia@example.com"), undefined);
+    assert.equal(inviteFor("mia@example.com"), undefined, "unused join link removed");
+  });
+  test("F-ADM-APP-09b deleting the accepted application of someone who already joined keeps the invite", async () => {
+    const id = appFor("mia@example.com").id;
+    await act({ action: "accept", id });
+    inviteFor("mia@example.com").claimed_at = new Date().toISOString();
+    assert.equal((await act({ action: "delete-application", id })).status, 200);
+    assert.ok(inviteFor("mia@example.com"));
+  });
+  test("F-ADM-APP-12 create-invite: a link without form or email; unusable twice; bad input refused; logged", async () => {
+    const r = await act({ action: "create-invite", email: "Zed@Example.com", role: "mentor" });
+    assert.equal(r.status, 200);
+    const token = /token=([A-Za-z0-9_-]+)/.exec(r.data.link)[1];
+    assert.ok(r.data.link.startsWith(SITE + "/join.html?token="));
+    const inv = inviteFor("zed@example.com");
+    assert.equal(inv.role, "mentor");
+    assert.equal(inv.application_id ?? null, null);
+    assert.equal(inv.token_hash, sha256(token));
+    assert.equal(store.emails.length, 0);
+    // A second link replaces the first
+    const r2 = await act({ action: "create-invite", email: "zed@example.com", role: "mentee" });
+    assert.notEqual(inviteFor("zed@example.com").token_hash, sha256(token));
+    assert.equal(inviteFor("zed@example.com").role, "mentee");
+    assert.equal(r2.status, 200);
+    assert.equal((await act({ action: "create-invite", email: "nope", role: "mentor" })).data.error, "invalid_email");
+    assert.equal((await act({ action: "create-invite", email: "a@example.com", role: "admin" })).status, 400);
+    inviteFor("zed@example.com").claimed_at = new Date().toISOString();
+    assert.equal((await act({ action: "create-invite", email: "zed@example.com", role: "mentor" })).data.error, "already_member");
+    assert.ok(store.audit.some((l) => l.action === "create-invite" && l.target === "zed@example.com"));
   });
   test("F-ADM-APP-10 unknown or malformed ids: 404", async () => {
     assert.equal((await act({ action: "accept", id: "00000000-0000-0000-0000-000000000000" })).status, 404);

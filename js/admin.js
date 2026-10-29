@@ -54,6 +54,9 @@
     deleted: "The application was deleted.",
     emailFailed: "Saved, but the email could not be sent: {error}. Try \"Resend join link\" later.",
     confirmDelete: "Delete this application for good? Use this for spam or duplicates.",
+    confirmDeleteAccepted: "Delete this accepted application for good? If they have not joined yet, their join link stops working. If they already joined, they stay a member.",
+    inviteReady: "Link ready for {email}. Copy it and send it to them yourself: they choose a password and fill in their card. It expires on {date}.",
+    inviteCopied: "Link copied.",
     confirmRemove: "Remove {email} from Beyond? Their card, photo and invite are deleted. Their account stays (the other app may use it), and they can be invited again later.",
     confirmRole: "Change the role of {email} to {role}?",
     errors: {
@@ -63,7 +66,8 @@
       not_accepted: "This application is not accepted.",
       already_joined: "They have already joined: no new link is needed.",
       no_invite: "There is no invite for this application any more (the member was removed?).",
-      accepted: "Accepted applications can't be deleted: remove the member in the Members tab instead.",
+      invalid_email: "Please enter a valid email address.",
+      invalid: "Please choose mentor or mentee.",
       self: "You can't do this to your own account.",
       not_admin: "Your session has expired or you are not an admin any more. Please sign in again.",
       not_found: "Not found. Refresh the page.",
@@ -320,7 +324,7 @@
     } else if (a.status === "accepted" && invite && !invite.claimed_at) {
       actions = '<div class="admin-buttons"><button class="btn btn-outline" type="button" data-action="resend-invite">Resend join link</button></div>';
     }
-    if (a.status !== "accepted") {
+    {
       actions += '<p class="admin-danger-line"><button class="members-link admin-danger" type="button" data-action="delete-application">Delete application</button></p>';
     }
 
@@ -385,7 +389,7 @@
     var body = { action: action, id: a.id };
     if (action === "accept" || action === "reject") body.message = noteEl ? noteEl.value.trim() : "";
     if (action === "reject") body.notify = !!(notify && notify.checked);
-    if (action === "delete-application" && !window.confirm(TEXT.confirmDelete)) return;
+    if (action === "delete-application" && !window.confirm(a.status === "accepted" ? TEXT.confirmDeleteAccepted : TEXT.confirmDelete)) return;
 
     var buttons = detail.querySelectorAll("button[data-action]");
     buttons.forEach(function (b) { b.disabled = true; });
@@ -427,6 +431,41 @@
   /* ------------------------------------------------------------------------
      Members
      ------------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------------
+     Invite link: for someone you want to bring in without the application form.
+     Nothing is emailed: copy the link and send it yourself.
+     ------------------------------------------------------------------------ */
+  var inviteForm = $("invite-form");
+  var inviteStatus = $("invite-status");
+  var inviteResult = $("invite-result");
+  var inviteLink = $("invite-link");
+
+  inviteForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var email = $("invite-email").value.trim();
+    var role = inviteForm.querySelector('input[name="invite-role"]:checked');
+    show(inviteResult, false);
+    if (!email || !role) { say(inviteStatus, TEXT.errors.invalid_email, true); return; }
+    var button = inviteForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    say(inviteStatus, TEXT.working);
+    callAdmin({ action: "create-invite", email: email, role: role.value }).then(function (res) {
+      button.disabled = false;
+      if (res.status !== 200) { say(inviteStatus, errorText(res), true); return; }
+      inviteLink.value = res.data.link;
+      show(inviteResult, true);
+      say(inviteStatus, fill(TEXT.inviteReady, { email: email, date: when(res.data.expiresAt) }));
+      reload();
+    });
+  });
+
+  $("invite-copy").addEventListener("click", function () {
+    inviteLink.select();
+    var done = function () { say(inviteStatus, TEXT.inviteCopied); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(inviteLink.value).then(done, function () { document.execCommand("copy"); done(); });
+    else { document.execCommand("copy"); done(); }
+  });
+
   var memberRows = $("member-rows");
   var memberStatus = $("member-status");
 
@@ -529,7 +568,7 @@
      ------------------------------------------------------------------------ */
   var ACTIONS = {
     "accept": "Accepted", "reject": "Rejected", "resend-invite": "Resent join link",
-    "delete-application": "Deleted application", "set-member": "Changed member", "remove-member": "Removed member"
+    "delete-application": "Deleted application", "create-invite": "Created invite link", "set-member": "Changed member", "remove-member": "Removed member"
   };
 
   function renderLog() {

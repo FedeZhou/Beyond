@@ -24,19 +24,22 @@
      Pages of the site, in menu order. The id must match the
      data-page="..." attribute on each page's <body>; "label" is the name
      in strings.nav (content.js) when it differs from the id. Logged-out
-     visitors see "Login"; members see "Directory" and "My profile".
+     visitors see "Login"; members see "Directory" and "My profile" instead,
+     and no "Become a mentor" / "Become a mentee" (the pages themselves stay open).
      ------------------------------------------------------------------------ */
-  var PAGES = [
-    { id: "home",   file: "index.html" },
-    { id: "about",  file: "about.html" },
-    { id: "mentor", file: "mentor.html" },
-    { id: "mentee", file: "mentee.html" }
-  ].concat(isLoggedIn() ? [
-    { id: "members", file: "members.html", label: "directory", alsoCurrent: ["admin"] },
-    { id: "my-card", file: "my-card.html", label: "profile", alsoCurrent: ["reset"] }
-  ] : [
-    { id: "login",  file: "login.html", label: "members", alsoCurrent: ["members", "my-card", "join", "reset", "admin"] }
-  ]);
+  var LOGGED_IN = isLoggedIn();
+  var PAGES = [{ id: "home", file: "index.html" }]
+    .concat(LOGGED_IN ? [] : [
+      { id: "mentor", file: "mentor.html" },
+      { id: "mentee", file: "mentee.html" }
+    ])
+    .concat([{ id: "about", file: "about.html" }])
+    .concat(LOGGED_IN ? [
+      { id: "members", file: "members.html", label: "directory", alsoCurrent: ["admin"] },
+      { id: "my-card", file: "my-card.html", label: "profile", alsoCurrent: ["reset"] }
+    ] : [
+      { id: "login",  file: "login.html", label: "members", alsoCurrent: ["members", "my-card", "join", "reset", "admin"] }
+    ]);
 
   // True when this browser holds a Beyond sign-in (Supabase keeps it in localStorage
   // as "sb-<project>-auth-token"). Only used to choose the menu links; the members
@@ -671,6 +674,8 @@
     assetUrl: assetUrl,
     pageUrl: pageUrl,
     validateField: validateField,
+    linkedinButton: linkedinButton,
+    linkedinIcon: LINKEDIN_ICON,
     strings: T
   };
 

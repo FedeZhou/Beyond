@@ -15,8 +15,8 @@
    Adding photos (Home and About pages):
    1. Edit the text here: mentors, founders, projects.
    2. Crop the photo to the right shape:
-        mentors  square    800 x 800 px
-        founders square    800 x 800 px
+        mentors  portrait  600 x 800 px (3:4)
+        founders portrait  600 x 800 px (3:4)
         projects landscape 1200 x 675 px
    3. Compress it at https://squoosh.app (aim for under ~150 KB).
    4. Name the file in lowercase with hyphens, no spaces or accents,
@@ -90,9 +90,9 @@ window.BEYOND = {
      and always ends with a card inviting visitors to join.
      photo: put the image in assets/img/mentors/ and write its path, e.g.
             "assets/img/mentors/anna.jpg". Leave "" for the placeholder.
-            Square photos (1:1, e.g. 800 x 800 px) look best.
+            Portrait photos (3:4, e.g. 600 x 800 px) look best.
      photoPosition (optional): which part of the photo to keep when it is
-            cropped to a square, e.g. "50% 10%" keeps the top (the face),
+            cropped to the card, e.g. "50% 10%" keeps the top (the face),
             "50% 50%" the centre. Leave it out for the default.
      linkedin: the full address of the profile, e.g.
             "https://www.linkedin.com/in/anna-chen". Leave "" to hide the logo.
@@ -178,9 +178,9 @@ window.BEYOND = {
             "https://www.linkedin.com/in/anna-chen". Leave "" to hide the logo.
      photo: put the image in assets/img/founders/ and write its path, e.g.
             "assets/img/founders/federico-zhou.jpg". Leave "" to show the placeholder.
-            Square photos (1:1, e.g. 800 x 800 px) look best.
+            Portrait photos (3:4, e.g. 600 x 800 px) look best.
      photoPosition (optional): which part of the photo to keep when it is
-            cropped to a square, e.g. "50% 10%" keeps the top (the face).
+            cropped to the card, e.g. "50% 10%" keeps the top (the face).
      Add a person: copy a block { ... } and keep the comma between blocks.
      ------------------------------------------------------------------------ */
   founders: [
@@ -308,6 +308,8 @@ window.BEYOND = {
         resetWait:     "You can ask for another link in {s} seconds.",
         passwordShort: "Please choose a password of at least {min} characters.",
         passwordMismatch: "The two passwords are different.",
+        passwordShowLabel: "Show password",
+        passwordHideLabel: "Hide password",
         passwordSaved: "Your new password is saved.",
         passwordError: "Your password could not be saved. Please try again, or ask for a new link.",
         joinHello:     "Welcome to Beyond, {name}!",
@@ -332,16 +334,17 @@ window.BEYOND = {
         refreshWait:   "Already up to date. You can refresh again in a moment.",
         studies:       "Studies",
         experience:    "Experience",
-        welcome:       "Welcome to Beyond! We filled in your card from your application. Check it, add a photo if you like, and save it to appear in the directory.",
-        saving:        "Saving…",
+        about:         "About",
+        close:         "Close",
+        linkedinProfile: "LinkedIn profile",
+        saving:       "Saving…",
         saved:         "Saved. Your card is up to date.",
         saveError:     "Your card could not be saved. Please try again.",
         saveWait:      "Please wait a few seconds before saving again.",
         saveTooMany:   "You have made many changes in a short time. Please try again later.",
         photoType:     "Please choose an image file (JPG, PNG or HEIC).",
         photoTooBig:   "This image is too large. Please choose one under 15 MB.",
-        photoUnreadable: "This image could not be read. Please try another one.",
-        atLeastOne:    "Please add at least one line."
+        photoUnreadable: "This image could not be read. Please try another one."
       }
     }
   }

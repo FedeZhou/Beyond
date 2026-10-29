@@ -15,7 +15,7 @@ after(async () => { await browser?.close(); await server?.close(); });
 
 const ME = user("user-1", "mia@example.com");
 const others = [
-  profile({ id: "user-2", role: "mentor", first_name: "Leo", last_name: "Chen", city: "Zurich", country: "Switzerland", position: "Researcher", company: "ETH Zurich", photo_path: "user-2/avatar-1.jpg", studies: ["ETH Zurich, PhD"], experience: ["Google intern"] }),
+  profile({ id: "user-2", role: "mentor", first_name: "Leo", last_name: "Chen", city: "Zurich", country: "Switzerland", position: "Researcher", company: "ETH Zurich", photo_path: "user-2/avatar-1.jpg", studies: ["ETH Zurich, PhD"], experience: ["Google intern"], description: "Chess and trail running", linkedin: "https://www.linkedin.com/in/leo-chen" }),
   profile({ id: "user-3", role: "mentee", first_name: "Ana", last_name: "Wu", city: "Bologna", photo_path: null }),
   profile({ id: "user-4", role: "mentee", first_name: "Hidden", last_name: "Person", is_listed: false }),
   profile({ id: "user-5", role: "mentee", first_name: "Not", last_name: "Saved", onboarded_at: null }),
@@ -113,10 +113,17 @@ describe("FE-LOGIN login page", () => {
 });
 
 describe("FE-NAV menu and access", () => {
-  test("FE-NAV-01 logged in: the menu shows Directory and My profile instead of Login", async () => {
+  test("FE-NAV-01 logged in: the menu shows Directory and My profile instead of Login, and no apply links", async () => {
     const { page } = await open("index.html");
-    assert.equal(await navText(page), "Home About Become a mentor Become a mentee Directory My profile");
+    assert.equal(await navText(page), "Home About Directory My profile");
     assert.match(await page.locator("#site-nav a", { hasText: "My profile" }).getAttribute("href"), /my-card\.html$/);
+    await closePage(page, assert);
+  });
+  test("FE-NAV-05 logged in: the mentor and mentee pages and the home page buttons still work", async () => {
+    const { page } = await open("index.html");
+    assert.ok(await page.locator(".hero-actions").isVisible());
+    await page.goto(server.base + "/mentor.html");
+    await page.waitForSelector("form[data-form]");
     await closePage(page, assert);
   });
   test("FE-NAV-02 logged out: members pages send you to the login page", async () => {
@@ -126,8 +133,14 @@ describe("FE-NAV menu and access", () => {
       await page.context().close();
     }
   });
-  test("FE-NAV-03 log out (from My profile or the directory): login page, menu shows Login, nothing left", async () => {
-    for (const [path, ready, button] of [["members.html", "#members-directory", "#members-directory [data-signout]"], ["my-card.html", "#card-editor", "#card-signout"]]) {
+  test("FE-NAV-03 log out (only on My profile, not in the directory): login page, menu shows Login, nothing left", async () => {
+    {
+      const { page } = await open("members.html");
+      await visible(page, "#members-directory");
+      assert.equal(await page.locator("#members-directory [data-signout]").count(), 0, "no Log out in the directory");
+      await closePage(page, assert);
+    }
+    for (const [path, ready, button] of [["my-card.html", "#card-editor", "#card-signout"]]) {
       const { page, api } = await open(path);
       await visible(page, ready);
       const navigations = [];
@@ -163,12 +176,28 @@ describe("FE-DIR directory", () => {
     const leo = page.locator("#member-grid li", { hasText: "Leo Chen" });
     assert.match(await leo.locator("img").getAttribute("src"), new RegExp("^" + MOCK_URL.replace(/\./g, "\\.") + "/storage/v1/object/sign/beyond-avatars/user-2/avatar-1\\.jpg"));
     assert.match(await page.locator("#member-grid li", { hasText: "Ana Wu" }).locator("img").getAttribute("src"), /placeholder-person\.svg$/);
-    assert.match(await leo.innerText(), /Researcher · ETH Zurich/);
+    assert.match(await leo.innerText(), /Researcher @ ETH Zurich/);
     assert.match(await leo.innerText(), /Zurich, Switzerland/);
-    assert.match(await leo.innerText(), /Google intern/);
+    assert.doesNotMatch(await leo.innerText(), /Google intern|ETH Zurich, PhD/);   // studies and experience are in the pop-up only
+    assert.match(await leo.locator(".mentor-linkedin").getAttribute("href"), /^https:\/\/www\.linkedin\.com\/in\/leo/);
     assert.match(await leo.locator(".member-badge").textContent(), /Mentor/);
     assert.equal(await page.locator('[data-count="all"]').innerText(), "3");
     assert.equal(await page.locator('[data-count="mentor"]').innerText(), "1");
+    await closePage(page, assert);
+  });
+  test("FE-DIR-07 clicking a card opens a pop-up with all the details; Esc closes it", async () => {
+    const { page } = await open("members.html");
+    await visible(page, "#member-grid");
+    await page.locator("#member-grid li", { hasText: "Leo Chen" }).click();   // anywhere on the card
+    const dialog = page.locator("dialog.member-dialog");
+    await dialog.waitFor({ state: "visible" });
+    const text = await dialog.innerText();
+    for (const part of ["Leo Chen", "Researcher @ ETH Zurich", "Zurich, Switzerland", "Chess and trail running", "ETH Zurich, PhD", "Google intern"]) {
+      assert.ok(text.includes(part), part);
+    }
+    assert.equal(await dialog.locator('a[href="https://www.linkedin.com/in/leo-chen"]').count(), 1);
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
     await closePage(page, assert);
   });
   test("FE-DIR-02 filters and search (ignores capitals and accents)", async () => {
@@ -223,10 +252,9 @@ describe("FE-DIR directory", () => {
 });
 
 describe("FE-CARD My profile", () => {
-  test("FE-CARD-01 shows the card; after joining, a welcome explains what to do", async () => {
+  test("FE-CARD-01 shows the card, filled in from the application after joining", async () => {
     const { page } = await open("my-card.html?welcome=1", { me: profile({ onboarded_at: null, experience: ["Lab assistant"] }) });
     await visible(page, "#card-editor");
-    assert.equal(await page.locator("#card-welcome").innerText(), T.welcome);
     assert.equal(await page.inputValue("#first-name"), "Mia");
     assert.equal(await page.inputValue("#position"), "BSc Aerospace Engineering");
     assert.equal(await page.inputValue("#company"), "Politecnico di Milano");
@@ -249,22 +277,38 @@ describe("FE-CARD My profile", () => {
     assert.deepEqual(patch.body, {
       first_name: "Mia", last_name: "Rossi", city: "Turin", country: "Italy", position: "BSc Aerospace Engineering",
       company: "Politecnico di Milano", studies: ["Politecnico di Milano, BSc Aerospace Engineering"], experience: ["Summer school"],
-      is_listed: false, photo_path: null,
+      linkedin: "", description: "", is_listed: false, photo_path: null,
     });
     await closePage(page, assert);
   });
-  test("FE-CARD-03 required fields and at least one Studies line", async () => {
+  test("FE-CARD-03 required fields, and a LinkedIn link that is not a web address", async () => {
     const { page, api } = await open("my-card.html");
     await visible(page, "#card-editor");
     await page.fill("#first-name", "");
-    for (const input of await page.locator('[data-line="studies"]').all()) await input.fill("");
+    await page.fill("#linkedin", "linkedin.com/in/mia");
     await page.click("#card-form button[type=submit]");
     assert.ok(await page.locator("#first-name-error").isVisible());
-    assert.equal(await page.locator("#studies-error").innerText(), T.atLeastOne);
+    assert.ok(await page.locator("#linkedin-error").isVisible());
     assert.equal(api.find("PATCH", "/rest/v1/beyond_profiles").length, 0);
     await closePage(page, assert);
   });
-  test("FE-CARD-04 a new photo: shrunk to a 400×400 JPEG, uploaded to your folder, old one removed", async () => {
+  test("FE-CARD-05 Studies, LinkedIn and About me are optional; About me stops at 300 characters", async () => {
+    const { page, api } = await open("my-card.html");
+    await visible(page, "#card-editor");
+    for (const input of await page.locator('[data-line="studies"]').all()) await input.fill("");
+    await page.fill("#description", "x".repeat(400));
+    assert.equal(await page.inputValue("#description"), "x".repeat(300));
+    assert.equal(await page.locator("#description-count").innerText(), "300 / 300");
+    await page.fill("#description", "Climbing and chess");
+    await page.click("#card-form button[type=submit]");
+    await visible(page, "#card-done");
+    const patch = api.last("PATCH", "/rest/v1/beyond_profiles");
+    assert.deepEqual(patch.body.studies, []);
+    assert.equal(patch.body.description, "Climbing and chess");
+    assert.equal(patch.body.linkedin, "");
+    await closePage(page, assert);
+  });
+  test("FE-CARD-04 a new photo: cropped to a 3:4 portrait, 450×600 JPEG, uploaded to your folder, old one removed", async () => {
     const { page, api } = await open("my-card.html", { me: profile({ photo_path: "user-1/avatar-old.jpg" }) });
     await visible(page, "#card-editor");
     const b64 = await page.evaluate(() => {
@@ -275,7 +319,7 @@ describe("FE-CARD My profile", () => {
     await page.setInputFiles("#photo", { name: "me.png", mimeType: "image/png", buffer: Buffer.from(b64, "base64") });
     await page.waitForFunction(() => /^blob:/.test(document.querySelector("#photo-preview").src));
     const size = await page.locator("#photo-preview").evaluate((img) => new Promise((r) => (img.complete ? r([img.naturalWidth, img.naturalHeight]) : (img.onload = () => r([img.naturalWidth, img.naturalHeight])))));
-    assert.deepEqual(size, [400, 400]);
+    assert.deepEqual(size, [450, 600]);
     await page.click("#card-form button[type=submit]");
     await visible(page, "#card-done");
     const upload = api.calls.find((c) => c.method === "POST" && /^\/storage\/v1\/object\/beyond-avatars\/user-1\/avatar-\d+\.jpg$/.test(c.path));

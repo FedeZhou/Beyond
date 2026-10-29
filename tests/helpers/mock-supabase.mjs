@@ -34,6 +34,7 @@ export function profile(overrides = {}) {
     first_name: "Mia", last_name: "Rossi", city: "Milan", country: "Italy",
     position: "BSc Aerospace Engineering", company: "Politecnico di Milano",
     studies: ["Politecnico di Milano, BSc Aerospace Engineering"], experience: [],
+    description: "", linkedin: "",
     photo_path: null, onboarded_at: "2026-01-02T00:00:00Z", ...overrides,
   };
 }

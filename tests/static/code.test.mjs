@@ -117,7 +117,7 @@ describe("S-SEC no secrets in the repository", () => {
 });
 
 describe("S-SQL database rules (shared Supabase project)", () => {
-  const sql = read("supabase/schema.sql") + "\n" + read("supabase/002-applications.sql");
+  const sql = read("supabase/schema.sql") + "\n" + read("supabase/002-applications.sql") + "\n" + read("supabase/003-profile-about.sql");
   test("S-SQL-01 everything created is Beyond's own (beyond_ prefix)", () => {
     for (const m of sql.matchAll(/create (?:or replace )?(?:table|function|type|trigger|index|unique index)(?: if not exists)? (?:public\.)?(\w+)/gi)) {
       assert.match(m[1], /^beyond_/, m[0]);

@@ -57,6 +57,7 @@ function prefill(profile, app) {
     position: app.role === "mentor" ? a.position || "" : a.programme || "",
     company: app.role === "mentor" ? a.company || "" : a.school || "",
     studies: [app.role === "mentor" ? a.highest_degree : [a.school, a.programme].filter(Boolean).join(", ")].filter(Boolean),
+    linkedin: app.role === "mentor" && /^https?:\/\//i.test(a.linkedin || "") ? a.linkedin : "",
   });
 }
 function giveCard(userId, invite) {

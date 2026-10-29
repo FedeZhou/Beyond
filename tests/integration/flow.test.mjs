@@ -89,7 +89,7 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.ok(!(await A.client.rpc("beyond_admin_list_members")).error);
   });
 
-  test("INT-04 accept: hashed 14-day invite, welcome email sent, logged; resend makes a new link; accepted can't be deleted", async () => {
+  test("INT-04 accept: hashed 14-day invite, welcome email sent, logged; resend makes a new link", async () => {
     const r = await admin({ action: "accept", id: state.menteeApp, message: "Integration test" });
     assert.deepEqual(r.data, { ok: true, emailError: null });
     const { data: inv } = await db.from("beyond_invites").select("*").eq("email", PEOPLE.mentee).single();
@@ -98,11 +98,10 @@ describe("INT the whole journey on the live backend", { skip, concurrency: false
     assert.ok(inv.sent_at);
     const { data: log } = await db.from("beyond_audit_log").select("action").eq("target", PEOPLE.mentee);
     assert.ok(log.some((l) => l.action === "accept"));
-    // Resend join link: a new token (the old link stops working); accepted can't be deleted
+    // Resend join link: a new token (the old link stops working)
     assert.deepEqual((await admin({ action: "resend-invite", id: state.menteeApp })).data, { ok: true, emailError: null });
     const { data: again } = await db.from("beyond_invites").select("token_hash").eq("email", PEOPLE.mentee).single();
     assert.notEqual(again.token_hash, inv.token_hash);
-    assert.equal((await admin({ action: "delete-application", id: state.menteeApp })).data.error, "accepted");
     // The real link is in an email nobody receives: give the invite a token we know
     state.token = randomBytes(32).toString("base64url");
     await db.from("beyond_invites").update({ token_hash: sha256(state.token) }).eq("email", PEOPLE.mentee);

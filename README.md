@@ -23,6 +23,7 @@ js/members.js     The members area: login, directory, My profile, join, new pass
 js/admin.js       The admin portal (normally no need to edit)
 supabase/schema.sql             Database setup for the members area (run once in Supabase)
 supabase/002-applications.sql   Database setup for applications and the admin portal (run once, after schema.sql)
+supabase/003-profile-about.sql   Adds "About me" and LinkedIn to member cards (run once, after 002-applications.sql)
 supabase/functions/             Edge Functions: save applications, send the emails, join links, admin actions
 supabase/functions/_shared/templates.ts  ← the text of every email Beyond sends
 js/config.example.js  Template for js/config.js (Supabase address and key; the real file is never uploaded)
@@ -37,7 +38,7 @@ assets/img/       Images (placeholder portrait, favicon). Put your photos here.
 ## Run it locally
 
 - **Simplest:** double-click `index.html`. It opens in your browser.
-- **Closer to the real site:** from this folder, run `python -m http.server 8000` and open <http://localhost:8000>.
+- **Closer to the real site:** from this folder, run `npm run serve` and open <http://localhost:8000>. It always sends the latest files, so a normal reload shows every change.
   You can also use the "Live Server" extension in VS Code (right-click `index.html` → *Open with Live Server*).
 
 ## Edit the content
@@ -58,7 +59,7 @@ Only change the text between quotes, and keep the commas. Save, then refresh the
 
 **Mentor photos:** put them in `assets/img/mentors/` (landscape, around 800 × 600 px) and set `photo: "assets/img/mentors/name.jpg"`. You can add as many mentors as you like; the row keeps looping.
 
-**Team photos (About):** crop square (around 800 × 800 px), compress at <https://squoosh.app>, name it in lowercase with hyphens (e.g. `federico-zhou.jpg`), put it in `assets/img/founders/` and set `photo: "assets/img/founders/federico-zhou.jpg"`. Leave `photo: ""` to show the grey placeholder. Add `photoPosition: "50% 10%"` to keep the top of the photo when it is cropped.
+**Team photos (About):** crop it as a 3:4 portrait (around 600 × 800 px), compress at <https://squoosh.app>, name it in lowercase with hyphens (e.g. `federico-zhou.jpg`), put it in `assets/img/founders/` and set `photo: "assets/img/founders/federico-zhou.jpg"`. Leave `photo: ""` to show the grey placeholder. Add `photoPosition: "50% 10%"` to keep the top of the photo when it is cropped.
 
 **Email texts:** the emails Beyond sends (confirmation, new application, welcome, rejection, new password) are in `supabase/functions/_shared/templates.ts`. After changing them, publish the functions again (see step 5 below).
 
@@ -104,14 +105,14 @@ applications: {
 ```
 The secret key goes in step 5.
 
-**3. Create Beyond's tables.** In the Supabase project: *SQL Editor → New query*, paste all of `supabase/schema.sql`, click *Run* (skip this if you already did it before). Then a new query with all of `supabase/002-applications.sql`, and *Run*. They only create `beyond_…` things; if one reports an error, nothing else in the project is affected. `002-applications.sql` can safely be run again.
+**3. Create Beyond's tables.** In the Supabase project: *SQL Editor → New query*, paste all of `supabase/schema.sql`, click *Run* (skip this if you already did it before). Then a new query with all of `supabase/002-applications.sql`, and *Run*, and the same with `supabase/003-profile-about.sql` (the "About me" and LinkedIn fields of the cards). They only create `beyond_…` things; if one reports an error, nothing else in the project is affected. `002` and `003` can safely be run again.
 
 **4. Allow Beyond's pages in sign-in links.** *Authentication → URL Configuration → Redirect URLs*: **add** (don't replace anything) `https://beyondicmc.com/**`, `https://www.beyondicmc.com/**` and, for testing on your computer, `http://localhost:8000/**`. Leave the **Site URL** as it is: it belongs to the other app. Also check (without changing anything) that *Authentication → Sign In / Providers → Email* is enabled: members sign in with email and password.
 
 **5. Publish the Edge Functions.** They are in `supabase/functions/` and need [Node.js](https://nodejs.org) on your computer. In a terminal, from this folder:
 ```
 npx supabase login
-npx supabase secrets set --project-ref <ref> BEYOND_RESEND_API_KEY=<resend api key> BEYOND_ADMIN_EMAIL=info@beyondicmc.com BEYOND_SITE_URL=https://beyondicmc.com BEYOND_ALLOWED_ORIGINS=https://beyondicmc.com,https://www.beyondicmc.com,http://localhost:8000 BEYOND_TURNSTILE_SECRET=<turnstile secret key> BEYOND_IP_SALT=<any long random text>
+npx supabase secrets set --project-ref <ref> BEYOND_RESEND_API_KEY=<resend api key> BEYOND_ADMIN_EMAIL=info@beyondicmc.com BEYOND_SITE_URL=https://beyondicmc.com BEYOND_ALLOWED_ORIGINS=https://beyondicmc.com,https://www.beyondicmc.com,http://localhost:8000,http://localhost:5500,http://127.0.0.1:5500 BEYOND_TURNSTILE_SECRET=<turnstile secret key> BEYOND_IP_SALT=<any long random text>
 npx supabase functions deploy beyond-apply beyond-admin beyond-join beyond-password-reset --project-ref <ref>
 ```
 `<ref>` is the project id: the `abcdefgh` in `https://abcdefgh.supabase.co`. Only these four functions and the `BEYOND_` secrets are added; the other app's functions and secrets are not touched. Run the `deploy` line again whenever you change a file in `supabase/functions/` (for example the email texts in `_shared/templates.ts`).
@@ -121,7 +122,7 @@ npx supabase functions deploy beyond-apply beyond-admin beyond-join beyond-passw
 | `BEYOND_RESEND_API_KEY` | The Resend API key (step 1) |
 | `BEYOND_ADMIN_EMAIL` | Where new applications are sent: `info@beyondicmc.com` (it reaches the Gmail), or any address of yours |
 | `BEYOND_SITE_URL` | The site's address, no `/` at the end. Used in the links in the emails |
-| `BEYOND_ALLOWED_ORIGINS` | Sites allowed to call the functions: the site's domain only (no path), and `http://localhost:8000` for testing |
+| `BEYOND_ALLOWED_ORIGINS` | Sites allowed to call the functions: the site's domain only (no path), and for testing on your computer `http://localhost:8000` (python) plus `http://localhost:5500` and `http://127.0.0.1:5500` (VS Code Live Server) |
 | `BEYOND_TURNSTILE_SECRET` | Turnstile secret key (step 2). Without it the spam check is skipped: only for testing |
 | `BEYOND_IP_SALT` | Any long random text. Visitors' IP addresses are only stored scrambled with it |
 | `BEYOND_MAIL_FROM` | Optional: the sender (default `Beyond <info@beyondicmc.com>`; the address must be on the domain verified in Resend) |
@@ -141,7 +142,7 @@ insert into public.beyond_invites (email, role) values ('<your email in lower ca
 
 The first time, you fill in your own card. After that, an **Admin** link appears in the directory's toolbar. To make another person admin later, change their role in the admin portal's **Members** tab.
 
-**10. Try it on your computer** (optional): create `js/config.js` as explained above, run `python -m http.server 8000`, and open <http://localhost:8000/mentee.html>.
+**10. Try it on your computer** (optional): create `js/config.js` as explained above, run `npm run serve`, and open <http://localhost:8000/mentee.html>.
 
 ### Every day: the admin portal (`admin.html`)
 
@@ -163,7 +164,7 @@ These limits are for the **whole project**, so they are shared with the other ap
 |---|---|
 | Pauses after ~7 days without activity | The GitHub job pings it every 3 days |
 | 500 MB database | A card is ~2 KB and an application ~5 KB: tens of thousands of each |
-| 1 GB file storage | Photos are cropped and shrunk to 400 × 400 px (~40 KB) in the browser before upload; max 3 files per member |
+| 1 GB file storage | Photos are cropped to 3:4 portraits and shrunk to 450 × 600 px (~50 KB) in the browser before upload; max 3 files per member |
 | ~5 GB data transfer a month | The directory is one request, kept in the browser for 10 minutes; photos load only when scrolled into view, and their links (7 days) are reused so browsers keep them cached. Roughly 1,500 full directory views a month with 100 members |
 | 500,000 Edge Function calls a month | One call per application, per admin action, per join and per "forgot password" |
 | Email sending | Resend free plan: 3,000 a month, 100 a day (shared with emails you write from `info@` in Gmail). The site itself never sends more than 30 an hour, 90 a day, and 5 a day to the same address (`supabase/functions/_shared/mail.ts`), so neither bots nor tests can get the domain flagged as spam. Applications: 5 an hour per connection, 3 a day per email. "Forgot password": 3 an hour per email |

@@ -101,7 +101,7 @@ describe("LIVE the real website, clicked through", { skip, concurrency: false },
     await p.click("#signin-form button[type=submit]");
     await p.waitForURL(/my-card\.html/, { timeout: 20000 });
     await shown(p, "#card-editor");
-    assert.equal(await navText(p), "Home About Become a mentor Become a mentee Directory My profile");
+    assert.equal(await navText(p), "Home Become a mentor Become a mentee About Directory My profile");
     await p.fill("#first-name", "Live"); await p.fill("#last-name", "Admin"); await p.fill("#city", "Milan"); await p.fill("#country", "Italy");
     await p.fill("#position", "Beyond team"); await p.locator('[data-line="studies"]').first().fill("Politecnico di Milano");
     await p.click("#card-form button[type=submit]");
